@@ -1,6 +1,6 @@
-# DeWildCore Frontend
+# DeWild Frontend
 
-Frontend application for the DeWildCore NFT platform on Base Chain.
+Frontend application for the DeWild NFT platform on Base Chain.
 
 ## Tech Stack
 - Next.js 15
