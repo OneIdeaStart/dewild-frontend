@@ -1,6 +1,6 @@
-// components/sections/infinite-carousel.tsx
 'use client'
 
+import { useEffect, useRef } from 'react'
 import Image from 'next/image'
 
 const TOP_ROW = [
@@ -26,43 +26,83 @@ const BOTTOM_ROW = [
 export function InfiniteCarousel() {
   return (
     <section className="w-full overflow-hidden">
-      <div className="relative">
-        <div className="flex animate-marquee-left">
-          {[...TOP_ROW, ...TOP_ROW, ...TOP_ROW].map((src, index) => (
-            <div 
-              key={index} 
-              className="w-[320px] h-[320px] relative flex-shrink-0"
-            >
-              <Image
-                src={src}
-                alt={`NFT ${index + 1}`}
-                fill
-                quality={100}
-                className="object-cover"
-                sizes="320px"
-              />
-            </div>
-          ))}
+      <div className="relative leading-[0px]">
+        <div className="inline-flex w-[4480px] animate-marquee-left">
+          <div className="flex">
+            {TOP_ROW.map((src, index) => (
+              <div 
+                key={`top-${index}`}
+                className="w-[320px] h-[320px] relative flex-shrink-0"
+              >
+                <Image
+                  src={src}
+                  alt={`NFT ${index + 1}`}
+                  fill
+                  quality={100}
+                  className="object-cover"
+                  sizes="320px"
+                  priority
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex">
+            {TOP_ROW.map((src, index) => (
+              <div 
+                key={`top-repeat-${index}`}
+                className="w-[320px] h-[320px] relative flex-shrink-0"
+              >
+                <Image
+                  src={src}
+                  alt={`NFT ${index + 1}`}
+                  fill
+                  quality={100}
+                  className="object-cover"
+                  sizes="320px"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="relative">
-        <div className="flex animate-marquee-right">
-          {[...BOTTOM_ROW, ...BOTTOM_ROW, ...BOTTOM_ROW].map((src, index) => (
-            <div 
-              key={index} 
-              className="w-[320px] h-[320px] relative flex-shrink-0"
-            >
-              <Image
-                src={src}
-                alt={`NFT ${index + 9}`}
-                fill
-                quality={100}
-                className="object-cover"
-                sizes="320px"
-              />
-            </div>
-          ))}
+      <div className="relative leading-[0px]">
+        <div className="inline-flex w-[4480px] animate-marquee-right">
+          <div className="flex">
+            {BOTTOM_ROW.map((src, index) => (
+              <div 
+                key={`bottom-${index}`}
+                className="w-[320px] h-[320px] relative flex-shrink-0"
+              >
+                <Image
+                  src={src}
+                  alt={`NFT ${index + BOTTOM_ROW.length + 1}`}
+                  fill
+                  quality={100}
+                  className="object-cover"
+                  sizes="320px"
+                  priority
+                />
+              </div>
+            ))}
+          </div>
+          <div className="flex">
+            {BOTTOM_ROW.map((src, index) => (
+              <div 
+                key={`bottom-repeat-${index}`}
+                className="w-[320px] h-[320px] relative flex-shrink-0"
+              >
+                <Image
+                  src={src}
+                  alt={`NFT ${index + BOTTOM_ROW.length + 1}`}
+                  fill
+                  quality={100}
+                  className="object-cover"
+                  sizes="320px"
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

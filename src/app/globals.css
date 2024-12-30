@@ -3,21 +3,30 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+ --font-fallback: var(--font-jetbrains);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html[lang="en"] {
+ --font-primary: var(--font-azeret);
+}
+
+html:not([lang="en"]) {
+ --font-primary: var(--font-jetbrains);
 }
 
 body {
-  background-color: white;
-  min-height: 100vh;
-  color: var(--foreground);
-  background: var(--background);
-  font-family: var(--font-azeret), monospace;
+ background-color: white;
+ min-height: 100vh;
+ color: black;
+ font-family: var(--font-primary), var(--font-fallback), monospace;
+}
+
+.appkit-button {
+ --appkit-button-primary-color: black;
+ --appkit-button-text-color: white;
+ --appkit-button-font-family: ui-monospace;
+ --appkit-button-border-radius: 0;
+ --appkit-button-height: 40px;
+ --appkit-button-min-width: 100%;
+ --appkit-button-text-transform: uppercase;
 }

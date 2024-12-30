@@ -2,57 +2,25 @@
 
 import Link from 'next/link'
 import { Logo } from '../icons/logo'
-import ConnectButton from '../web3/ConnectButton'
 
-const smoothScroll = (id: string) => {
- const element = document.querySelector(id);
- const headerOffset = 63;
- const elementPosition = element?.getBoundingClientRect().top ?? 0;
- const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+export function Footer() {
+ return (
+   <footer className="w-full px-3 md:px-6">
+     <div className="w-full flex justify-between items-center py-6 border-t border-black">
+       <div className="flex items-center gap-10">
+         <Link href="/" className="text-black hover:opacity-80 transition-opacity">
+           <Logo />
+         </Link>
+         <div className="text-sm font-normal font-['Azeret Mono'] leading-5">
+           © 2025
+         </div>
+       </div>
 
- window.scrollTo({
-   top: offsetPosition,
-   behavior: 'smooth'
- });
-};
-
-export default function Header() {
-  return (
-    <header className="fixed top-0 left-0 w-full min-w-[320px] backdrop-blur-lg bg-white/95 z-50">
-      <div className="w-full max-w-full mx-auto px-3 md:px-6 flex justify-between items-center py-3">
-        <div className="flex items-center gap-10 min-w-0">
-          <Link href="/" className="text-black hover:opacity-80 transition-opacity flex-shrink-0">
-            <Logo />
-          </Link>
- 
-          <nav className="hidden md:flex gap-10 flex-shrink-0">
-            {[
-              ['About', '#about-collection'],
-              ['Mint Stages', '#mint-stages'],
-              ['Promos', '#promos'],
-              ['Roadmap', '#roadmap']
-            ].map(([label, href]) => (
-              <Link
-                key={label}
-                href={href}
-                className="text-[#002BFF] text-sm leading-5 hover:underline"
-                onClick={(e) => {
-                  e.preventDefault();
-                  smoothScroll(href);
-                }}
-              >
-                {label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-
-        <div className="flex items-center gap-6 flex-shrink-0">
-         {/* Скрываем иконки соцсетей на экранах меньше 800px */}
-         <div className="hidden md:flex items-center gap-1">
+       <div className="flex items-center gap-6">
+         <div className="flex items-center gap-1">
            <a href="https://twitter.com/DeWildxyz" target="_blank" rel="noopener noreferrer" className="w-10 h-10 relative flex items-center justify-center hover:opacity-80 transition-opacity">
              <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-               <path d="M25.2213 12H27.9803L21.9224 18.7897L29 28H23.4459L19.0973 22.403L14.119 28H11.3599L17.7777 20.738L11 12H16.6921L20.6208 17.1129L25.2213 12ZM24.2556 26.4059H25.7851L15.8884 13.5351H14.2449L24.2556 26.4059Z" fill="black"/>
+                <path d="M25.2213 12H27.9803L21.9224 18.7897L29 28H23.4459L19.0973 22.403L14.119 28H11.3599L17.7777 20.738L11 12H16.6921L20.6208 17.1129L25.2213 12ZM24.2556 26.4059H25.7851L15.8884 13.5351H14.2449L24.2556 26.4059Z" fill="black"/>
              </svg>
            </a>
            <a href="https://discord.gg/ygh7CtbNZe" target="_blank" rel="noopener noreferrer" className="w-10 h-10 relative flex items-center justify-center hover:opacity-80 transition-opacity">
@@ -61,9 +29,8 @@ export default function Header() {
              </svg>
            </a>
          </div>
-         <ConnectButton />
        </div>
      </div>
-   </header>
+   </footer>
  )
 }
