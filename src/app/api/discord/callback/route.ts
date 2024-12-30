@@ -24,7 +24,7 @@ export async function GET(request: Request) {
         client_secret: process.env.DISCORD_CLIENT_SECRET!,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: 'http://localhost:3000/api/discord/callback',
+        redirect_uri: 'https://dewild.xyz/api/discord/callback',
       }),
     });
 
