@@ -1,19 +1,4 @@
 // src/app/api/discord/callback/route.ts
-interface TokenResponse {
-  access_token: string;
-  token_type: string;
-  expires_in: number;
-  refresh_token: string;
-  scope: string;
-}
-
-interface UserData {
-  id: string;
-  username: string;
-  discriminator: string;
-  avatar: string | null;
-}
-
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -23,9 +8,10 @@ export async function GET(request: Request) {
       throw new Error('No code provided');
     }
 
-    let tokenData: TokenResponse;
-    let userData: UserData;
-    let isMember: boolean;
+    // Объявляем переменные
+    let tokenData;
+    let userData;
+    let isMember;
 
     // Получаем токен
     const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
@@ -73,6 +59,7 @@ export async function GET(request: Request) {
 
     isMember = memberCheck.ok;
 
+    // Возвращаем HTML с данными пользователя
     return new Response(
       `
       <html>
@@ -83,8 +70,7 @@ export async function GET(request: Request) {
                 { 
                   type: 'discord-auth', 
                   success: ${isMember},
-                  username: "${userData.username}",
-                  discordId: "${userData.id}"
+                  username: "${userData.username}"
                 },
                 '${process.env.NEXT_PUBLIC_APP_URL}'
               );
