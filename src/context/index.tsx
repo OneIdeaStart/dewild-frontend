@@ -31,7 +31,7 @@ function ContextProvider({ children, cookies }: Props) {
     defaultNetwork: base,
     metadata: {
       name: 'DeWild',
-      description: 'AppKit Example',
+      description: 'NFT Collection',
       url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
       icons: []
     },
