@@ -1,4 +1,19 @@
 // src/app/api/discord/callback/route.ts
+interface TokenResponse {
+  access_token: string;
+  token_type: string;
+  expires_in: number;
+  refresh_token: string;
+  scope: string;
+}
+
+interface UserData {
+  id: string;
+  username: string;
+  discriminator: string;
+  avatar: string | null;
+}
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -8,10 +23,9 @@ export async function GET(request: Request) {
       throw new Error('No code provided');
     }
 
-    // Объявляем переменные
-    let tokenData;
-    let userData;
-    let isMember;
+    let tokenData: TokenResponse;
+    let userData: UserData;
+    let isMember: boolean;
 
     // Получаем токен
     const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
@@ -24,7 +38,7 @@ export async function GET(request: Request) {
         client_secret: process.env.DISCORD_CLIENT_SECRET!,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: 'https://dewild.xyz/api/discord/callback',
+        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/discord/callback`,
       }),
     });
 
@@ -59,7 +73,6 @@ export async function GET(request: Request) {
 
     isMember = memberCheck.ok;
 
-    // Возвращаем HTML с данными пользователя
     return new Response(
       `
       <html>
@@ -70,9 +83,10 @@ export async function GET(request: Request) {
                 { 
                   type: 'discord-auth', 
                   success: ${isMember},
-                  username: "${userData.username}"
+                  username: "${userData.username}",
+                  discordId: "${userData.id}"
                 },
-                'http://localhost:3000'
+                '${process.env.NEXT_PUBLIC_APP_URL}'
               );
               setTimeout(() => window.close(), 2000);
             }
@@ -96,7 +110,7 @@ export async function GET(request: Request) {
             if (window.opener) {
               window.opener.postMessage(
                 { type: 'discord-auth', success: false },
-                'http://localhost:3000'
+                '${process.env.NEXT_PUBLIC_APP_URL}'
               );
               setTimeout(() => window.close(), 2000);
             }
