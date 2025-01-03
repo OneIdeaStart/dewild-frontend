@@ -4,40 +4,51 @@ import { Button } from '@/components/ui/button';
 import { useAppKit, useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react';
 import { useDisconnect } from 'wagmi'; // Добавляем этот импорт
 import { base } from '@reown/appkit/networks';
+import { useEffect } from 'react';
 
 export default function ConnectButton() {
   const { open } = useAppKit();
   const { address, isConnected } = useAppKitAccount();
   const { chainId, switchNetwork } = useAppKitNetwork();
-  const { disconnect } = useDisconnect(); // Используем wagmi disconnect
+  const { disconnect } = useDisconnect();
 
   const handleClick = async () => {
     try {
       if (isConnected) {
         open({ view: 'Account' });
       } else {
-        // Проверяем сеть перед подключением
+        // Полный сброс состояния перед новым подключением
+        await disconnect();
+        
+        // Удаляем все состояния из localStorage
+        if (typeof window !== 'undefined') {
+          Object.keys(localStorage).forEach(key => {
+            if (key.startsWith('wagmi') || key.startsWith('appkit')) {
+              localStorage.removeItem(key);
+            }
+          });
+        }
+
+        // Даем время на очистку
+        await new Promise(resolve => setTimeout(resolve, 1000));
+
         if (chainId !== base.id) {
           await switchNetwork(base);
         }
-  
-        // Пытаемся подключиться
-        try {
-          await open({ view: 'Connect' });
-        } catch (connectionError: any) {
-          console.error('Initial connection error:', connectionError);
-          // Если есть ошибка подключения, очищаем состояние
-          await disconnect();
-          // Даем время на очистку состояния
-          await new Promise(resolve => setTimeout(resolve, 500));
-          // Пробуем снова
-          await open({ view: 'Connect' });
-        }
+
+        await open({ view: 'Connect' });
       }
     } catch (error) {
       console.error('Connection error:', error);
     }
   };
+
+  // Синхронизируем UI с реальным состоянием кошелька
+  useEffect(() => {
+    if (!isConnected && typeof window !== 'undefined' && window.localStorage.getItem('wagmi.connected')) {
+      localStorage.removeItem('wagmi.connected');
+    }
+  }, [isConnected]);
 
   return (
     <Button
