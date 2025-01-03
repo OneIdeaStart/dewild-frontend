@@ -1,10 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAppKit, useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react';
-import { useDisconnect } from 'wagmi'; // Добавляем этот импорт
+import { useDisconnect } from 'wagmi';
 import { base } from '@reown/appkit/networks';
-import { useEffect } from 'react';
 
 export default function ConnectButton() {
   const { open } = useAppKit();
@@ -17,10 +17,8 @@ export default function ConnectButton() {
       if (isConnected) {
         open({ view: 'Account' });
       } else {
-        // Полный сброс состояния перед новым подключением
         await disconnect();
         
-        // Удаляем все состояния из localStorage
         if (typeof window !== 'undefined') {
           Object.keys(localStorage).forEach(key => {
             if (key.startsWith('wagmi') || key.startsWith('appkit')) {
@@ -29,7 +27,6 @@ export default function ConnectButton() {
           });
         }
 
-        // Даем время на очистку
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         if (chainId !== base.id) {
@@ -43,7 +40,6 @@ export default function ConnectButton() {
     }
   };
 
-  // Синхронизируем UI с реальным состоянием кошелька
   useEffect(() => {
     if (!isConnected && typeof window !== 'undefined' && window.localStorage.getItem('wagmi.connected')) {
       localStorage.removeItem('wagmi.connected');
