@@ -38,10 +38,18 @@ export const useWhitelistConditions = () => {
           discordUsername: '',
           discordId: ''
         });
+        
         setTwitterHandle('');
+        
         // Очистка sessionStorage
         sessionStorage.removeItem('whitelistConditions');
         sessionStorage.removeItem('twitterHandle');
+        
+        // Очищаем также localStorage при отключении
+        if (typeof window !== 'undefined') {
+          window.localStorage.removeItem('wagmi.wallet');
+          window.localStorage.removeItem('wagmi.connected');
+        }
       }
     }, [isConnected]);
   

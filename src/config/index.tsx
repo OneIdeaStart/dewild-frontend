@@ -10,12 +10,15 @@ if (!process.env.NEXT_PUBLIC_PROJECT_ID) throw new Error('NEXT_PUBLIC_PROJECT_ID
 export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
 export const wagmiAdapter = new WagmiAdapter({
-  storage: createStorage({ storage: cookieStorage }),
+  // Используем localStorage вместо cookieStorage
+  storage: createStorage({ 
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined
+  }),
   ssr: true,
   projectId,
   networks: [base],
   transports: {
-    [base.id]: http('https://base.publicnode.com'), // меняем на публичный RPC
+    [base.id]: http('https://base.publicnode.com'),
   },
   connectors: [injected()]
 })

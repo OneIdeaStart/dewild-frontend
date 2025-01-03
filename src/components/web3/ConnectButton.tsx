@@ -16,26 +16,22 @@ export default function ConnectButton() {
       if (isConnected) {
         open({ view: 'Account' });
       } else {
-        // Если не подключен, сначала очищаем предыдущие подключения
-        if (window.localStorage.getItem('wagmi.wallet')) {
-          await disconnect();
-          // Даем время на очистку состояния
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-
+        // Проверяем сеть перед подключением
         if (chainId !== base.id) {
           await switchNetwork(base);
         }
-
-        // Теперь пробуем подключиться
+  
+        // Пытаемся подключиться
         try {
           await open({ view: 'Connect' });
         } catch (connectionError: any) {
-          if (connectionError?.message?.includes('Connection declined')) {
-            // Даем еще время и пробуем снова
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            await open({ view: 'Connect' });
-          }
+          console.error('Initial connection error:', connectionError);
+          // Если есть ошибка подключения, очищаем состояние
+          await disconnect();
+          // Даем время на очистку состояния
+          await new Promise(resolve => setTimeout(resolve, 500));
+          // Пробуем снова
+          await open({ view: 'Connect' });
         }
       }
     } catch (error) {

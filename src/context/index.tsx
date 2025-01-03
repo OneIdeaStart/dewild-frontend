@@ -20,10 +20,7 @@ function ContextProvider({ children, cookies }: Props) {
     throw new Error('NEXT_PUBLIC_PROJECT_ID is not defined');
   }
 
-  const initialState = cookies 
-    ? cookieToInitialState(wagmiAdapter.wagmiConfig as Config, cookies)
-    : undefined;
-
+  // Убираем initialState из cookies, так как теперь используем localStorage
   const modal = createAppKit({
     adapters: [wagmiAdapter],
     projectId,
@@ -41,7 +38,7 @@ function ContextProvider({ children, cookies }: Props) {
   });
 
   return (
-    <WagmiProvider config={wagmiAdapter.wagmiConfig as Config} initialState={initialState}>
+    <WagmiProvider config={wagmiAdapter.wagmiConfig as Config}>
       <QueryClientProvider client={queryClient}>
         {children}
       </QueryClientProvider>
