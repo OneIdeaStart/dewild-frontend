@@ -1,56 +1,71 @@
 // src/components/sections/TextCarousel.tsx
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
-import WhitelistDialog from '@/components/dialogs/WhitelistDialog'
-import { Dialog, DialogContent } from '@/components/ui/dialog'
-import { useAppKitAccount } from '@reown/appkit/react'
-import { WhitelistButton } from '@/components/web3/WhitelistButton'
-import { useMintStageContext } from '@/context/MintStageContext'
-
 export function TextCarousel() {
-    const { address } = useAppKitAccount()
-    const [dialogOpen, setDialogOpen] = useState(false)
-    const [showConnectWalletError, setShowConnectWalletError] = useState(false)
-    const text = "you are free if you are dewild."
-    const [setIsWhitelisted] = useState(false)
-    const { isWhitelisted } = useMintStageContext()
+  const text = "let's make nfts great again."
+  const singleTextWidth = 943;
 
-    const handleWhitelistClick = () => {
-        if (!address) {
-            setShowConnectWalletError(true)
-            return
-        }
-        setDialogOpen(true)
-    }
-
-    return (
-        <section className="w-full overflow-hidden bg-white px-6 py-2 pb-48 flex flex-col items-center gap-48">
-            <div className="w-full h-[296px] flex flex-col gap-2">
-                <div className="relative">
-                    <div className="flex animate-text-marquee-left">
-                        <span className="text-black font-thin text-[196px] font-normal uppercase leading-[144px] font-['Azeret Mono'] whitespace-nowrap">
-                            {text}&nbsp;{text}&nbsp;
-                        </span>
-                        <span className="text-black font-thin text-[196px] font-normal uppercase leading-[144px] font-['Azeret Mono'] whitespace-nowrap">
-                            {text}&nbsp;{text}&nbsp;
-                        </span>
-                    </div>
-                </div>
-                
-                <div className="relative">
-                    <div className="flex animate-text-marquee-right">
-                        <span className="text-black font-thin text-[196px] font-normal uppercase leading-[144px] font-['Azeret Mono'] whitespace-nowrap">
-                            {text}&nbsp;{text}&nbsp;
-                        </span>
-                        <span className="text-black font-thin text-[196px] font-normal uppercase leading-[144px] font-['Azeret Mono'] whitespace-nowrap">
-                            {text}&nbsp;{text}&nbsp;
-                        </span>
-                    </div>
-                </div>
+  return (
+    <section className="w-full flex flex-col">
+      {/* Black background text */}
+      <div className="w-full py-2 bg-primary-black overflow-hidden">
+        <div className="relative">
+          <div className="flex animate-marquee-left whitespace-nowrap">
+            <div className="flex gap-2.5" style={{ width: `${singleTextWidth * 4}px` }}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <span 
+                  key={i}
+                  className="text-white text-[96px] leading-[64px] font-bold uppercase flex-shrink-0"
+                  style={{ width: `${singleTextWidth}px` }}
+                >
+                  {text}
+                </span>
+              ))}
             </div>
-
-            <WhitelistButton />
-        </section>
-    )
+            <div className="flex gap-2.5" style={{ width: `${singleTextWidth * 4}px` }}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <span 
+                  key={i}
+                  className="text-white text-[96px] leading-[64px] font-bold uppercase flex-shrink-0"
+                  style={{ width: `${singleTextWidth}px` }}
+                >
+                  {text}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* White background text */}
+      <div className="w-full py-2 bg-white overflow-hidden">
+        <div className="relative">
+          <div className="flex animate-marquee-right whitespace-nowrap">
+            <div className="flex gap-2.5" style={{ width: `${singleTextWidth * 4}px` }}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <span 
+                  key={i}
+                  className="text-primary-black text-[96px] leading-[64px] font-bold uppercase flex-shrink-0"
+                  style={{ width: `${singleTextWidth}px` }}
+                >
+                  {text}
+                </span>
+              ))}
+            </div>
+            <div className="flex gap-2.5" style={{ width: `${singleTextWidth * 4}px` }}>
+              {Array.from({ length: 4 }).map((_, i) => (
+                <span 
+                  key={i}
+                  className="text-primary-black text-[96px] leading-[64px] font-bold uppercase flex-shrink-0"
+                  style={{ width: `${singleTextWidth}px` }}
+                >
+                  {text}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
 }

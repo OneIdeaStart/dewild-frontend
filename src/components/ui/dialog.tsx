@@ -54,7 +54,7 @@ export function Dialog({ children, open, onOpenChange, className = '' }: DialogP
       onClick={handleOverlayClick}
       className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center"
     >
-      <div className={cn('bg-white', className)}>
+      <div className={className}>
         {children}
       </div>
     </div>,

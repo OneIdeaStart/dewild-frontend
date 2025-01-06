@@ -2,31 +2,55 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
- --font-fallback: var(--font-jetbrains);
+@layer base {
+  html {
+    font-family: var(--font-sofia);
+  }
+
+  body {
+    @apply bg-primary-white text-primary-black;
+  }
 }
 
-html[lang="en"] {
- --font-primary: var(--font-azeret);
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
-html:not([lang="en"]) {
- --font-primary: var(--font-jetbrains);
+@keyframes reflect {
+  0% {
+    transform: translateX(-100%) rotate(45deg);
+    opacity: 0;
+  }
+  6% {
+    opacity: 0.8;
+  }
+  12% {
+    transform: translateX(200%) rotate(45deg);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(200%) rotate(45deg);
+    opacity: 0;
+  }
 }
 
-body {
- background-color: white;
- min-height: 100vh;
- color: black;
- font-family: var(--font-primary), var(--font-fallback), monospace;
+.reflect-effect {
+  position: absolute;
+  width: 100%; /* Растягиваем по ширине кнопки */
+  height: 200%; /* Высота блика (на случай скругления) */
+  background: rgba(255, 255, 255, 0.5); /* Полупрозрачный белый цвет */
+  top: -50%; /* Центрируем по вертикали относительно кнопки */
+  left: -100%; /* Начинаем слева за пределами кнопки */
+  transform: rotate(45deg); /* Угол наклона блика */
+  pointer-events: none; /* Блик не перехватывает клики */
+  animation: reflect 8s ease-in-out infinite; /* Анимация блика */
 }
 
-.appkit-button {
- --appkit-button-primary-color: black;
- --appkit-button-text-color: white;
- --appkit-button-font-family: ui-monospace;
- --appkit-button-border-radius: 0;
- --appkit-button-height: 40px;
- --appkit-button-min-width: 100%;
- --appkit-button-text-transform: uppercase;
+.button-container {
+  position: relative;
+  display: inline-block;
+  overflow: hidden; /* Ограничиваем область блика */
+  border-radius: 8px; /* Скругляем углы кнопки (опционально) */
 }

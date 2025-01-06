@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { useAppKit, useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react';
 import { useDisconnect } from 'wagmi';
 import { base } from '@reown/appkit/networks';
@@ -12,6 +11,7 @@ export default function ConnectButton() {
   const { chainId, switchNetwork } = useAppKitNetwork();
   const { disconnect } = useDisconnect();
 
+  // Оставляем всю логику как есть
   const handleClick = async () => {
     try {
       if (isConnected) {
@@ -47,16 +47,16 @@ export default function ConnectButton() {
   }, [isConnected]);
 
   return (
-    <Button
+    <button 
       onClick={handleClick}
-      variant="default"
-      size="default"
-      className="shadow-[-4px_4px_0px_0px_#000000] uppercase min-w-[160px]"
+      className="px-4 pt-[9px] pb-[7px] bg-white border-2 border-black rounded-[10px] flex items-center justify-center hover:bg-[#FFF7AC] transition-opacity"
     >
-      {isConnected 
-        ? `${address?.slice(0, 6)}...${address?.slice(-4)}`
-        : 'Connect Wallet'
-      }
-    </Button>
+      <span className="text-black text-base font-bold font-['Sofia Sans Extra Condensed'] uppercase leading-5">
+        {isConnected 
+          ? `${address?.slice(0, 6)}...${address?.slice(-4)}`
+          : 'Connect Wallet'
+        }
+      </span>
+    </button>
   );
 }

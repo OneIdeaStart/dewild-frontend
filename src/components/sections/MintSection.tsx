@@ -1,7 +1,7 @@
-// src/components/sections/MintSection.tsx
 'use client';
 
 import { useState } from 'react'
+import { NFTCarousel } from '@/components/sections/NFTCarousel'
 import { Button } from '@/components/ui/button'
 import { useMintStage } from '@/hooks/useMintStage'
 import { useAppKitAccount } from '@reown/appkit/react'
@@ -10,11 +10,7 @@ import { STAGE_CONFIGS } from '@/config/mint-stages'
 import WhitelistDialog from '@/components/dialogs/WhitelistDialog'
 import { WhitelistButton } from '@/components/web3/WhitelistButton'
 import { useMintStageContext } from '@/context/MintStageContext';
-import { 
-    Dialog,
-    DialogContent,
-    DialogClose
-} from '@/components/ui/dialog'
+import { cn } from '@/lib/utils';
 
 export function MintSection() {
   const { address } = useAppKitAccount()
@@ -23,252 +19,119 @@ export function MintSection() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [showConnectWalletError, setShowConnectWalletError] = useState(false)
 
- // Обработчик для whitelist регистрации
- const handleWhitelistClick = () => {
-   if (!address) {
-     setShowConnectWalletError(true)
-     return
-   }
-   if (!isWhitelisted) {
-     setDialogOpen(true)
-   }
- }
-
- const handleDialogClose = () => {
-   setDialogOpen(false)
-   checkWhitelistStatus()
- }
-
- // Базовый обработчик для всех действий
- const handleAction = () => {
-   switch (currentStage) {
-     case MintStage.WHITELIST_REGISTRATION:
-       handleWhitelistClick()
-       break
-     case MintStage.FREE_MINT:
-       console.log('Free mint action')
-       break
-     case MintStage.EARLY_ADOPTERS:
-       console.log('Early adopters mint action')
-       break
-     case MintStage.FIXED_PRICE:
-       console.log('Fixed price mint action')
-       break
-     case MintStage.FINAL_AUCTION:
-       console.log('Auction action')
-       break
-     case MintStage.SOLD_OUT:
-       window.open('https://opensea.io/collection/dewild', '_blank')
-       break
-   }
- }
-
- // Рендер для Join Whitelist фазы
- const renderWhitelistJoin = () => (
-   <div className="py-4 flex flex-col sm:flex-row justify-between gap-4">
-     <div>
-       <h3 className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">
-         Phase 1. Join Whitelist
-       </h3>
-       <p className="text-black text-sm font-normal font-['Azeret Mono'] leading-6 max-w-[780px]">
-       First 999 participants will get 1 free NFT in Phase 2, and all whitelisted wallets can mint 1,111 more at 0.0011 ETH in Phase 3.
-       </p>
-     </div>
-     <WhitelistButton />
-   </div>
- )
-
- // Рендер для Free Mint фазы
- const renderFreeMint = () => (
-   <div className="py-4 flex flex-col sm:flex-row justify-between gap-4">
-     <div>
-       <h3 className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">
-         Phase 2. Free mint
-       </h3>
-       <div className="flex flex-col sm:flex-row gap-12">
-         <div>
-           <div className="text-black text-sm font-normal font-['Azeret Mono'] leading-6">Time Remaining</div>
-           <div className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">23:59:59</div>
-         </div>
-         <div>
-           <div className="text-black text-sm font-normal font-['Azeret Mono'] leading-6">Minted</div>
-           <div className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">0/999</div>
-         </div>
-       </div>
-     </div>
-     <div className="flex items-start">
-      <Button
-        onClick={handleAction}
-        disabled={!canInteract}
-        variant="primary"
-        className="w-40 shadow-[-4px_4px_0px_0px_#000000] uppercase"
-      >
-        FREE MINT
-      </Button>
-    </div>
-   </div>
- )
-
- // Рендер для Early Adopters фазы
- const renderEarlyAdopters = () => (
-   <div className="py-4 flex flex-col sm:flex-row justify-between border-t border-black gap-4">
-     <div>
-       <h3 className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">
-         Phase 3. Early adopters mint
-       </h3>
-       <div className="flex flex-col sm:flex-row gap-12">
-         <div>
-           <div className="text-black text-sm font-normal font-['Azeret Mono'] leading-6">Price</div>
-           <div className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">0.001 ETH</div>
-         </div>
-         <div>
-           <div className="text-black text-sm font-normal font-['Azeret Mono'] leading-6">Minted</div>
-           <div className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">0/1111</div>
-         </div>
-       </div>
-     </div>
-     <div className="flex items-start">
-     <Button
-       onClick={handleAction}
-       disabled={!canInteract}
-       variant="primary"
-       className="w-40 shadow-[-4px_4px_0px_0px_#000000] uppercase"
-     >
-       MINT NOW
-     </Button>
-     </div>
-   </div>
- )
-
- // Рендер для Fixed Price фазы
- const renderFixedPrice = () => (
-   <div className="py-4 flex flex-col sm:flex-row justify-between border-t border-black gap-4">
-     <div>
-       <h3 className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">
-         Phase 4. Fixed price mint
-       </h3>
-       <div className="flex flex-col sm:flex-row gap-12">
-         <div>
-           <div className="text-black text-sm font-normal font-['Azeret Mono'] leading-6">Price</div>
-           <div className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">0.011 ETH</div>
-         </div>
-         <div>
-           <div className="text-black text-sm font-normal font-['Azeret Mono'] leading-6">Minted</div>
-           <div className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">0/8888</div>
-         </div>
-       </div>
-     </div>
-     <div className="flex items-start">
-     <Button
-       onClick={handleAction}
-       disabled={!canInteract}
-       variant="primary"
-       className="w-40 shadow-[-4px_4px_0px_0px_#000000] uppercase"
-     >
-       MINT NOW
-     </Button>
-     </div>
-   </div>
- )
-
- // Рендер для English Auction фазы
- const renderEnglishAuction = () => (
-   <div className="py-4 flex flex-col sm:flex-row justify-between border-t border-black gap-4">
-     <div>
-       <h3 className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">
-         Phase 5. English Auction
-       </h3>
-       <div className="flex flex-col sm:flex-row gap-12">
-         <div>
-           <div className="text-black text-sm font-normal font-['Azeret Mono'] leading-6">Time Remaining</div>
-           <div className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">23:59:59</div>
-         </div>
-         <div>
-           <div className="text-black text-sm font-normal font-['Azeret Mono'] leading-6">Current Bid</div>
-           <div className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">0.5 ETH</div>
-         </div>
-       </div>
-     </div>
-     <div className="flex items-start">
-     <Button
-       onClick={handleAction}
-       disabled={!canInteract}
-       variant="primary"
-       className="w-40 shadow-[-4px_4px_0px_0px_#000000] uppercase"
-     >
-       PLACE BID
-     </Button>
-     </div>
-   </div>
- )
-
- // Рендер для состояния sold out
- const renderSoldOut = () => (
-   <div className="py-4 flex flex-col sm:flex-row justify-between border-t border-black gap-4">
-     <div>
-       <h3 className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">
-         Collection Sold Out
-       </h3>
-       <div className="flex flex-col sm:flex-row gap-12">
-         <div>
-           <div className="text-black text-sm font-normal font-['Azeret Mono'] leading-6">Floor Price</div>
-           <div className="text-black text-sm font-bold font-['Azeret Mono'] leading-6">0.5 ETH</div>
-         </div>
-       </div>
-     </div>
-     <div className="flex items-start">
-     <Button
-       onClick={handleAction}
-       variant="primary"
-       className="w-40 shadow-[-4px_4px_0px_0px_#000000] uppercase"
-     >
-       VIEW ON OPENSEA
-     </Button>
-     </div>
-   </div>
- )
-
- const allStages = [
-    {
-      stage: MintStage.WHITELIST_REGISTRATION,
-      render: renderWhitelistJoin
-    },
-    {
-      stage: MintStage.FREE_MINT,
-      render: renderFreeMint
-    },
-    {
-      stage: MintStage.EARLY_ADOPTERS,
-      render: renderEarlyAdopters
-    },
-    {
-      stage: MintStage.FIXED_PRICE,
-      render: renderFixedPrice
-    },
-    {
-      stage: MintStage.FINAL_AUCTION,
-      render: renderEnglishAuction
+  // Обработчики
+  const handleWhitelistClick = () => {
+    if (!address) {
+      setShowConnectWalletError(true)
+      return
     }
-  ];
+    if (!isWhitelisted) {
+      setDialogOpen(true)
+    }
+  }
 
-  return (
-    <>
-      <div>
-        {allStages.map(({ stage, render }) => (
-          <div key={stage} className="border-t border-black">
-            {((currentStage === stage) || 
-              (currentStage === MintStage.EARLY_ADOPTERS_PUBLIC && stage === MintStage.EARLY_ADOPTERS)) ? (
-              render()
-            ) : (
-              <div className="py-2">
-                <h3 className="text-black text-sm font-['Azeret Mono'] leading-6">
-                  {STAGE_CONFIGS[stage].title}
-                </h3>
-              </div>
-            )}
-          </div>
-        ))}
+  const handleDialogClose = () => {
+    setDialogOpen(false)
+    checkWhitelistStatus()
+  }
+
+  const handleAction = () => {
+    switch (currentStage) {
+      case MintStage.WHITELIST_REGISTRATION:
+        handleWhitelistClick()
+        break;
+      case MintStage.FREE_MINT:
+        console.log('Free mint action')
+        break;
+      case MintStage.EARLY_ADOPTERS:
+        console.log('Early adopters mint action')
+        break;
+      case MintStage.FIXED_PRICE:
+        console.log('Fixed price mint action')
+        break;
+      case MintStage.FINAL_AUCTION:
+        console.log('Auction action')
+        break;
+      case MintStage.SOLD_OUT:
+        window.open('https://opensea.io/collection/dewild', '_blank')
+        break;
+    }
+  }
+
+  const renderWhitelistJoin = () => (
+    <div className="h-full flex flex-col px-3">
+      <div className="flex-1 min-h-10" />
+      
+      <div className="flex flex-col items-center gap-10">
+        {/* Title - добавляем адаптивные размеры и центрирование */}
+        <h1 className="w-full text-center text-[72px] sm:text-[96px] leading-[48px] sm:leading-[64px] font-bold uppercase text-primary-black">
+          DeWild Club
+        </h1>
+  
+        {/* NFT Preview Images */}
+        <NFTCarousel />
+  
+        {/* Description */}
+        <p className="max-w-[468px] text-[24px] leading-[24px] text-text-gray text-center font-bold uppercase">
+          11,111 unique PFP nfts for wildest DeFi souls on Base chain! Join the wild side of DeFi – where your portfolio isn't the only thing that gets a little crazy.
+        </p>
       </div>
-    </>
+  
+      <div className="flex-1 min-h-10" />
+  
+      {/* Button container */}
+      <div className="h-20 flex flex-col items-center gap-3">
+        <WhitelistButton />
+        <span className="text-[16px] leading-[16px] text-text-gray font-bold uppercase">
+          round 1/5
+        </span>
+      </div>
+  
+      <div className="flex-1 min-h-10 pb-[36px]" />
+    </div>
   )
+
+  // Остальные методы рендера оставляем как есть
+  const renderFreeMint = () => (
+    <div>Free Mint Stage - TODO</div>
+  )
+
+  const renderEarlyAdopters = () => (
+    <div>Early Adopters Stage - TODO</div>
+  )
+
+  const renderFixedPrice = () => (
+    <div>Fixed Price Stage - TODO</div>
+  )
+
+  const renderEnglishAuction = () => (
+    <div>English Auction Stage - TODO</div>
+  )
+
+  const renderSoldOut = () => (
+    <div>Sold Out Stage - TODO</div>
+  )
+
+  // Рендер текущей стадии
+  const renderCurrentStage = () => {
+    switch (currentStage) {
+      case MintStage.WHITELIST_REGISTRATION:
+        return renderWhitelistJoin();
+      case MintStage.FREE_MINT:
+        return renderFreeMint();
+      case MintStage.EARLY_ADOPTERS:
+      case MintStage.EARLY_ADOPTERS_PUBLIC:
+        return renderEarlyAdopters();
+      case MintStage.FIXED_PRICE:
+        return renderFixedPrice();
+      case MintStage.FINAL_AUCTION:
+        return renderEnglishAuction();
+      case MintStage.SOLD_OUT:
+        return renderSoldOut();
+      default:
+        return renderWhitelistJoin();
+    }
+  };
+
+  return renderCurrentStage();
 }

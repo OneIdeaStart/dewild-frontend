@@ -75,13 +75,16 @@ export const useWhitelistConditions = () => {
 
   const handleTwitterFollow = () => {
     if (typeof window === 'undefined') return;
-
-    window.open('https://x.com/DeWildxyz', '_blank')
-    setConditions(prev => ({
-      ...prev,
-      isTwitterFollowed: true
-    }))
-  }
+  
+    window.open('https://x.com/DeWildClub', '_blank');
+  
+    setTimeout(() => {
+      setConditions((prev) => ({
+        ...prev,
+        isTwitterFollowed: true,
+      }));
+    }, 1500); // Задержка в 1.5 секунды
+  };
 
   const handleTwitterHandleInput = (handle: string) => {
     setTwitterHandle(handle)

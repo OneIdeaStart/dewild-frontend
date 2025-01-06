@@ -3,25 +3,30 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center text-sm transition-colors focus-visible:outline-none disabled:pointer-events-none",
+  "inline-flex items-center justify-center transition-colors focus-visible:outline-none disabled:pointer-events-none font-bold uppercase",
   {
     variants: {
       variant: {
         default: [
-          'border border-black bg-white text-black shadow-[-4px_4px_0px_0px_#000000]',
-          'hover:bg-[#D8D8D8]',
-          'active:bg-[#D8D8D8] active:shadow-none'
+          'bg-white border-2 border-black text-black rounded-[10px]',
+          'hover:bg-[#f5f5f5]',
+          'active:transform active:translate-y-0.5'
         ],
         primary: [
-          'bg-[#002BFF] text-white shadow-[-4px_4px_0px_0px_#000000]',
-          'hover:bg-[#0020BF]',
-          'active:bg-[#0020BF] active:shadow-none'
+          'bg-[#202020] text-[#E9E9E9] rounded-[16px]',
+          'hover:bg-[#3A3A3A]',
+          'active:transform active:translate-y-0.5'
         ],
+        colored: [
+          'rounded-[12px]',
+          'hover:opacity-90',
+          'active:transform active:translate-y-0.5'
+        ]
       },
       size: {
-        default: 'py-2 px-3',
-        sm: 'py-2 px-3',
-        lg: 'py-3 px-6',
+        default: 'pt-[9px] pb-[7px] px-4 text-[16px] leading-[20px]',
+        sm: 'pt-[9px] pb-[7px] px-3 text-[14px] leading-[16px] rounded-[10px]',
+        lg: 'pt-[9px] pb-[7px] px-8 text-[24px] leading-[36px]',
       },
     },
     defaultVariants: {
@@ -35,13 +40,22 @@ interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   asChild?: boolean
+  bgColor?: string // Для кастомного цвета фона
+  textColor?: string // Для кастомного цвета текста
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, children, ...props }, ref) => {
+  ({ className, variant, size, bgColor, textColor, children, ...props }, ref) => {
+    // Если указаны кастомные цвета и вариант 'colored'
+    const customColorClasses = variant === 'colored' && bgColor ? 
+      `${bgColor} ${textColor}` : ''
+
     return (
       <button
-        className={cn(buttonVariants({ variant, size, className }))}
+        className={cn(
+          buttonVariants({ variant, size, className }),
+          customColorClasses
+        )}
         ref={ref}
         {...props}
       >
