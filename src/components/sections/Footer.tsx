@@ -25,7 +25,7 @@ export function Footer() {
         {/* Social Links */}
         <div className="w-full flex flex-wrap justify-center gap-4 sm:gap-10">
           <a 
-            href="https://x.com/dewild" 
+            href="https://x.com/dewildclub" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-accent-blue text-[32px] leading-[32px] font-bold uppercase hover:opacity-80 transition-opacity"
@@ -34,7 +34,7 @@ export function Footer() {
           </a>
           
           <a 
-            href="https://discord.gg/dewild" 
+            href="https://discord.gg/ygh7CtbNZe" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-accent-purple text-[32px] leading-[32px] font-bold uppercase hover:opacity-80 transition-opacity"
@@ -43,7 +43,7 @@ export function Footer() {
           </a>
           
           <a 
-            href="https://tiktok.com/@dewild" 
+            href="www.tiktok.com/@dewildclub" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-accent-green text-[32px] leading-[32px] font-bold uppercase hover:opacity-80 transition-opacity"
