@@ -17,13 +17,14 @@ export function WhitelistButton() {
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
-            // Проверяем URL параметры при загрузке
-            const searchParams = new URLSearchParams(window.location.search);
-            if (searchParams.get('openWhitelist') === 'true') {
-                setWhitelistDialogOpen(true);
-                // Очищаем URL
-                window.history.replaceState({}, '', '/');
-            }
+            // Даем время на инициализацию хука useWhitelistConditions
+            setTimeout(() => {
+                const searchParams = new URLSearchParams(window.location.search);
+                if (searchParams.get('openWhitelist') === 'true') {
+                    setWhitelistDialogOpen(true);
+                    window.history.replaceState({}, '', '/');
+                }
+            }, 100);
         }
     }, []);
 

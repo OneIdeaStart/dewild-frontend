@@ -27,21 +27,25 @@ export const useWhitelistConditions = () => {
     // Проверяем результат Discord авторизации при загрузке
     useEffect(() => {
       if (typeof window !== 'undefined') {
-        const discordAuth = localStorage.getItem('discord_auth');
-        if (discordAuth) {
-          const authData = JSON.parse(discordAuth);
-          if (authData.success) {
-            setConditions(prev => ({
-              ...prev,
-              isDiscordJoined: true,
-              discordUsername: authData.username
-            }));
+          const discordAuth = localStorage.getItem('discord_auth');
+          if (discordAuth) {
+              try {
+                  const authData = JSON.parse(discordAuth);
+                  if (authData.success) {
+                      setConditions(prev => ({
+                          ...prev,
+                          isDiscordJoined: true,
+                          discordUsername: authData.username
+                      }));
+                  }
+                  // Очищаем после использования
+                  localStorage.removeItem('discord_auth');
+              } catch (error) {
+                  console.error('Failed to parse discord_auth:', error);
+              }
           }
-          // Очищаем после использования
-          localStorage.removeItem('discord_auth');
-        }
       }
-    }, []);
+  }, []);
   
     // Сброс при отключении кошелька
     useEffect(() => {
