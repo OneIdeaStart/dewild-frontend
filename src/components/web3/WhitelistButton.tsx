@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAppKitAccount } from '@reown/appkit/react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import WhitelistDialog from '@/components/dialogs/WhitelistDialog'
@@ -14,6 +14,18 @@ export function WhitelistButton() {
     const [whitelistDialogOpen, setWhitelistDialogOpen] = useState(false)
     const [successDialogOpen, setSuccessDialogOpen] = useState(false)
     const [showConnectWalletError, setShowConnectWalletError] = useState(false)
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            // Проверяем URL параметры при загрузке
+            const searchParams = new URLSearchParams(window.location.search);
+            if (searchParams.get('openWhitelist') === 'true') {
+                setWhitelistDialogOpen(true);
+                // Очищаем URL
+                window.history.replaceState({}, '', '/');
+            }
+        }
+    }, []);
 
     const handleWhitelistClick = () => {
         if (!address) {

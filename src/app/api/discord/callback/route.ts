@@ -82,7 +82,7 @@ export async function GET(request: Request) {
                 success: ${isMember},
                 username: "${userData.username}"
               }));
-              window.location.href = '${process.env.NEXT_PUBLIC_APP_URL}';
+              window.location.href = '${process.env.NEXT_PUBLIC_APP_URL}?openWhitelist=true';
             }
           </script>
         </body>
@@ -113,7 +113,7 @@ export async function GET(request: Request) {
               localStorage.setItem('discord_auth', JSON.stringify({
                 success: false
               }));
-              window.location.href = '${process.env.NEXT_PUBLIC_APP_URL}';
+              window.location.href = '${process.env.NEXT_PUBLIC_APP_URL}?openWhitelist=true';
             }
           </script>
         </body>
