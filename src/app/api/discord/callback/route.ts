@@ -59,13 +59,14 @@ export async function GET(request: Request) {
 
     isMember = memberCheck.ok;
 
-    // Возвращаем HTML с данными пользователя
+    // Возвращаем HTML с обработкой как для десктопа, так и для мобильных
     return new Response(
       `
       <html>
         <body>
           <script>
             if (window.opener) {
+              // Для десктопа: отправляем сообщение и закрываем окно
               window.opener.postMessage(
                 { 
                   type: 'discord-auth', 
@@ -75,6 +76,13 @@ export async function GET(request: Request) {
                 '${process.env.NEXT_PUBLIC_APP_URL}'
               );
               setTimeout(() => window.close(), 2000);
+            } else {
+              // Для мобильных: сохраняем данные в localStorage и редиректим
+              localStorage.setItem('discord_auth', JSON.stringify({
+                success: ${isMember},
+                username: "${userData.username}"
+              }));
+              window.location.href = '${process.env.NEXT_PUBLIC_APP_URL}';
             }
           </script>
         </body>
@@ -94,11 +102,18 @@ export async function GET(request: Request) {
         <body>
           <script>
             if (window.opener) {
+              // Для десктопа
               window.opener.postMessage(
                 { type: 'discord-auth', success: false },
                 '${process.env.NEXT_PUBLIC_APP_URL}'
               );
               setTimeout(() => window.close(), 2000);
+            } else {
+              // Для мобильных
+              localStorage.setItem('discord_auth', JSON.stringify({
+                success: false
+              }));
+              window.location.href = '${process.env.NEXT_PUBLIC_APP_URL}';
             }
           </script>
         </body>
