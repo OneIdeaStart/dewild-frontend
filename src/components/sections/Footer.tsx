@@ -52,7 +52,7 @@ export function Footer() {
           </a>
           
           <a 
-            href="https://debank.com/dewildclub" 
+            href="https://debank.com/official/118615" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-accent-orange text-[32px] leading-[32px] font-bold uppercase hover:opacity-80 transition-opacity"

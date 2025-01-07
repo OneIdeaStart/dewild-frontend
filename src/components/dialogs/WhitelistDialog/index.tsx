@@ -98,32 +98,30 @@ export default function WhitelistDialog({ onClose }: WhitelistDialogProps) {
   }
 
   return (
-    <div className="relative flex flex-col w-full h-full pt-10 sm:pt-0">
-      {/* Кнопка закрытия */}
-      <div className="absolute top-4 right-4 z-20">
-        <svg
-          onClick={() => onClose(false)}
-          width="48"
-          height="48"
-          viewBox="0 0 48 48"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="cursor-pointer"
-        >
-          <path
-            d="M12.4501 37.6501L10.3501 35.5501L21.9001 24.0001L10.3501 12.4501L12.4501 10.3501L24.0001 21.9001L35.5501 10.3501L37.6501 12.4501L26.1001 24.0001L37.6501 35.5501L35.5501 37.6501L24.0001 26.1001L12.4501 37.6501Z"
-            fill="black"
-          />
-        </svg>
-      </div>
+    <div className="relative flex flex-col items-center w-full h-full">
+      <div className="relative z-10 flex flex-col items-center gap-8 px-3 mt-20 sm:mt-8 w-full max-w-[448px]">
+        {/* Header */}
+        <div className="flex justify-between items-center w-full">
+          <h1 className="text-[48px] font-extrabold uppercase leading-[48px]">
+            Join whitelist
+          </h1>
+          <svg
+            onClick={() => onClose(false)}
+            width="48"
+            height="48"
+            viewBox="0 0 48 48"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            className="cursor-pointer"
+          >
+            <path
+              d="M12.4501 37.6501L10.3501 35.5501L21.9001 24.0001L10.3501 12.4501L12.4501 10.3501L24.0001 21.9001L35.5501 10.3501L37.6501 12.4501L26.1001 24.0001L37.6501 35.5501L35.5501 37.6501L24.0001 26.1001L12.4501 37.6501Z"
+              fill="black"
+            />
+          </svg>
+        </div>
   
-      {/* Содержимое формы */}
-      <div className="relative z-10 flex flex-col items-center gap-10 p-4">
-        <h1 className="text-[48px] font-extrabold uppercase leading-[48px] text-center">
-          Join whitelist
-        </h1>
-  
-        <div className="flex flex-col gap-4 w-full max-w-[448px]">
+        <div className="flex flex-col gap-3 w-full">
           {/* Step 1: Connect Wallet */}
           <div className="bg-accent-blue p-4 rounded-[16px] flex justify-between items-center">
             <div className="text-[#7EF3E1] text-[24px] leading-[24px] font-extrabold uppercase">
@@ -144,29 +142,27 @@ export default function WhitelistDialog({ onClose }: WhitelistDialogProps) {
             </div>
             {conditions.isDiscordJoined ? (
               <div className="flex items-center gap-2">
-                <div className="text-[#026551] text-[24px] font-extrabold uppercase">
+                <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase">
                   {conditions.discordUsername}
                 </div>
                 <Check className="w-6 h-6 text-[#026551]" />
               </div>
             ) : (
               <div className="flex gap-2">
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleDiscordJoin}
-                    variant="primary" // было "colored"
-                    size="sm" // было "default"
-                  >
-                    Join
-                  </Button>
-                  <Button
-                    onClick={handleDiscordCheck}
-                    variant="primary" // было "colored"
-                    size="sm" // было "default"
-                  >
-                    Check
-                  </Button>
-                </div>
+                <Button
+                  onClick={handleDiscordJoin}
+                  variant="primary"
+                  size="sm"
+                >
+                  Join
+                </Button>
+                <Button
+                  onClick={handleDiscordCheck}
+                  variant="primary"
+                  size="sm"
+                >
+                  Check
+                </Button>
               </div>
             )}
           </div>
@@ -183,8 +179,8 @@ export default function WhitelistDialog({ onClose }: WhitelistDialogProps) {
             ) : (
               <Button
                 onClick={handleTwitterFollow}
-                variant="primary" // было "colored"
-                size="sm" // было "default"
+                variant="primary"
+                size="sm"
               >
                 Follow
               </Button>
@@ -210,7 +206,7 @@ export default function WhitelistDialog({ onClose }: WhitelistDialogProps) {
             </div>
           </div>
         </div>
-
+ 
         <div className="relative w-full max-w-[448px]">
           {whitelistError && (
             <div className="absolute top-[-48px] left-[50%] transform -translate-x-[50%] flex flex-col items-center">
@@ -239,13 +235,6 @@ export default function WhitelistDialog({ onClose }: WhitelistDialogProps) {
           </div>
         </div>
       </div>
-  
-      {/* Картинка под формой */}
-      <img
-        src="/images/animals.png"
-        alt="Animals"
-        className="absolute bottom-0 w-full left-0 z-0"
-      />
     </div>
   )
 }
