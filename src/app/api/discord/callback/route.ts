@@ -77,12 +77,12 @@ export async function GET(request: Request) {
               );
               setTimeout(() => window.close(), 2000);
             } else {
-                // Для мобильных: редиректим с данными в URL
-                const redirectData = encodeURIComponent(JSON.stringify({
+                // Для мобильных: сохраняем данные в localStorage и редиректим
+                localStorage.setItem('discord_auth', JSON.stringify({
                   success: ${isMember},
                   username: "${userData.username}"
                 }));
-                window.location.href = '${process.env.NEXT_PUBLIC_APP_URL}?openWhitelist=true&authData=' + redirectData;
+                window.location.href = '${process.env.NEXT_PUBLIC_APP_URL}?openWhitelist=true';
               }
           </script>
         </body>

@@ -24,7 +24,7 @@ export function WhitelistButton() {
                     setWhitelistDialogOpen(true);
                     window.history.replaceState({}, '', '/');
                 }
-            }, 100);
+            }, 500);
         }
     }, []);
 
