@@ -45,7 +45,7 @@ export function WhitelistButton() {
     }
 
     const handleShare = () => {
-        const text = encodeURIComponent("🔥 I just secured my spot on the @DeWildClub #Whitelist!\n⚡ The Legends of #DeFi are calling, and I'm ready.\n🚨 Don't let #FOMO haunt you — join the club now: dewild.club\n\n")
+        const text = encodeURIComponent("🔥 I just secured my spot on the #DeWildClub Whitelist!\n⚡ The Legends of #DeFi are calling, and I'm ready.\n🚨 Don't let #FOMO haunt you — join the @DeWildClub right now!\n\n#DeWild #NFTCommunity #NFTCollection")
         window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank')
     }    
 
