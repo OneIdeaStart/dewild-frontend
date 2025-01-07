@@ -22,10 +22,10 @@ export function Promos() {
           </div>
           <div className="flex flex-col gap-3">
             <h3 className="text-white text-[32px] leading-[32px] font-bold uppercase">
-              Mint Genesis
+              Win DeWild #1
             </h3>
             <p className="text-[#606060] text-[24px] leading-[24px] font-bold uppercase">
-              Mint on Zora, enter the raffle for NFT #1. More Genesis NFTs = better chances. Surprises for early supporters included.
+              Mint Genesis on Zora, enter the raffle for NFT #1. More Genesises = better chances. Surprises included.
             </p>
           </div>
           <button className="w-full py-2 px-8 bg-accent-orange rounded-xl">

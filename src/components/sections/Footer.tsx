@@ -43,7 +43,7 @@ export function Footer() {
           </a>
           
           <a 
-            href="www.tiktok.com/@dewildclub" 
+            href="https://tiktok.com/@dewildclub" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-accent-green text-[32px] leading-[32px] font-bold uppercase hover:opacity-80 transition-opacity"
@@ -52,7 +52,7 @@ export function Footer() {
           </a>
           
           <a 
-            href="https://debank.com/dewild" 
+            href="https://debank.com/dewildclub" 
             target="_blank" 
             rel="noopener noreferrer" 
             className="text-accent-orange text-[32px] leading-[32px] font-bold uppercase hover:opacity-80 transition-opacity"
@@ -61,10 +61,10 @@ export function Footer() {
           </a>
           
           <a 
-            href="mailto:collab@dewild.club" 
+            href="mailto:info@dewild.club" 
             className="text-accent-pink text-[32px] leading-[32px] font-bold uppercase hover:opacity-80 transition-opacity"
           >
-            collab@dewild.club
+            info@dewild.club
           </a>
         </div>
       </div>
