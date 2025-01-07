@@ -81,10 +81,10 @@ export function MintSection() {
   
       {/* Button container */}
       <div className="h-20 flex flex-col items-center gap-3">
-        <WhitelistButton />
         <span className="text-[16px] leading-[16px] text-text-gray font-bold uppercase">
           round 1/5
         </span>
+        <WhitelistButton />
       </div>
   
       <div className="flex-1 min-h-10 pb-[36px]" />

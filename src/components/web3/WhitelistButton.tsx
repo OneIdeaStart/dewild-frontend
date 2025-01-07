@@ -44,12 +44,26 @@ export function WhitelistButton() {
         }
     }
 
+    const handleShare = () => {
+        const text = encodeURIComponent("🔥 I just secured my spot on the @DeWildClub #Whitelist!\n⚡ The Legends of #DeFi are calling, and I'm ready.\n🚨 Don't let #FOMO haunt you — join the club now: dewild.club\n\n")
+        window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank')
+    }    
+
     return (
         <div className="flex flex-col items-center gap-2">
             {isWhitelisted ? (
-                <span className="text-[#03CB00] text-[24px] font-bold uppercase">
-                    You are on the whitelist! ✌️
-                </span>
+                <div className="flex items-center gap-3">
+                    <span className="text-[#03CB00] text-[24px] font-bold uppercase">
+                        You are on the whitelist! ✌️
+                    </span>
+                    <Button 
+                        variant="primary"
+                        size="sm"
+                        onClick={handleShare}
+                    >
+                        Share on X
+                    </Button>
+                </div>
             ) : (
                 <div className="flex flex-col items-center">
                     <div className="relative">
