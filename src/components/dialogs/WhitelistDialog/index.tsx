@@ -210,7 +210,7 @@ export default function WhitelistDialog({ onClose }: WhitelistDialogProps) {
         <div className="relative w-full max-w-[448px]">
           {whitelistError && (
             <div className="absolute top-[-48px] left-[50%] transform -translate-x-[50%] flex flex-col items-center">
-              <div className="bg-[#D90004] rounded-[8px] px-4 py-2 text-white text-[16px] font-extrabold uppercase text-center min-w-[250px]">
+              <div className="bg-[#D90004] rounded-[8px] px-4 py-2 text-white text-[16px] font-extrabold uppercase text-center  whitespace-nowrap">
                 {whitelistError.message}
               </div>
               <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-[#D90004] mt-[-1px]"></div>
