@@ -28,11 +28,18 @@ export function Promos() {
               Mint Genesis on Zora, enter the raffle for NFT #1. More Genesises = better chances. Surprises included.
             </p>
           </div>
-          <button className="w-full py-2 px-8 bg-accent-orange rounded-xl">
-            <span className="text-[#CA0D21] text-[24px] leading-[36px] font-bold uppercase">
-              Mint on Zora
-            </span>
-          </button>
+          <a 
+            href="https://zora.co/collect/base:0x166256b2e874f2b7d8144568e8d82435ee0245e3/1" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="w-full"
+          >
+            <button className="w-full py-2 px-8 bg-accent-orange rounded-xl">
+              <span className="text-[#CA0D21] text-[24px] leading-[36px] font-bold uppercase">
+                Mint Genesis
+              </span>
+            </button>
+          </a>
         </div>
 
         {/* Repost Card */}
@@ -50,11 +57,18 @@ export function Promos() {
               Follow us and Retweet our pinned post on X.com for a shot at 1 of 10 NFTs. Easy win, big rewards!
             </p>
           </div>
-          <button className="w-full py-2 px-8 bg-accent-purple rounded-xl">
-            <span className="text-accent-yellow text-[24px] leading-[36px] font-bold uppercase">
-              Make Repost
-            </span>
-          </button>
+          <a 
+            href="https://x.com/DeWildClub" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="w-full"
+          >
+            <button className="w-full py-2 px-8 bg-accent-purple rounded-xl">
+              <span className="text-accent-yellow text-[24px] leading-[36px] font-bold uppercase">
+                Make Repost
+              </span>
+            </button>
+          </a>
         </div>
 
         {/* DeBank Card */}
@@ -74,11 +88,18 @@ export function Promos() {
               Follow us on debank.com and wait for lucky draws with a chance to win dewild nfts and other prizes.
             </p>
           </div>
-          <button className="w-full py-2 px-8 bg-accent-pink rounded-xl">
-            <span className="text-[#026551] text-[24px] leading-[36px] font-bold uppercase">
-              Follow DeBank
-            </span>
-          </button>
+          <a 
+            href="https://debank.com/official/118615" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="w-full"
+          >
+            <button className="w-full py-2 px-8 bg-accent-pink rounded-xl">
+              <span className="text-[#026551] text-[24px] leading-[36px] font-bold uppercase">
+                Follow DeBank
+              </span>
+            </button>
+          </a>
         </div>
       </div>
     </section>

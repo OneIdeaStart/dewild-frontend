@@ -59,7 +59,7 @@ export function MintStages() {
         {/* Stage 4 - Fixed Price */}
         <div className="p-4 bg-accent-pink rounded-2xl flex flex-col gap-3">
           <h3 className="text-[#026551] text-[32px] leading-[32px] font-bold uppercase">
-            4. Fixed price mint
+            4. Public mint
           </h3>
           <div className="w-fit px-2 bg-[#1F315F] rounded">
             <span className="text-[14px] leading-[16px] text-[#DA8D67] font-bold uppercase">

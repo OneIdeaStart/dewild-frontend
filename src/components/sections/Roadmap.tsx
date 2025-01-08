@@ -9,7 +9,7 @@ export function Roadmap() {
         text: "text-[#99C1D7]",
       },
       quarter: "Q1",
-      description: "We start by minting 2,222 NFTs – free and early adopters unite! With funds in hand, we finish the collection, launch the fixed price round, and hold the final auction. Oh, and the secondary market? It's opening. Get ready to trade like never before."
+      description: "We start by minting 2,222 NFTs – free and early adopters unite! With funds in hand, we finish the collection, launch the public mint round, and hold the final auction. Oh, and the secondary market? It's opening. Get ready to trade like never before."
     },
     {
       badge: {
