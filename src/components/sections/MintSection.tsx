@@ -113,7 +113,7 @@ export function MintSection() {
           style={{ animationDelay: '0.9s' }} // 0.6с начало текста + 0.3с задержка
         >
           <span className="text-[16px] leading-[16px] text-text-gray font-bold uppercase">
-            round 1/5
+            Stage 1/5
           </span>
           <WhitelistButton />
         </div>
