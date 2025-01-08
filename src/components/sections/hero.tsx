@@ -7,6 +7,7 @@ import { useMintStage } from '@/hooks/useMintStage'
 import { MintStage } from '@/types/mint-stages'
 
 export function Hero() {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [scrollStretch, setScrollStretch] = useState(0);
   const [isReleasing, setIsReleasing] = useState(false);
   const [isTop, setIsTop] = useState(true);
@@ -52,6 +53,12 @@ export function Hero() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 1300); // 1.4s - 0.2s = 1.2s
+  }, []);
  
   return (
     <section className="w-full h-screen min-h-[696px] flex flex-col">
@@ -61,7 +68,9 @@ export function Hero() {
         </div>
       </div>
       
-      <div className="relative w-full h-[60px]">
+      <div className={`relative w-full h-[60px] translate-y-full ${
+          isLoaded ? 'animate-dark-slide' : ''
+        }`}>
         <svg 
           viewBox="0 0 1440 60" 
           preserveAspectRatio="none"

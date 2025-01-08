@@ -1,11 +1,22 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import { Logo } from '../icons/logo'
 import ConnectButton from '../web3/ConnectButton'
 
 export default function Header() {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 0); // 1.4s - 0.2s = 1.2s
+  }, []);
+
   return (
-    <header className="fixed top-0 left-0 right-0 px-4 pt-4 w-full min-w-[320px] z-50">
+    <header className={`fixed top-0 left-0 right-0 px-4 pt-4 w-full min-w-[320px] z-50 -translate-y-full ${
+      isLoaded ? 'animate-header-slide' : ''
+    }`}>
       <div className="mx-auto relative flex justify-between items-center"> {/* Добавили flex контейнер */}
         {/* Social Icons - скрываем на мобильных */}
         <div className="hidden sm:flex items-center gap-2">

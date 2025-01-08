@@ -54,6 +54,110 @@ module.exports = {
         'marquee-right': {
           '0%': { transform: 'translateX(-955px)' },
           '100%': { transform: 'translateX(0)' }
+        },
+        'reveal': {
+          '0%': { 
+            opacity: '0',
+            transform: 'scaleY(0)',
+            transformOrigin: 'bottom'
+          },
+          '70%': {
+            opacity: '1',
+            transform: 'scaleY(1.1)',
+            transformOrigin: 'bottom'
+          },
+          '85%': {
+            transform: 'scaleY(0.95)',
+            transformOrigin: 'bottom'
+          },
+          '95%': {
+            transform: 'scaleY(1.02)',
+            transformOrigin: 'bottom'
+          },
+          '100%': { 
+            opacity: '1',
+            transform: 'scaleY(1)',
+            transformOrigin: 'bottom'
+          }
+        },
+        'slot-reveal': {
+          '0%': { 
+            opacity: '0',
+            transform: 'scale(0.3)',
+          },
+          '20%': {
+            opacity: '1',
+          },
+          '70%': {
+            opacity: '1',
+            transform: 'scale(1.1)',
+          },
+          '85%': {
+            opacity: '1',
+            transform: 'scale(0.95)',
+          },
+          '95%': {
+            opacity: '1',
+            transform: 'scale(1.02)',
+          },
+          '100%': { 
+            opacity: '1',
+            transform: 'scale(1)',
+          }
+        },
+        'reveal-text': {
+          '0%': { 
+            opacity: '0',
+            clipPath: 'inset(0 100% 0 0)' 
+          },
+          '10%': {
+            opacity: '1',
+          },
+          '100%': { 
+            opacity: '1',
+            clipPath: 'inset(0 0 0 0)' 
+          }
+        },
+        'button-fall': {
+          '0%': { 
+            opacity: '0',
+            transform: 'scale(0.3) translateY(0)',
+          },
+          '2%': {
+            opacity: '1',
+          },
+          '70%': {
+            transform: 'scale(1.4)',
+          },
+          '75%': {
+            transform: 'scale(1.5)',
+          },
+          '80%': {
+            transform: 'scale(1.4)',
+          },
+          '100%': { 
+            opacity: '1',
+            transform: 'scale(1) translateY(0)',
+          }
+        },
+        'header-slide': {
+          '0%': { 
+            transform: 'translateY(-100%)',
+          },
+          '85%': {
+            transform: 'translateY(5px)',
+          },
+          '100%': { 
+            transform: 'translateY(0)',
+          }
+        },
+        'dark-slide': {
+          '0%': { 
+            transform: 'translateY(100%)',
+          },
+          '100%': { 
+            transform: 'translateY(0)',
+          }
         }
       },
       animation: {
@@ -63,7 +167,13 @@ module.exports = {
         'slot-spin': 'slot-spin 0.3s linear infinite',
         'slot-stop': 'slot-stop 0.3s ease-out forwards',
         'marquee-left': 'marquee-left 20s linear infinite',
-        'marquee-right': 'marquee-right 20s linear infinite'
+        'marquee-right': 'marquee-right 20s linear infinite',
+        'reveal': 'reveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'slot-reveal': 'slot-reveal 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'reveal-text': 'reveal-text 0.5s ease-out forwards',
+        'button-fall': 'button-fall 0.5s cubic-bezier(0.1, 0, 0.9, 1) forwards',
+        'header-slide': 'header-slide 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        'dark-slide': 'dark-slide 0.3s forwards'
       },
       transitionProperty: {
         'blur': 'filter'
