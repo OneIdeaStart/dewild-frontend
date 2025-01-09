@@ -31,6 +31,11 @@ const nextConfig = {
         ]
       }
     ];
+  },
+
+  // Настройки компилятора для продакшена
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   }
 };
 

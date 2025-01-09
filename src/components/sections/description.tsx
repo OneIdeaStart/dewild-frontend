@@ -1,8 +1,16 @@
 'use client';
 
 import { Card } from "@/components/ui/card"
+import { useTextHighlight } from '@/hooks/useTextHighlight'
 
 export function Description() {
+  const welcomeText1Ref = useTextHighlight();
+  const welcomeText2Ref = useTextHighlight();
+  const welcomeText3Ref = useTextHighlight();
+  const founderText1Ref = useTextHighlight();
+  const founderText2Ref = useTextHighlight();
+  const founderText3Ref = useTextHighlight();
+
   const cards = [
     {
       image: '/images/about-1.png',
@@ -66,13 +74,22 @@ export function Description() {
     <section className="w-full bg-[#202020] flex flex-col items-center gap-40 px-3 py-40">
       {/* Welcome Text Block */}
       <div className="max-w-[472px] flex flex-col gap-20">
-        <p className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center">
+        <p 
+          ref={welcomeText1Ref}
+          className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
+        >
           Welcome to DeWild, where 'wild' means as free as your leverage is high. We're 11,111 unique NFTs celebrating the untamed spirit of DeFi and the crazy souls who thrive in it.
         </p>
-        <p className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center">
+        <p 
+          ref={welcomeText2Ref}
+          className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
+        >
           Be you a trader, airdrop hunter, yield farmer, or NFT enthusiast, if DeFi runs through your veins, this is for you. Whether you're chasing gains, refreshing wallets, or aping into the next big thing – welcome to the wild side.
         </p>
-        <p className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center">
+        <p 
+          ref={welcomeText3Ref}
+          className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
+        >
           This collection is your digital badge of honor in the wild world of decentralized finance. It's not just about NFTs; it's about celebrating the bold, the brave, and the borderline unhinged who make DeFi a lifestyle.
         </p>
       </div>
@@ -94,13 +111,22 @@ export function Description() {
 
       {/* Founder's Message */}
       <div className="max-w-[472px] flex flex-col gap-20">
-        <p className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center">
+        <p 
+          ref={founderText1Ref}
+          className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
+        >
           Layer 2 never looked this wild, and I can't wait for you to join me on this journey.
         </p>
-        <p className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center">
+        <p 
+          ref={founderText2Ref}
+          className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
+        >
           i built DeWild to prove that the wildest ideas come to life when you take the first step. For years, I worked to build someone else's dreams, but after losing my job, I decided it was time to chase my own.
         </p>
-        <p className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center">
+        <p 
+          ref={founderText3Ref}
+          className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
+        >
           My ultimate dream? To create something that would live on long after me. And what better way to achieve that than through blockchain and Web3?
         </p>
       </div>
