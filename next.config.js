@@ -21,10 +21,10 @@ const nextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
-              "style-src 'self' 'unsafe-inline'",
-              "font-src 'self' data: https://cdnjs.cloudflare.com",
+              "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com",
               "img-src 'self' data: https://* blob:",
-              "connect-src 'self' wss: https://*",
+              "connect-src 'self' wss: https://* http://*",
               "frame-src 'self' https://*",
             ].join('; ')
           }

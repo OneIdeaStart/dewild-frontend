@@ -18,7 +18,7 @@ export function MintStages() {
           </h3>
           <div className="w-fit px-2 bg-accent-green rounded">
             <span className="text-[14px] leading-[16px] text-[#99C1D7] font-bold uppercase">
-              in progress
+              Stage 1
             </span>
           </div>
           <p className="text-[#48926D] text-[24px] leading-[24px] font-bold uppercase">
@@ -33,7 +33,7 @@ export function MintStages() {
           </h3>
           <div className="w-fit px-2 bg-accent-blue rounded">
             <span className="text-[14px] leading-[16px] text-[#7EF3E1] font-bold uppercase">
-              soon
+              Stage 2
             </span>
           </div>
           <p className="text-[#EFB260] text-[24px] leading-[24px] font-bold uppercase">
@@ -48,7 +48,7 @@ export function MintStages() {
           </h3>
           <div className="w-fit px-2 bg-accent-burgundy rounded">
             <span className="text-[14px] leading-[16px] text-[#FDC867] font-bold uppercase">
-              soon
+              Stage 3
             </span>
           </div>
           <p className="text-[#7EF3E1] text-[24px] leading-[24px] font-bold uppercase">
@@ -63,7 +63,7 @@ export function MintStages() {
           </h3>
           <div className="w-fit px-2 bg-[#1F315F] rounded">
             <span className="text-[14px] leading-[16px] text-[#DA8D67] font-bold uppercase">
-              soon
+              Stage 4
             </span>
           </div>
           <p className="text-[#026551] text-[24px] leading-[24px] font-bold uppercase">
@@ -78,7 +78,7 @@ export function MintStages() {
           </h3>
           <div className="w-fit px-2 bg-accent-orange rounded">
             <span className="text-[14px] leading-[16px] text-[#CA0D21] font-bold uppercase">
-              soon
+              Stage 5
             </span>
           </div>
           <p className="text-[#99C1D7] text-[24px] leading-[24px] font-bold uppercase">
