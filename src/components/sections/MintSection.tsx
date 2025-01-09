@@ -18,7 +18,6 @@ export function MintSection() {
   const { isWhitelisted, currentStage } = useMintStageContext();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [showConnectWalletError, setShowConnectWalletError] = useState(false)
-  const [whitelistStats, setWhitelistStats] = useState<{ total: number; remaining: number } | null>(null);
 
   // Обработчики
   const handleWhitelistClick = () => {
@@ -59,25 +58,11 @@ export function MintSection() {
     }
   }
 
-  const fetchWhitelistStats = async () => {
-    try {
-      const response = await fetch('/api/whitelist/check');
-      const data = await response.json();
-      setWhitelistStats(data.stats);
-    } catch (error) {
-      console.error('Failed to fetch whitelist stats:', error);
-    }
-  };
-
   const renderWhitelistJoin = () => {
     const [isLoaded, setIsLoaded] = useState(false);
    
     useEffect(() => {
       setIsLoaded(true);
-    }, []);
-
-    useEffect(() => {
-      fetchWhitelistStats();
     }, []);
    
     return (
