@@ -1,10 +1,7 @@
-// src/types/whitelist.ts
-
 export interface WhitelistEntry {
-  address: string;
-  discord: string;
-  twitter: string;
-  joinedAt: string;
+  w: string;  // wallet address
+  d: string;  // discord
+  t: string;  // twitter
 }
 
 export interface WhitelistStats {

@@ -5,16 +5,17 @@ import { useAppKitAccount } from '@reown/appkit/react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import WhitelistDialog from '@/components/dialogs/WhitelistDialog'
 import { useMintStage } from '@/hooks/useMintStage'
+import { useMintStageContext } from '@/context/MintStageContext';
 import { Button } from '@/components/ui/button'
 import WhitelistSuccessDialog from '@/components/dialogs/WhitelistSuccessDialog'
 
 export function WhitelistButton() {
     const { address } = useAppKitAccount()
     const { isWhitelisted , position, checkWhitelistStatus } = useMintStage()
+    const { isWhitelistFull } = useMintStageContext();
     const [whitelistDialogOpen, setWhitelistDialogOpen] = useState(false)
     const [successDialogOpen, setSuccessDialogOpen] = useState(false)
     const [showConnectWalletError, setShowConnectWalletError] = useState(false)
-
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -28,6 +29,12 @@ export function WhitelistButton() {
             }, 500);
         }
     }, []);
+
+    useEffect(() => {
+        if (isWhitelistFull) {
+            setShowConnectWalletError(false); // Сбрасываем ошибку подключения если whitelist заполнен
+        }
+    }, [isWhitelistFull]);
 
     const handleWhitelistClick = () => {
         if (!address) {
@@ -75,20 +82,24 @@ export function WhitelistButton() {
                 <div className="flex flex-col items-center">
                     <div className="relative">
                         <div className="button-container">
-                            <Button
-                                onClick={handleWhitelistClick}
-                                variant="primary"
-                                size="lg"
-                            >
-                                Join whitelist
-                            </Button>
+                        <Button
+                            onClick={handleWhitelistClick}
+                            variant="primary"
+                            size="lg"
+                            disabled={isWhitelistFull}
+                        >
+                            {isWhitelistFull 
+                                ? <span className="text-gray-500">Whitelist is Full</span>
+                                : 'Join Whitelist'
+                            }
+                        </Button>
                             <div className="reflect-effect"></div>
                         </div>
                         
                         {showConnectWalletError && !address && (
                             <div className="absolute top-[-48px] left-[50%] transform -translate-x-[50%] flex flex-col items-center">
                                 <div className="bg-[#D90004] rounded-[8px] px-4 py-2 text-white text-[16px] font-extrabold uppercase text-center whitespace-nowrap">
-                                    Connect wallet (no signing)
+                                    Connect wallet first (no signing needed)
                                 </div>
                                 <div className="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-[#D90004] mt-[-1px]"></div>
                             </div>

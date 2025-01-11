@@ -4,11 +4,13 @@ import React, { createContext, useContext, useState, useEffect } from 'react'
 import { MintStage } from '@/types/mint-stages'
 import { STAGE_CONFIGS } from '@/config/mint-stages'
 import { useAppKitAccount } from '@reown/appkit/react'
+import { useWhitelistFull } from '@/hooks/useWhitelistFull';
 
 interface MintStageContextValue {
   currentStage: MintStage
   isWhitelisted: boolean
   isLoading: boolean
+  isWhitelistFull: boolean
   checkWhitelistStatus: () => Promise<void>
 }
 
@@ -19,22 +21,30 @@ export const MintStageProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [currentStage, setCurrentStage] = useState<MintStage>(MintStage.WHITELIST_REGISTRATION)
   const [isWhitelisted, setIsWhitelisted] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isWhitelistFull, setIsWhitelistFull] = useState(false);
+  const isWhitelistFullGlobal = useWhitelistFull();
+
 
   const checkWhitelistStatus = async () => {
-      if (!address) return
-      setIsLoading(true)
+      if (!address) return;
+      setIsLoading(true);
       try {
-        const response = await fetch(`/api/whitelist/check?address=${address}`)
-        const data = await response.json()
-        // Используем data.address.isWhitelisted вместо data.address
-        setIsWhitelisted(data.address?.isWhitelisted || false)
+          const response = await fetch(`/api/whitelist/check?address=${address}`);
+          const data = await response.json();
+          
+          // Проверяем общее количество записей в whitelist
+          if (data.stats?.total >= 5555) { // Используем наш новый лимит
+              setIsWhitelistFull(true);
+          }
+          
+          setIsWhitelisted(data.address?.isWhitelisted || false);
       } catch (error) {
-        console.error('Error checking whitelist status:', error)
-        setIsWhitelisted(false)
+          console.error('Error checking whitelist status:', error);
+          setIsWhitelisted(false);
       } finally {
-        setIsLoading(false)
+          setIsLoading(false);
       }
-  }
+  };
 
   useEffect(() => {
     if (isConnected) {
@@ -48,6 +58,7 @@ export const MintStageProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         currentStage,
         isWhitelisted,
         isLoading,
+        isWhitelistFull: isWhitelistFullGlobal,
         checkWhitelistStatus,
       }}
     >

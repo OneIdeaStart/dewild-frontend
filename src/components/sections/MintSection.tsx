@@ -60,6 +60,7 @@ export function MintSection() {
 
   const renderWhitelistJoin = () => {
     const [isLoaded, setIsLoaded] = useState(false);
+    const { isWhitelistFull } = useMintStageContext();
    
     useEffect(() => {
       setIsLoaded(true);
@@ -107,13 +108,13 @@ export function MintSection() {
     
         {/* Button container */}
         <div 
-          className={`flex flex-col items-center gap-3 opacity-0 scale-[3] ${
+          className={`h-20 flex flex-col items-center gap-3 opacity-0 scale-[3] ${
             isLoaded ? 'animate-button-fall' : ''
           }`} 
-          style={{ animationDelay: '0.9s' }} // 0.6с начало текста + 0.3с задержка
+          style={{ animationDelay: '0.9s' }}
         >
           <span className="text-[16px] leading-[16px] text-text-gray font-bold uppercase">
-            Stage 1/5
+            {isWhitelistFull ? 'Stage 1/5 ended' : 'Stage 1/5'}
           </span>
           <WhitelistButton />
         </div>
