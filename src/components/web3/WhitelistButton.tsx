@@ -10,10 +10,11 @@ import WhitelistSuccessDialog from '@/components/dialogs/WhitelistSuccessDialog'
 
 export function WhitelistButton() {
     const { address } = useAppKitAccount()
-    const { isWhitelisted, checkWhitelistStatus } = useMintStage()
+    const { isWhitelisted , position, checkWhitelistStatus } = useMintStage()
     const [whitelistDialogOpen, setWhitelistDialogOpen] = useState(false)
     const [successDialogOpen, setSuccessDialogOpen] = useState(false)
     const [showConnectWalletError, setShowConnectWalletError] = useState(false)
+
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -53,9 +54,15 @@ export function WhitelistButton() {
         <div className="flex flex-col items-center gap-2">
             {isWhitelisted ? (
                 <div className="flex items-center gap-3">
-                    <span className="text-[#03CB00] text-[24px] font-bold uppercase">
-                        You are on the whitelist! ✌️
-                    </span>
+                    {position ? (
+                        <span className="text-[#03CB00] text-[24px] font-bold uppercase">
+                            {`You are #${position} on the whitelist! ✌️`}
+                        </span>
+                    ) : (
+                        <span className="text-[#03CB00] text-[24px] font-bold uppercase">
+                            You are on the whitelist! ✌️
+                        </span>
+                    )}
                     <Button 
                         variant="primary"
                         size="sm"

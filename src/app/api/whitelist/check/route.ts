@@ -31,9 +31,14 @@ export async function GET(request: Request) {
     };
 
     const checks = {
-      address: address ? whitelistEntries.some(
-        (entry: WhitelistEntry) => entry.address.toLowerCase() === address.toLowerCase()
-      ) : undefined,
+      address: address ? {
+        isWhitelisted: whitelistEntries.some(
+          (entry: WhitelistEntry) => entry.address.toLowerCase() === address.toLowerCase()
+        ),
+        position: whitelistEntries.findIndex(
+          (entry: WhitelistEntry) => entry.address.toLowerCase() === address.toLowerCase()
+        ) + 1
+      } : undefined,
       discord: discord ? whitelistEntries.some(
         (entry: WhitelistEntry) => entry.discord === discord
       ) : undefined,

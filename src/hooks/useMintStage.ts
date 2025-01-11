@@ -1,25 +1,40 @@
 import { useMintStageContext } from '@/context/MintStageContext';
 import { STAGE_CONFIGS } from '@/config/mint-stages';
 import { MintStage } from '@/types/mint-stages';
+import { useState, useEffect } from 'react';
+import { useAppKitAccount } from '@reown/appkit/react';
 
-// Для тестирования стадий
-const DEV_MODE = true; // Легко переключить режим разработки
-const FORCED_STAGE = MintStage.WHITELIST_REGISTRATION; // Стадия для тестирования
+const DEV_MODE = true;
+const FORCED_STAGE = MintStage.WHITELIST_REGISTRATION;
 
 export const useMintStage = () => {
-  // Извлекаем данные и функции из контекста
   const { isWhitelisted, isLoading, checkWhitelistStatus, currentStage: contextStage } = useMintStageContext();
+  const { address } = useAppKitAccount();
+  const [position, setPosition] = useState<number | null>(null);
 
-  // Если включен DEV_MODE, используем FORCED_STAGE, иначе берем текущую стадию из контекста
   const currentStage = DEV_MODE ? FORCED_STAGE : contextStage;
 
-  // TODO: Добавить получение реальной стадии из контракта
-  if (!DEV_MODE) {
-    // Здесь будет логика получения реальной стадии из контракта
-    // setCurrentStage(realStageFromContract)
-  }
+  // Получаем позицию в whitelist
+  useEffect(() => {
+    const fetchPosition = async () => {
+      if (address && isWhitelisted) {
+        try {
+          const response = await fetch(`/api/whitelist/check?address=${address}`);
+          const data = await response.json();
+          if (data.address?.position) {
+            setPosition(data.address.position);
+          }
+        } catch (error) {
+          console.error('Failed to fetch whitelist position:', error);
+        }
+      } else {
+        setPosition(null);
+      }
+    };
 
-  // Логика проверки возможности взаимодействия
+    fetchPosition();
+  }, [address, isWhitelisted]);
+
   const canInteract = () => {
     if (isLoading) return false;
 
@@ -30,11 +45,12 @@ export const useMintStage = () => {
   };
 
   return {
-    currentStage, // Текущая стадия (с учетом DEV_MODE)
-    stageConfig: STAGE_CONFIGS[currentStage], // Конфигурация текущей стадии
-    canInteract: canInteract(), // Можно ли взаимодействовать
-    isWhitelisted, // Статус вайтлиста (из контекста)
-    isLoading, // Статус загрузки
-    checkWhitelistStatus, // Функция проверки статуса
+    currentStage,
+    stageConfig: STAGE_CONFIGS[currentStage],
+    canInteract: canInteract(),
+    isWhitelisted,
+    isLoading,
+    checkWhitelistStatus,
+    position, // Только позиция, без проверки на free mint
   };
 };

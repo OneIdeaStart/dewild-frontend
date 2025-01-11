@@ -21,18 +21,19 @@ export const MintStageProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [isLoading, setIsLoading] = useState(false)
 
   const checkWhitelistStatus = async () => {
-    if (!address) return
-    setIsLoading(true)
-    try {
-      const response = await fetch(`/api/whitelist/check?address=${address}`)
-      const data = await response.json()
-      setIsWhitelisted(data.address)
-    } catch (error) {
-      console.error('Error checking whitelist status:', error)
-      setIsWhitelisted(false)
-    } finally {
-      setIsLoading(false)
-    }
+      if (!address) return
+      setIsLoading(true)
+      try {
+        const response = await fetch(`/api/whitelist/check?address=${address}`)
+        const data = await response.json()
+        // Используем data.address.isWhitelisted вместо data.address
+        setIsWhitelisted(data.address?.isWhitelisted || false)
+      } catch (error) {
+        console.error('Error checking whitelist status:', error)
+        setIsWhitelisted(false)
+      } finally {
+        setIsLoading(false)
+      }
   }
 
   useEffect(() => {

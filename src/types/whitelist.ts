@@ -15,7 +15,10 @@ export interface WhitelistStats {
 }
 
 export interface WhitelistCheckResponse {
-  address?: boolean;
+  address?: {
+    isWhitelisted: boolean;
+    position: number;
+  };
   discord?: boolean;
   twitter?: boolean;
   stats: WhitelistStats;
