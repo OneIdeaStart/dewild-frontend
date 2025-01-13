@@ -60,7 +60,7 @@ export function WhitelistButton() {
     return (
         <div className="flex flex-col items-center gap-2">
             {isWhitelisted ? (
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center justify-center gap-3">
                     {position ? (
                         <span className="text-[#03CB00] text-[24px] font-bold uppercase">
                             {`You are #${position} on the whitelist! ✌️`}

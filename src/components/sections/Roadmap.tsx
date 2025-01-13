@@ -28,7 +28,7 @@ const roadmapData: QuarterSection[] = [
    items: [
      { text: "Website WVP Launch", isCompleted: true, color: "#48926D" },
      { text: "Whitelist Stage 1 Kicks Off", isCompleted: true, color: "#48926D" },
-     { text: "Free Mint & Early Birds Stages", isCompleted: false, color: "#606060" },
+     { text: "Free Mint & Early Adopters Stages", isCompleted: false, color: "#606060" },
      { text: "Finalizing the Collection", isCompleted: false, color: "#606060" },
      { text: "Public Mint and Auction Stages", isCompleted: false, color: "#606060" },
      { text: "Secondary Market Launch", isCompleted: false, color: "#606060" },
