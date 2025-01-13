@@ -22,7 +22,7 @@ export function MintStages() {
             </span>
           </div>
           <p className="text-[#48926D] text-[24px] leading-[24px] font-bold uppercase">
-            10,000 spots. The first 999 get access to the Free Mint in Phase 2. all whitelisted users can mint at 0.0011 $ETH in stage 3.
+            5,555 spots. The first 999 get access to the Free Mint in Phase 2. all whitelisted users can mint at 0.0011 $ETH in stage 3.
           </p>
         </div>
 

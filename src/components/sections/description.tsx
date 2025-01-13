@@ -21,7 +21,7 @@ export function Description() {
     },
     {
       image: '/images/about-2.png',
-      title: '15 NFT Types',
+      title: '15 Characters',
       description: 'Representing the wildest DeFi personalities.',
       bgColor: '#4801FF',
       textColor: '#7EF3E1'

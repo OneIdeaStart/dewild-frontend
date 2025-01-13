@@ -114,7 +114,7 @@ export function MintSection() {
           style={{ animationDelay: '0.9s' }}
         >
           <span className="text-[16px] leading-[16px] text-text-gray font-bold uppercase">
-            {isWhitelistFull ? 'Stage 1/5 ended' : 'Stage 1/5'}
+            {isWhitelistFull ? 'Stage 1/5. Completed' : 'Stage 1/5. Active'}
           </span>
           <WhitelistButton />
         </div>

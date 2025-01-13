@@ -11,53 +11,54 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
-    ({ title, description, image, bgColor, textColor, className, children, ...props }, ref) => {
-      return (
+  ({ title, description, image, bgColor, textColor, className, children, ...props }, ref) => {
+    return (
         <div
-          ref={ref}
-          style={{
-            backgroundColor: bgColor,
-          }}
-          className={cn("p-4 rounded-[16px] flex flex-wrap items-start gap-3", className)}
-          {...props}
-        >
-          {/* Изображение */}
-          {image && (
+        ref={ref}
+        style={{
+          backgroundColor: bgColor,
+        }}
+        className={cn("p-4 rounded-[16px] flex flex-wrap items-start gap-3 group", className)}
+        {...props}
+      >
+        {/* Изображение в контейнере */}
+        {image && (
+          <div className="w-[112px] h-[112px] rounded-[12px] overflow-hidden flex-shrink-0">
             <img
               src={image}
               alt={title}
-              className="w-[112px] h-[112px] rounded-[12px] flex-shrink-0"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.2]"
             />
-          )}
-  
-          {/* Текстовый блок */}
-          <div
-            className="flex flex-col gap-3"
-            style={{
-              flex: "1 1 0", // Гарантирует равномерное распределение текста
-              minWidth: "178px", // Минимальная ширина текста
-            }}
-          >
-            <p
-              className="text-[32px] leading-[32px] font-bold uppercase"
-              style={{ color: textColor }}
-            >
-              {title}
-            </p>
-            <p
-              className="text-[24px] leading-[24px] font-bold uppercase"
-              style={{ color: textColor }}
-            >
-              {description}
-            </p>
           </div>
-  
-          {/* Слоты для вложенного содержимого */}
-          {children}
+        )}
+
+        {/* Текстовый блок */}
+        <div
+          className="flex flex-col gap-3"
+          style={{
+            flex: "1 1 0",
+            minWidth: "178px",
+          }}
+        >
+          <p
+            className="text-[32px] leading-[32px] font-bold uppercase"
+            style={{ color: textColor }}
+          >
+            {title}
+          </p>
+          <p
+            className="text-[24px] leading-[24px] font-bold uppercase"
+            style={{ color: textColor }}
+          >
+            {description}
+          </p>
         </div>
-      );
-    }
-  );
+
+        {children}
+      </div>
+    );
+  }
+);
 
 Card.displayName = "Card";
 

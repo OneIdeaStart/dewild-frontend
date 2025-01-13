@@ -1,15 +1,18 @@
 'use client'
 
 import { WhitelistButton } from '@/components/web3/WhitelistButton'
+import { useMintStageContext } from '@/context/MintStageContext';
 
 export function Footer() {
+  const { isWhitelistFull } = useMintStageContext();
+
   return (
     <footer className="w-full min-h-screen pb-6 px-3 flex flex-col">
       {/* Main content with button - занимает всё свободное место */}
       <div className="flex-1 flex flex-col justify-center items-center mx-auto">
         <div className="flex flex-col items-center gap-3">
           <span className="text-text-gray text-[16px] leading-[16px] font-bold uppercase">
-            round 1/5
+            {isWhitelistFull ? 'Stage 1/5. Completed' : 'Stage 1/5. Active'}
           </span>
           <WhitelistButton />
         </div>
