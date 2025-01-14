@@ -1,10 +1,15 @@
 import type { Metadata } from 'next';
 import { headers } from 'next/headers';
+import Script from 'next/script';
 import ContextProvider from "@/context";
 import { MintStageProvider } from '@/context/MintStageContext';
 import Header from "@/components/layout/Header";
 import { sofia } from '@/styles/fonts'
+import { RootProvider } from '@/components/RootProvider';
 import './globals.css';
+
+// ID вашей аналитики
+const GA_TRACKING_ID = 'G-5Y83ZWN061';
 
 export const metadata: Metadata = {
  title: 'DeWild Club',
@@ -42,15 +47,36 @@ export default async function RootLayout({
  const cookies = cookieHeaders.get("cookie");
 
  return (
-   <html lang="en" className={sofia.variable}>
-     <body>
-       <ContextProvider cookies={cookies}>
-         <MintStageProvider>
-           <Header />
-           {children}
-         </MintStageProvider>
-       </ContextProvider>
-     </body>
-   </html>
+  <html lang="en" className={sofia.variable}>
+    <head>
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
+        strategy="afterInteractive"
+      />
+      <Script 
+        id="google-analytics" 
+        strategy="afterInteractive"
+      >
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', '${GA_TRACKING_ID}', {
+            page_path: window.location.pathname,
+          });
+        `}
+      </Script>
+    </head>
+    <body>
+      <ContextProvider cookies={cookies}>
+        <MintStageProvider>
+          <RootProvider> {/* Добавляем провайдер */}
+            <Header />
+            {children}
+          </RootProvider>
+        </MintStageProvider>
+      </ContextProvider>
+    </body>
+  </html>
  );
 }

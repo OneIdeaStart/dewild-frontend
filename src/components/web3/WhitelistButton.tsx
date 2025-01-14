@@ -6,6 +6,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog'
 import WhitelistDialog from '@/components/dialogs/WhitelistDialog'
 import { useMintStage } from '@/hooks/useMintStage'
 import { useMintStageContext } from '@/context/MintStageContext';
+import { event } from '@/lib/gtag';
 import { Button } from '@/components/ui/button'
 import WhitelistSuccessDialog from '@/components/dialogs/WhitelistSuccessDialog'
 
@@ -37,6 +38,12 @@ export function WhitelistButton() {
     }, [isWhitelistFull]);
 
     const handleWhitelistClick = () => {
+        event({
+            action: 'whitelist_dialog_open',
+            category: 'whitelist',
+            label: address ? 'With Wallet' : 'No Wallet',
+        });
+     
         if (!address) {
             setShowConnectWalletError(true)
             return
