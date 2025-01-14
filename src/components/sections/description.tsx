@@ -28,10 +28,17 @@ export function Description() {
     },
     {
       image: '/images/about-3.png',
-      title: 'Five stages',
-      description: 'whitelist, free mint, Early adopters, Fixed price, auction.',
+      title: 'Rarity',
+      description: 'Unique attributes create one-of-a-kind combos.',
       bgColor: '#8B1933',
       textColor: '#FDC867'
+    },
+    {
+      image: '/images/about-8.png',
+      title: 'Free Mint',
+      description: 'Early adopters get exclusive access to the first phase.',
+      bgColor: '#D26BFF',
+      textColor: '#FFDD00'
     },
     {
       image: '/images/about-4.png',
@@ -61,13 +68,6 @@ export function Description() {
       bgColor: '#1F315F',
       textColor: '#DA8D67'
     },
-    {
-      image: '/images/about-8.png',
-      title: 'Free Mint',
-      description: 'Early adopters get exclusive access to the first phase.',
-      bgColor: '#D26BFF',
-      textColor: '#FFDD00'
-    }
   ];
 
   return (
@@ -90,7 +90,7 @@ export function Description() {
           ref={welcomeText3Ref}
           className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
         >
-          This collection is your digital badge of honor in the wild world of decentralized finance. It's not just about NFTs; it's about celebrating the bold, the brave, and the borderline unhinged who make DeFi a lifestyle.
+          DeWild Club NFT is your wild avatar in the DeFi jungle, empowering you with luck, safeguarding your defi freedom, and unlocking the door to legendary opportunities.
         </p>
       </div>
 

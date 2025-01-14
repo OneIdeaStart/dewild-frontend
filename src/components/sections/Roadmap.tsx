@@ -46,7 +46,7 @@ const roadmapData: QuarterSection[] = [
      { text: "Holder Dashboard Goes Live", isCompleted: false, color: "#606060" },
      { text: "Massive Giveaways", isCompleted: false, color: "#606060" },
      { text: "Explosive Promotions", isCompleted: false, color: "#606060" },
-     { text: "Scheming the Next Big Moves", isCompleted: false, color: "#606060" },
+     { text: "Partnerships and collaborations", isCompleted: false, color: "#606060" },
    ]
  },
  {
