@@ -3,14 +3,10 @@ const nextConfig = {
   webpack: (config) => {
     config.externals = config.externals || [];
     config.externals.push('pino-pretty', 'lokijs', 'encoding');
-
-    // Включаем файловое кэширование
     config.cache = false;
-
     return config;
   },
   
-  // Добавляем настройки безопасности
   async headers() {
     return [
       {
@@ -20,11 +16,11 @@ const nextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com",
+              "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com",
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' data: https://cdnjs.cloudflare.com https://fonts.gstatic.com",
               "img-src 'self' data: https://* blob:",
-              "connect-src 'self' wss: https://* http://*",
+              "connect-src 'self' wss: https://* http://* https://www.google-analytics.com https://www.googletagmanager.com",
               "frame-src 'self' https://*",
             ].join('; ')
           }
@@ -33,7 +29,6 @@ const nextConfig = {
     ];
   },
 
-  // Настройки компилятора для продакшена
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   }
