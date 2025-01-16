@@ -100,7 +100,7 @@ export function MintSection() {
             }`}
             style={{ animationDelay: '0.6s' }}
           >
-            11,111 unique PFP nfts for wildest DeFi souls on Base chain! Join the wild side of DeFi – where your portfolio isn't the only thing that gets a little crazy.
+            11,111 unique NFTs for bold souls on Base. Claim your freedom, embrace your wild side, and stand out in the world of Web3.
           </p>
         </div>
     

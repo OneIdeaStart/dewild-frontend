@@ -59,7 +59,7 @@ const roadmapData: QuarterSection[] = [
      { text: "Supercharging the Dashboard", isCompleted: false, color: "#606060" },
      { text: "Bigger Raffles & Wild Contests", isCompleted: false, color: "#606060" },
      { text: "Mapping the Future of DeWild", isCompleted: false, color: "#606060" },
-     { text: "$WILD Tokenomics Unveiled", isCompleted: false, color: "#606060" },
+     { text: "Unique Collector Rewards", isCompleted: false, color: "#606060" },
      { text: "Turning NFTs into the Ultimate Flex", isCompleted: false, color: "#606060" },
    ]
  },
@@ -72,8 +72,8 @@ const roadmapData: QuarterSection[] = [
    items: [
      { text: "Exclusive Community Merch Drop", isCompleted: false, color: "#606060" },
      { text: "Dashboard Upgrade 2.0", isCompleted: false, color: "#606060" },
-     { text: "Token Launch Party Begins", isCompleted: false, color: "#606060" },
-     { text: "Layer 2 Conquest in Progress", isCompleted: false, color: "#606060" },
+     { text: "Community-Driven Milestones", isCompleted: false, color: "#606060" },
+     { text: "Expanding Global Awareness", isCompleted: false, color: "#606060" },
      { text: "Writing DeWild's Legendary Status", isCompleted: false, color: "#606060" },
    ]
  }

@@ -15,14 +15,14 @@ export function Description() {
     {
       image: '/images/about-1.png',
       title: '11,111 NFTs',
-      description: 'Unique one-of-a-kind designs, there are no duplicates.',
+      description: 'One-of-a-kind, no duplicates, just individuality.',
       bgColor: '#F9E52C',
       textColor: '#48926D'
     },
     {
       image: '/images/about-2.png',
       title: '15 Characters',
-      description: 'Representing the wildest DeFi personalities.',
+      description: 'Embodiments of bold personalities, unique as its owner.',
       bgColor: '#4801FF',
       textColor: '#7EF3E1'
     },
@@ -78,19 +78,18 @@ export function Description() {
           ref={welcomeText1Ref}
           className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
         >
-          Welcome to DeWild, where 'wild' means as free as your leverage is high. We're 11,111 unique NFTs celebrating the untamed spirit of DeFi and the crazy souls who thrive in it.
-        </p>
+          Welcome to DeWild Club, a collection for those who live boldly and choose freedom. 11,111 unique NFTs represent the untamed spirit of those who embrace the wild side of Web3.        </p>
         <p 
           ref={welcomeText2Ref}
           className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
         >
-          Be you a trader, airdrop hunter, yield farmer, or NFT enthusiast, if DeFi runs through your veins, this is for you. Whether you're chasing gains, refreshing wallets, or aping into the next big thing – welcome to the wild side.
+          Whether you’re an innovator, creator, or dreamer, DeWild is for those who dare to be different and make their mark in the new digital world.
         </p>
         <p 
           ref={welcomeText3Ref}
           className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
         >
-          DeWild Club NFT is your wild avatar in the DeFi jungle, empowering you with luck, safeguarding your defi freedom, and unlocking the door to legendary opportunities.
+          DeWild NFT is your avatar in the digital frontier, a talisman of boldness and freedom, unlocking the path to unique opportunities and legendary connections.
         </p>
       </div>
 
@@ -115,19 +114,19 @@ export function Description() {
           ref={founderText1Ref}
           className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
         >
-          Layer 2 never looked this wild, and I can't wait for you to join me on this journey.
+          DeWild was born from a desire to create something bold, free, and lasting. It’s a celebration of those who choose freedom and dare to stand apart in a world of conformity."
         </p>
         <p 
           ref={founderText2Ref}
           className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
         >
-          i built DeWild to prove that the wildest ideas come to life when you take the first step. For years, I worked to build someone else's dreams, but after losing my job, I decided it was time to chase my own.
+          For years, I helped build someone else’s dreams. Losing my job became the wake-up call I needed to chase my own vision—a vision fueled by passion and a belief in limitless potential.
         </p>
         <p 
           ref={founderText3Ref}
           className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
         >
-          My ultimate dream? To create something that would live on long after me. And what better way to achieve that than through blockchain and Web3?
+          This collection represents not just my journey but the collective power of those who dare to break free. Together, we’re shaping something that will live on long after us.
         </p>
       </div>
     </section>

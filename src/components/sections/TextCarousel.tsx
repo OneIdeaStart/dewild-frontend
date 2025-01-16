@@ -2,8 +2,8 @@
 'use client'
 
 export function TextCarousel() {
-  const text = "let's make nfts great again."
-  const singleTextWidth = 943;
+  const text = "Be bold. Be free. Be DeWild."
+  const singleTextWidth = 891;
 
   return (
     <section className="w-full flex flex-col">
