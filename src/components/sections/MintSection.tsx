@@ -100,7 +100,7 @@ export function MintSection() {
             }`}
             style={{ animationDelay: '0.6s' }}
           >
-            Bold NFTs are being born. 11,111 artists. 11,111 statements. Base chain. A celebration of individuality and freedom. Get ready for the wild side of Web3.
+            Looking for 11,111 artists with 11,111 bold statements. This is your chance to collaborate, be heard, and become part of something extraordinary.
           </p>
         </div>
     
