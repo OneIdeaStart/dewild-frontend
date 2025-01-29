@@ -103,7 +103,7 @@ export default function WhitelistDialog({ onClose }: WhitelistDialogProps) {
         {/* Header */}
         <div className="flex justify-between items-center w-full">
           <h1 className="text-[48px] font-extrabold uppercase leading-[48px]">
-            Join whitelist
+            Apply for Collaboration
           </h1>
           <svg
             onClick={() => onClose(false)}
@@ -224,7 +224,7 @@ export default function WhitelistDialog({ onClose }: WhitelistDialogProps) {
               className="w-full"
               disabled={whitelistStats?.isFull}
             >
-              {whitelistStats?.isFull ? 'WHITELIST FULL' : 'JOIN WHITELIST'}
+              {whitelistStats?.isFull ? 'WHITELIST FULL' : 'Submit Application'}
             </Button>
             <button
               onClick={() => onClose(false)}

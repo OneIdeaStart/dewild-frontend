@@ -100,7 +100,7 @@ export function MintSection() {
             }`}
             style={{ animationDelay: '0.6s' }}
           >
-            11,111 unique NFTs for bold souls on Base. Claim your freedom, embrace your wild side, and stand out in the world of Web3.
+            Bold NFTs are being born. 11,111 artists. 11,111 statements. Base chain. A celebration of individuality and freedom. Get ready for the wild side of Web3.
           </p>
         </div>
     
@@ -114,7 +114,7 @@ export function MintSection() {
           style={{ animationDelay: '0.9s' }}
         >
           <span className="text-[16px] leading-[16px] text-text-gray font-bold uppercase">
-            {isWhitelistFull ? 'Stage 1/5. Completed' : 'Stage 1/5. Active'}
+            {isWhitelistFull ? 'Stage 1/5. Completed' : 'Got something bold to say?'}
           </span>
           <WhitelistButton />
         </div>

@@ -12,7 +12,7 @@ export function Footer() {
       <div className="flex-1 flex flex-col justify-center items-center mx-auto">
         <div className="flex flex-col items-center gap-3">
           <span className="text-text-gray text-[16px] leading-[16px] font-bold uppercase">
-            {isWhitelistFull ? 'Stage 1/5. Completed' : 'Stage 1/5. Active'}
+            {isWhitelistFull ? 'Stage 1/5. Completed' : 'Your boldest movement in Web3'}
           </span>
           <WhitelistButton />
         </div>

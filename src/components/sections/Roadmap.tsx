@@ -27,11 +27,10 @@ const roadmapData: QuarterSection[] = [
    },
    items: [
      { text: "Website WVP Launch", isCompleted: true, color: "#48926D" },
-     { text: "Whitelist Stage 1 Kicks Off", isCompleted: true, color: "#48926D" },
-     { text: "Free Mint & Early Adopters Stages", isCompleted: false, color: "#606060" },
-     { text: "Finalizing the Collection", isCompleted: false, color: "#606060" },
-     { text: "Public Mint and Auction Stages", isCompleted: false, color: "#606060" },
-     { text: "Secondary Market Launch", isCompleted: false, color: "#606060" },
+     { text: "Collaboration Platform for Artists", isCompleted: true, color: "#48926D" },
+     { text: "Artists Begin Minting Their NFTs", isCompleted: false, color: "#606060" },
+     { text: "First NFT Minted: DeWild #1", isCompleted: false, color: "#606060" },
+     { text: "Promos Kick Off: Genesis Mint Raffle", isCompleted: false, color: "#606060" },
    ]
  },
  {
@@ -42,9 +41,9 @@ const roadmapData: QuarterSection[] = [
    },
    items: [
      { text: "Clearing Debts", isCompleted: false, color: "#606060" },
-     { text: "Building a Thriving Community", isCompleted: false, color: "#606060" },
-     { text: "Holder Dashboard Goes Live", isCompleted: false, color: "#606060" },
-     { text: "Massive Giveaways", isCompleted: false, color: "#606060" },
+     { text: "Holder Dashboard Development", isCompleted: false, color: "#606060" },
+     { text: "Artist Features: Bold Collaborations", isCompleted: false, color: "#606060" },
+     { text: "Growing Community Engagement", isCompleted: false, color: "#606060" },
      { text: "Explosive Promotions", isCompleted: false, color: "#606060" },
      { text: "Partnerships and collaborations", isCompleted: false, color: "#606060" },
    ]

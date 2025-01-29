@@ -97,7 +97,7 @@ export function WhitelistButton() {
                         >
                             {isWhitelistFull 
                                 ? <span className="text-gray-500">Whitelist is Full</span>
-                                : 'Join Whitelist'
+                                : 'Join the Collab App'
                             }
                         </Button>
                             <div className="reflect-effect"></div>
