@@ -26,7 +26,7 @@ export default function WhitelistSuccessDialog({ isOpen, onClose }: WhitelistSuc
               ✌️
             </div>
             <div className="text-accent-green text-[24px] font-extrabold uppercase leading-[24px]">
-              you are on the whitelist!
+              WE’VE RECEIVED YOUR APPLICATION!
             </div>
           </div>
 
@@ -36,14 +36,14 @@ export default function WhitelistSuccessDialog({ isOpen, onClose }: WhitelistSuc
               Congrats,<br/>dewild one!
             </div>
             <div className="text-text-secondary text-[16px] font-extrabold uppercase leading-[16px]">
-              Stay tuned for announcements on x.com and Discord and don't miss the start of the mint round.
+            We’re reviewing submissions and will notify you once your collaboration is approved.
             </div>
           </div>
 
           {/* Promo Section */}
           <div className="flex flex-col items-center gap-4">
             <div className="text-white text-[24px] font-extrabold uppercase leading-[24px]">
-              to win more & help the project
+              SPREAD THE WORD & SUPPORT
             </div>
             <Button 
                 onClick={handlePromoClick}
