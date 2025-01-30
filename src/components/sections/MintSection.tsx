@@ -100,7 +100,7 @@ export function MintSection() {
             }`}
             style={{ animationDelay: '0.6s' }}
           >
-            Looking for 11,111 artists with 11,111 bold statements. This is your chance to collaborate, be heard, and become part of something extraordinary.
+            Bold NFTs are being born. Looking for 11,111 artists with 11,111 statements. This is your chance to be heard, and become part of something extraordinary.
           </p>
         </div>
     
