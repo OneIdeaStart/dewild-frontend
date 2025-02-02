@@ -5,7 +5,7 @@ import { useAppKitAccount } from '@reown/appkit/react'
 import { Dialog, DialogContent } from '@/components/ui/dialog'
 import CollabDialog from '@/components/dialogs/CollabDialog'
 import { useCollabStatus } from '@/hooks/useCollabStatus'
-import { event } from '@/lib/gtag'
+// import { event } from '@/lib/gtag'
 import { Button } from '@/components/ui/button'
 import CollabSuccessDialog from '@/components/dialogs/CollabSuccessDialog'
 
@@ -35,18 +35,19 @@ export function CollabButton() {
    }, [isCollabFull]);
 
    const handleCollabClick = () => {
-       event({
-           action: 'collab_dialog_open',
-           category: 'collab',
-           label: address ? 'With Wallet' : 'No Wallet',
-       });
-    
-       if (!address) {
-           setShowConnectWalletError(true)
-           return
-       }
-       setCollabDialogOpen(true)
-   }
+    // Убираем событие аналитики
+    // event({
+    //     action: 'collab_dialog_open',
+    //     category: 'collab',
+    //     label: address ? 'With Wallet' : 'No Wallet',
+    // });
+ 
+    if (!address) {
+        setShowConnectWalletError(true)
+        return
+    }
+    setCollabDialogOpen(true)
+}
 
    const handleCollabDialogClose = (success?: boolean) => {
        setCollabDialogOpen(false)
