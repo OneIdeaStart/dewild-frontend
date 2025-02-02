@@ -1,13 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
-import Script from 'next/script';
 import ContextProvider from "@/context";
 import Header from "@/components/layout/Header";
 import { sofia } from '@/styles/fonts'
 import { RootProvider } from '@/components/RootProvider';
 import './globals.css';
-
-const GA_TRACKING_ID = 'G-5Y83ZWN061';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -51,31 +48,7 @@ export default async function RootLayout({
 
   return (
     <html lang="en" className={sofia.variable}>
-      <head>
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_TRACKING_ID}`}
-        strategy="afterInteractive"
-        crossOrigin="anonymous"
-        // Добавляем SameSite атрибуты
-        data-cookiesettings='{"SameSite":"Lax", "Secure":true}'
-      />
-      <Script 
-        id="google-analytics" 
-        strategy="afterInteractive"
-      >
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
-          gtag('config', '${GA_TRACKING_ID}', {
-            page_path: window.location.pathname,
-            cookie_flags: 'SameSite=Lax;Secure'  // Добавляем флаги для кук
-          });
-        `}
-      </Script>
-      </head>
+      <head />
       <body>
         <ContextProvider cookies={cookies}>
           <RootProvider>
