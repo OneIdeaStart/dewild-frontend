@@ -128,11 +128,14 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
              01. Connect wallet
            </div>
            <div className="flex items-center gap-2">
-             <div className="text-[#7EF3E1] text-[24px] leading-[24px] font-extrabold uppercase">
-               {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not connected'}
-             </div>
-             {conditions.isWalletConnected && <Check className="w-6 h-6 text-[#7EF3E1]" />}
-           </div>
+           <div 
+              className="text-[#7EF3E1] text-[24px] leading-[24px] font-extrabold uppercase"
+              id="wallet-address"
+            >
+              {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : 'Not connected'}
+            </div>
+            {conditions.isWalletConnected && <Check className="w-6 h-6 text-[#7EF3E1]" />}
+          </div>
          </div>
  
          {/* Step 2: Join Discord */}
