@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAppKitAccount } from '@reown/appkit/react'
 
-interface WhitelistConditions {
+interface CollabConditions {
     isWalletConnected: boolean
     isTwitterFollowed: boolean
     isDiscordJoined: boolean
@@ -10,10 +10,10 @@ interface WhitelistConditions {
     discordId: string
 }
 
-export const useWhitelistConditions = () => {
+export const useCollabConditions = () => {
     const { isConnected } = useAppKitAccount();
    
-    const [conditions, setConditions] = useState<WhitelistConditions>({
+    const [conditions, setConditions] = useState<CollabConditions>({
       isWalletConnected: false,
       isTwitterFollowed: false,
       isDiscordJoined: false,
@@ -38,7 +38,6 @@ export const useWhitelistConditions = () => {
                           discordUsername: authData.username
                       }));
                   }
-                  // Очищаем после использования
                   localStorage.removeItem('discord_auth');
               } catch (error) {
                   console.error('Failed to parse discord_auth:', error);
@@ -61,7 +60,7 @@ export const useWhitelistConditions = () => {
         
         setTwitterHandle('');
         
-        sessionStorage.removeItem('whitelistConditions');
+        sessionStorage.removeItem('collabConditions');
         sessionStorage.removeItem('twitterHandle');
         
         if (typeof window !== 'undefined') {
@@ -80,7 +79,7 @@ export const useWhitelistConditions = () => {
 
     useEffect(() => {
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem('whitelistConditions', JSON.stringify(conditions))
+        sessionStorage.setItem('collabConditions', JSON.stringify(conditions))
       }
     }, [conditions]);
 
@@ -120,14 +119,11 @@ export const useWhitelistConditions = () => {
         const response = await fetch('/api/discord/auth');
         const { url } = await response.json();
 
-        // Проверяем, мобильное ли устройство
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
         if (isMobile) {
-          // На мобильных открываем в том же окне
           window.location.href = url;
         } else {
-          // На десктопе открываем в новом окне
           const authWindow = window.open(url, '_blank');
 
           const handleMessage = (event: MessageEvent) => {

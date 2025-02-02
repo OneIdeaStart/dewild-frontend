@@ -7,6 +7,11 @@ const nextConfig = {
     return config;
   },
   
+  // Отключаем оптимизацию CSS полностью
+  optimizeFonts: false,
+  optimizeImages: false,
+  swcMinify: false,
+  
   async headers() {
     return [
       {

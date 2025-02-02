@@ -1,7 +1,7 @@
 // src/lib/api.ts
 export async function checkWhitelist(address: string): Promise<boolean> {
     try {
-      const response = await fetch(`/api/whitelist/check?address=${address}`);
+      const response = await fetch(`/api/collab/check?address=${address}`);
       
       const contentType = response.headers.get('content-type');
       if (!contentType?.includes('application/json')) {

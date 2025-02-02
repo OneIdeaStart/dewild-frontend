@@ -1,27 +1,27 @@
-export interface WhitelistEntry {
+export interface CollabEntry {
   w: string;  // wallet address
   d: string;  // discord
   t: string;  // twitter
 }
 
-export interface WhitelistStats {
+export interface CollabStats {
   total: number;
   remaining: number;
   lastUpdated?: string;
   isFull: boolean;
 }
 
-export interface WhitelistCheckResponse {
+export interface CollabCheckResponse {
   address?: {
-    isWhitelisted: boolean;
+    isApplied: boolean;
     position: number;
   };
   discord?: boolean;
   twitter?: boolean;
-  stats: WhitelistStats;
+  stats: CollabStats;
 }
 
-export type WhitelistError = {
+export type CollabError = {
   type: 'address' | 'discord' | 'twitter' | 'server' | 'limit' | 'validation' | 'database';
   message: string;
 } | null;

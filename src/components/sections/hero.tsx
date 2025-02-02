@@ -1,10 +1,9 @@
 // src/components/sections/hero.tsx
 'use client';
 
-import { MintSection } from '@/components/sections/MintSection'
+import { CollabSection } from '@/components/sections/CollabSection'
 import { useEffect, useState } from 'react';
-import { useMintStage } from '@/hooks/useMintStage'
-import { MintStage } from '@/types/mint-stages'
+import { useCollabStatus } from '@/hooks/useCollabStatus'
 
 export function Hero() {
   const [isLoaded, setIsLoaded] = useState(false);
@@ -64,7 +63,7 @@ export function Hero() {
     <section className="w-full h-screen min-h-[696px] flex flex-col">
       <div className="flex-1 min-h-0">
         <div className="h-full flex flex-col mt-[56px]">
-          <MintSection />
+          <CollabSection />
         </div>
       </div>
       

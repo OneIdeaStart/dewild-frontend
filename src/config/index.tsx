@@ -3,25 +3,23 @@ import { WagmiAdapter } from '@reown/appkit-adapter-wagmi';
 import { base } from '@reown/appkit/networks';
 import { createAppKit } from '@reown/appkit/react';
 import { http } from 'viem';
-import { injected } from '@wagmi/connectors'
+import { injected } from '@wagmi/connectors';
 
 if (!process.env.NEXT_PUBLIC_PROJECT_ID) throw new Error('NEXT_PUBLIC_PROJECT_ID is not defined');
 
 export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID;
 
 export const wagmiAdapter = new WagmiAdapter({
-  // Используем localStorage вместо cookieStorage
-  storage: createStorage({ 
+  networks: [base],
+  projectId,
+  storage: createStorage({
     storage: typeof window !== 'undefined' ? window.localStorage : undefined
   }),
-  ssr: true,
-  projectId,
-  networks: [base],
   transports: {
-    [base.id]: http('https://base.publicnode.com'),
+    [base.id]: http('https://mainnet.base.org')
   },
   connectors: [injected()]
-})
+});
 
 export const modal = createAppKit({
   adapters: [wagmiAdapter],
@@ -34,4 +32,4 @@ export const modal = createAppKit({
     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     icons: []
   }
-})
+});

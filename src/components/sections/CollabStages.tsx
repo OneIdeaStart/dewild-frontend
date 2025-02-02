@@ -1,7 +1,7 @@
-// src/components/sections/MintStages.tsx
+// src/components/sections/CollabStages.tsx
 'use client';
 
-export function MintStages() {
+export function CollabStages() {
   return (
     <section className="w-full pt-40 pb-20 px-3 flex flex-col items-center gap-20">
       {/* Title */}
