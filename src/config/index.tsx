@@ -18,7 +18,9 @@ export const wagmiAdapter = new WagmiAdapter({
   transports: {
     [base.id]: http('https://mainnet.base.org')
   },
-  connectors: [injected()]
+  connectors: [injected({
+    shimDisconnect: true
+  })]
 });
 
 export const modal = createAppKit({
