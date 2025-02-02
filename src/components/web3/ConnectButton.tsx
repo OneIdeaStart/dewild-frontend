@@ -51,6 +51,7 @@ export default function ConnectButton() {
       onClick={handleClick}
       className="px-4 pt-[9px] pb-[7px] bg-white border-2 border-black rounded-[10px] flex items-center justify-center hover:bg-[#FFF7AC] transition-opacity"
       id="connect-wallet-button"
+      type="button" // Явно указываем тип кнопки
     >
       <span 
         className="text-black text-base font-bold font-['Sofia Sans Extra Condensed'] uppercase leading-5"
