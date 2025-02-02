@@ -202,6 +202,8 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
                onChange={(e) => handleTwitterHandleInput(e.target.value)}
                placeholder="Your X handle"
                className="w-full outline-none"
+               id="twitter-handle"
+               name="twitter-handle"
              />
            </div>
          </div>
