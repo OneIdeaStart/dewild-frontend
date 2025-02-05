@@ -35,7 +35,6 @@ export function CollabButton() {
    }, [isCollabFull]);
 
    const handleCollabClick = () => {
-    // Убираем событие аналитики
     // event({
     //     action: 'collab_dialog_open',
     //     category: 'collab',

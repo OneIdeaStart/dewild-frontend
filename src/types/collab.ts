@@ -1,20 +1,32 @@
-export interface CollabEntry {
-  w: string;  // wallet address
-  d: string;  // discord
-  t: string;  // twitter
+export interface CollabApplication {
+  id: string;              // Wild Rating ID (DWXXXXXX)
+  wallet: string;          // адрес кошелька
+  twitter: string;         // twitter handle
+  discord: string;         // discord handle
+  status: 'pending' | 'approved' | 'rejected';
+  createdAt: string;
+  moderatorVotes: {
+    discordId: string;     // discord ID модератора
+    vote: 'approve' | 'reject';
+    votedAt: string;
+    comment?: string;
+  }[];
 }
 
 export interface CollabStats {
   total: number;
+  pending: number;
+  approved: number;
+  rejected: number;
   remaining: number;
-  lastUpdated?: string;
   isFull: boolean;
 }
 
 export interface CollabCheckResponse {
   address?: {
     isApplied: boolean;
-    position: number;
+    status?: 'pending' | 'approved' | 'rejected';
+    isFull: boolean;
   };
   discord?: boolean;
   twitter?: boolean;
@@ -22,6 +34,6 @@ export interface CollabCheckResponse {
 }
 
 export type CollabError = {
-  type: 'address' | 'discord' | 'twitter' | 'server' | 'limit' | 'validation' | 'database';
+  type: 'address' | 'discord' | 'twitter' | 'server' | 'limit' | 'validation';
   message: string;
 } | null;
