@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { headers } from 'next/headers';
 import ContextProvider from "@/context";
 import Header from "@/components/layout/Header";
+import { MainHeader } from '@/components/layout/MainHeader'
 import { sofia } from '@/styles/fonts'
 import { RootProvider } from '@/components/RootProvider';
 import './globals.css';
@@ -52,7 +53,7 @@ export default async function RootLayout({
       <body>
         <ContextProvider cookies={cookies}>
           <RootProvider>
-            <Header />
+            <MainHeader />
             {children}
           </RootProvider>
         </ContextProvider>

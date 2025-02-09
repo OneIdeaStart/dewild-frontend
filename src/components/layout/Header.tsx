@@ -57,7 +57,7 @@ export default function Header() {
         </div>
 
         {/* Connect Wallet Button */}
-        <div className="sm:absolute sm:right-0 sm:top-[2px]">
+        <div className="sm:absolute sm:right-0">
           <ConnectButton />
         </div>
       </div>

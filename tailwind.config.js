@@ -141,13 +141,15 @@ module.exports = {
           }
         },
         'header-slide': {
-          '0%': { 
+          '0%': {
+            opacity: '0',
             transform: 'translateY(-100%)',
           },
           '85%': {
             transform: 'translateY(5px)',
           },
-          '100%': { 
+          '100%': {
+            opacity: '1',
             transform: 'translateY(0)',
           }
         },

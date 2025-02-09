@@ -36,6 +36,11 @@ const nextConfig = {
 
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
+  },
+
+  // Добавляем конфигурацию middleware
+  experimental: {
+    middleware: true
   }
 };
 

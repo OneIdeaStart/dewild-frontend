@@ -1,9 +1,18 @@
 // components/RootProvider.tsx
 'use client';
 
-import { usePageTracking } from '@/hooks/usePageTracking'
+import { usePathname } from 'next/navigation';
+import { usePageTracking } from '@/hooks/usePageTracking';
 
 export function RootProvider({ children }: { children: React.ReactNode }) {
-  usePageTracking()
-  return <>{children}</>
+  usePageTracking();
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith('/admin');
+
+  return (
+    <>
+      {!isAdmin && children}
+      {isAdmin && <>{children}</>}
+    </>
+  );
 }

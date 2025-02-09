@@ -34,6 +34,14 @@ export const useCollabConditions = (
     twitterHandle: ''
   });
 
+  const statuses = [
+    "UNLEASHED 🔥",
+    "WILD & FREE 🌟",
+    "UNTAMED 🎯",
+    "UNBOUND 💫",
+    "UNSTOPPABLE ⚡️"
+  ];
+
   const [tweetUrl, setTweetUrl] = useState('');
 
   // Проверяем результат Discord авторизации при загрузке
@@ -120,21 +128,21 @@ export const useCollabConditions = (
     if (typeof window === 'undefined') return;
   
     const wildRating = generateWildRating();
-    const text = `🎨 @DeWildClub just rated my artist spirit:
+    const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+    
+    const text = `Joining @DeWildClub artist community!
   
-  Wild Rating: ${wildRating}
-  Status: UNLEASHED 🔥
+Art Status: ${randomStatus}
+Wild Rating: ${wildRating}
   
-  11,111 artists. One wild collection.
-  Think you're wild enough? 
-  👉 dewild.club
+11,111 artists. One wild collection.
+Think you're wild enough?
   
-  #DeWildClub #NFTArt #ArtistsCommunity`;
+#DeWildClub #NFTArt #NFTCommunity`;
   
     const encodedText = encodeURIComponent(text);
     window.open(`https://twitter.com/intent/tweet?text=${encodedText}`, '_blank');
   
-    // Сохраняем ID для последующей проверки
     sessionStorage.setItem('wildRating', wildRating);
     
     setConditions(prev => ({
@@ -142,6 +150,7 @@ export const useCollabConditions = (
       hasSharedTweet: true
     }));
   }
+  
 
   const handleTweetUrlInput = (url: string) => {
     setTweetUrl(url);

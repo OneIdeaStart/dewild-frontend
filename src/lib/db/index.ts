@@ -37,6 +37,35 @@ export class DB {
     return application;
   }
 
+  static async getAllApplications(status?: string, search?: string): Promise<CollabApplication[]> {
+    // Если указан статус, берем из соответствующего сета
+    const setKey = status ? `applications:${status}` : this.KEYS.ALL_APPLICATIONS;
+    const applicationIds = await kv.smembers(setKey);
+    
+    // Получаем данные каждой заявки
+    const applications = await Promise.all(
+      applicationIds.map(id => this.getApplicationById(id))
+    );
+  
+    // Фильтруем null значения
+    const filteredApps = applications.filter((app): app is CollabApplication => app !== null);
+  
+    // Применяем поиск если указан
+    if (search) {
+      const searchLower = search.toLowerCase();
+      return filteredApps.filter(app => 
+        app.twitter.toLowerCase().includes(searchLower) ||
+        app.discord.toLowerCase().includes(searchLower) ||
+        app.wallet.toLowerCase().includes(searchLower)
+      );
+    }
+  
+    // Сортируем по дате создания (новые первыми)
+    return filteredApps.sort((a, b) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }
+
   // Получение заявки по кошельку
   static async getApplicationByWallet(wallet: string): Promise<CollabApplication | null> {
     const id = await kv.hget<string>(this.KEYS.BY_WALLET, wallet.toLowerCase());
@@ -86,6 +115,34 @@ export class DB {
     await kv.hset(this.KEYS.BY_TWITTER, { [twitter.toLowerCase()]: id });
 
     return application as CollabApplication;
+  }
+
+  static async deleteApplication(id: string) {
+    try {
+      console.log('DB: Getting application for deletion:', id);
+      const app = await this.getApplicationById(id);
+      if (!app) {
+        console.log('DB: Application not found:', id);
+        throw new Error('Application not found');
+      }
+  
+      console.log('DB: Removing from sets...');
+      // Удаляем из всех сетов
+      await kv.srem(this.KEYS.ALL_APPLICATIONS, id);
+      await kv.srem(`applications:${app.status}`, id);
+      await kv.hdel(this.KEYS.BY_WALLET, app.wallet.toLowerCase());
+      await kv.hdel(this.KEYS.BY_TWITTER, app.twitter.toLowerCase());
+      
+      console.log('DB: Deleting application record...');
+      // Удаляем саму заявку
+      await kv.del(`application:${id}`);
+  
+      console.log('DB: Application deleted successfully');
+      return true;
+    } catch (error) {
+      console.error('DB: Error in deleteApplication:', error);
+      throw error;
+    }
   }
 
   // Добавление голоса модератора
