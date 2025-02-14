@@ -22,7 +22,7 @@ export function CollabStages() {
             </span>
           </div>
           <p className="text-[#48926D] text-[24px] leading-[24px] font-bold uppercase">
-          Submit your application and join the movement of bold artists ready to make a statement.
+          Go to the DeWild Collab App and submit your application to join the movement of fearless artists.
           </p>
         </div>
 
@@ -37,7 +37,7 @@ export function CollabStages() {
             </span>
           </div>
           <p className="text-[#EFB260] text-[24px] leading-[24px] font-bold uppercase">
-          Use AI tools to transform your vision into bold, unique art. Regenerate until it’s perfect.
+          Receive your unique prompt, add your creativity, and let AI bring your vision to life. Regenerate until it’s perfect.
           </p>
         </div>
 
@@ -67,7 +67,7 @@ export function CollabStages() {
             </span>
           </div>
           <p className="text-[#026551] text-[24px] leading-[24px] font-bold uppercase">
-          Put your art up for auction and connect with collectors who value your creativity.
+          Put your masterpiece up for auction and connect with collectors who value your creativity.
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export function CollabStages() {
             </span>
           </div>
           <p className="text-[#99C1D7] text-[24px] leading-[24px] font-bold uppercase">
-          Watch your message spread across the digital world, inspiring bold conversations.
+          Watch your bold statement spread across the digital world, sparking fearless conversations.
           </p>
         </div>
       </div>

@@ -28,8 +28,9 @@ const roadmapData: QuarterSection[] = [
    items: [
      { text: "Website WVP Launch", isCompleted: true, color: "#48926D" },
      { text: "Collaboration Platform for Artists", isCompleted: true, color: "#48926D" },
-     { text: "Artists Begin Minting Their NFTs", isCompleted: false, color: "#606060" },
+     { text: "Launching Auction Platform", isCompleted: false, color: "#606060" },
      { text: "First NFT Minted: DeWild #1", isCompleted: false, color: "#606060" },
+     { text: "Artists Begin Minting & Listing NFTs", isCompleted: false, color: "#606060" },
      { text: "Promos Kick Off: Genesis Mint Raffle", isCompleted: false, color: "#606060" },
    ]
  },

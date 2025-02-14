@@ -14,57 +14,57 @@ export function Description() {
   const cards = [
     {
       image: '/images/about-1.png',
-      title: '11k NFTs',
-      description: 'Unique and bold, each one a masterpiece.',
+      title: 'Uniqueness',
+      description: 'Every NFT is 1/1—pure originality, no copies.',
       bgColor: '#F9E52C',
       textColor: '#48926D'
     },
     {
       image: '/images/about-2.png',
-      title: '11k Creators',
-      description: 'Fearless creators leaving their mark on Web3.',
+      title: 'Rarity',
+      description: 'Defined by traits, making each piece special.',
       bgColor: '#4801FF',
       textColor: '#7EF3E1'
     },
     {
       image: '/images/about-3.png',
-      title: '11k Stories',
-      description: 'Every NFT tells a tale of individuality and creativity.',
+      title: 'Auctions',
+      description: 'Artists mint and list their NFTs in open auctions.',
       bgColor: '#8B1933',
       textColor: '#FDC867'
     },
     {
       image: '/images/about-4.png',
-      title: '11k Views',
-      description: 'A collection as diverse as the creators behind it.',
+      title: 'Earnings',
+      description: '75% to artists, 25% to project growth from first sales.',
       bgColor: '#FF92B9',
       textColor: '#026551'
     },
     {
       image: '/images/about-5.png',
-      title: '11k Originals',
-      description: 'No copies, no imitations, just pure, unrepeatable art.',
+      title: 'Royalties',
+      description: '5% from resales go to artists & community.',
       bgColor: '#F3A73A',
       textColor: '#CA0D21'
     },
     {
       image: '/images/about-6.png',
-      title: '11k Links',
-      description: 'Uniting artists and collectors in a shared vision.',
+      title: 'Support',
+      description: '10% of all revenue funds emerging artists.',
       bgColor: '#005544',
       textColor: '#99C1D7'
     },
     {
       image: '/images/about-7.png',
-      title: '11k Dreams',
-      description: 'Ideas brought to life by those who dare to create.',
+      title: 'AI-Powered',
+      description: 'Created with AI and the artist’s vision combined.',
       bgColor: '#1F315F',
       textColor: '#DA8D67'
     },
     {
       image: '/images/about-8.png',
-      title: '11k Marks',
-      description: 'Each piece leaves its bold mark on the digital world.',
+      title: 'Revolution',
+      description: 'A creator-led movement shaping Web3.',
       bgColor: '#D26BFF',
       textColor: '#FFDD00'
     },
@@ -89,7 +89,7 @@ export function Description() {
           ref={welcomeText3Ref}
           className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
         >
-          These NFTs is a 1/1 PFP masterpieces. No duplicates, no shortcuts—just bold art that speaks louder than words. Own a piece of individuality and let it roar.
+          Unique 1/1 PFP masterpieces. No duplicates — just bold art that speaks louder than words. 11k fearless artists, 11k legendary NFTs, 11k bold statements.
         </p>
       </div>
 
@@ -120,7 +120,7 @@ export function Description() {
           ref={founderText2Ref}
           className="text-[24px] leading-[24px] text-[#606060] font-bold uppercase text-center transition-colors duration-300"
         >
-          Losing my job was the push I needed to finally pursue my own dream — a dream driven by creativity, boldness, and the belief that art has the power to inspire change.
+          Our goal is to unite creators from around the world, restore the glory of PFP NFTs, and build the best and legendary collection across Layer 2 blockchains.
         </p>
         <p 
           ref={founderText3Ref}

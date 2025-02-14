@@ -51,7 +51,7 @@ export function Promos() {
           </div>
           <div className="flex flex-col gap-3">
             <h3 className="text-white text-[32px] leading-[32px] font-bold uppercase">
-              Mint Your Message
+              Mint Your Statement
             </h3>
             <p className="text-[#606060] text-[24px] leading-[24px] font-bold uppercase">
             Follow us on X.com, like and repost our pinned post, and drop a bold message in the comments. The best messages will get the chance to mint their own NFT and become part of DeWild history.

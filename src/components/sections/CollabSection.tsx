@@ -47,7 +47,7 @@ export function CollabSection() {
           }`}
           style={{ animationDelay: '0.6s' }}
         >
-          A bold NFT collection is born here. A wild community of artists, ready to create and collaborate. Your chance to be heard and be part of something timeless.
+          A bold NFT collection is born here. Join a wild community of artists, ready to create and collaborate. Become part of something timeless.
         </p>
       </div>
   
