@@ -11,7 +11,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-white">
+    <div className="bg-white">
       <div className="h-[calc(100vh-56px)] mt-[56px]">
         {children}
       </div>

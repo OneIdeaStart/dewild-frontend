@@ -1,6 +1,6 @@
 'use client'
 
-import { CollabButton } from '@/components/web3/CollabButton'
+import { JoinCollabButton } from '@/components/web3/JoinCollabButton'
 import { useCollabStatus } from '@/hooks/useCollabStatus'
 
 export function Footer() {
@@ -14,7 +14,7 @@ export function Footer() {
          <span className="text-text-gray text-[16px] leading-[16px] font-bold uppercase">
            {isCollabFull ? 'All collaboration spots taken' : 'Your boldest movement in Web3'}
          </span>
-         <CollabButton />
+         <JoinCollabButton />
        </div>
      </div>
 
