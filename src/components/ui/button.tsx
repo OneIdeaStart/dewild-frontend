@@ -4,38 +4,43 @@ import { Loader2 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
- "inline-flex items-center justify-center transition-colors focus-visible:outline-none disabled:pointer-events-none font-bold uppercase",
- {
-   variants: {
-     variant: {
-       default: [
-         'bg-white border-2 border-black text-black rounded-[10px]',
-         'hover:bg-[#f5f5f5]',
-         'active:transform active:translate-y-0.5'
-       ],
-       primary: [
-         'bg-[#202020] text-[#E9E9E9] rounded-[16px]',
-         'hover:bg-[#3A3A3A]',
-         'active:transform active:translate-y-0.5'
-       ],
-       colored: [
-         'rounded-[12px]',
-         'hover:opacity-90',
-         'active:transform active:translate-y-0.5'
-       ]
-     },
-     size: {
-       default: 'pt-[9px] pb-[7px] px-4 text-[16px] leading-[20px]',
-       sm: 'pt-[9px] pb-[7px] px-3 text-[14px] leading-[16px] rounded-[10px]',
-       lg: 'pt-[9px] pb-[7px] px-8 text-[24px] leading-[36px]',
-     },
-   },
-   defaultVariants: {
-     variant: 'default',
-     size: 'default',
-   }
- }
-)
+  "inline-flex items-center justify-center transition-colors focus-visible:outline-none disabled:pointer-events-none font-bold uppercase",
+  {
+    variants: {
+      variant: {
+        default: [
+          'bg-white border-2 border-black text-black rounded-[10px]',
+          'hover:bg-[#f5f5f5]',
+          'active:transform active:translate-y-0.5'
+        ],
+        primary: [
+          'bg-[#202020] text-[#E9E9E9] rounded-[16px]',
+          'hover:bg-[#3A3A3A]',
+          'active:transform active:translate-y-0.5'
+        ],
+        'primary-light': [  // Добавляем новый вариант
+          'bg-[#ECECEC] text-[#202020] rounded-[16px]',
+          'hover:bg-[#f5f5f5]',
+          'active:transform active:translate-y-0.5'
+        ],
+        colored: [
+          'rounded-[12px]',
+          'hover:opacity-90',
+          'active:transform active:translate-y-0.5'
+        ]
+      },
+      size: {
+        default: 'pt-[9px] pb-[7px] px-4 text-[16px] leading-[20px]',
+        sm: 'pt-[9px] pb-[7px] px-3 text-[14px] leading-[16px] rounded-[10px]',
+        lg: 'pt-[9px] pb-[7px] px-8 text-[24px] leading-[36px]',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    }
+  }
+ ) 
 
 interface ButtonProps
  extends React.ButtonHTMLAttributes<HTMLButtonElement>,

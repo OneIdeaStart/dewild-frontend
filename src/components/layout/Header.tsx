@@ -1,24 +1,26 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Logo } from '../icons/logo'
-import ConnectButton from '../web3/ConnectButton'
+import { HeaderButton } from '../web3/HeaderButton'
 
 export default function Header() {
   const [isLoaded, setIsLoaded] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setTimeout(() => {
       setIsLoaded(true);
-    }, 0); // 1.4s - 0.2s = 1.2s
+    }, 0);
   }, []);
 
   return (
     <header className={`fixed top-0 left-0 right-0 px-4 pt-4 w-full min-w-[320px] z-50 -translate-y-full ${
       isLoaded ? 'animate-header-slide' : ''
     }`}>
-      <div className="mx-auto relative flex justify-between items-center"> {/* Добавили flex контейнер */}
-        {/* Social Icons - скрываем на мобильных */}
+      <div className="mx-auto relative flex justify-between items-center">
+        {/* Social Icons */}
         <div className="hidden sm:flex items-center gap-2">
           {/* Twitter/X */}
           <a 
@@ -42,7 +44,7 @@ export default function Header() {
           </a>
         </div>
 
-        {/* Logo - на мобильных слева */}
+        {/* Logo */}
         <div className="sm:absolute sm:left-1/2 sm:top-0 sm:-translate-x-1/2">
           <a 
             href="#top"
@@ -56,9 +58,9 @@ export default function Header() {
           </a>
         </div>
 
-        {/* Connect Wallet Button */}
+        {/* Dynamic Button (Connect Wallet or Collab App) */}
         <div className="sm:absolute sm:right-0">
-          <ConnectButton />
+          <HeaderButton />
         </div>
       </div>
     </header>

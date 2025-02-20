@@ -1,11 +1,10 @@
-import localFont from 'next/font/local'
+// src/styles/fonts.ts
 import { Sofia_Sans_Extra_Condensed } from 'next/font/google'
 
 export const sofia = Sofia_Sans_Extra_Condensed({
   subsets: ['latin'],
-  weight: ['800'], // Используем только bold (800)
+  weight: ['400', '700', '800'],
+  variable: '--font-sofia',
   display: 'swap',
   preload: true,
-  variable: '--font-sofia'
 })
-
