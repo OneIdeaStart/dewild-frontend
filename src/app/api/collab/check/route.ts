@@ -22,10 +22,13 @@ export async function GET(request: Request) {
         ? await DB.getApplicationByTwitter(twitter)
         : null;
 
+    // Гарантируем, что status всегда будет одним из допустимых значений
+    const status = application?.status || 'pending';
+    
     const checks = {
       address: address ? {
         isApplied: Boolean(application),
-        status: application?.status,
+        status: status as 'pending' | 'approved' | 'rejected',
         isFull: stats.isFull
       } : undefined,
       twitter: twitter ? Boolean(application) : undefined,
