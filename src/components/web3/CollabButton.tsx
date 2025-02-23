@@ -61,22 +61,25 @@ export function CollabButton() {
                 // Если проверка завершена и заявка подана - показываем статус
                 <button 
                     disabled
-                    className="w-full h-[52px] bg-[#202020] rounded-2xl text-[#FDC867] text-2xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase flex items-center justify-center gap-2 cursor-not-allowed"
+                    className="w-full h-[52px] bg-[#202020] rounded-2xl text-2xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase flex items-center justify-center gap-2 cursor-not-allowed"
                 >
                     {status === 'pending' && (
-                        <span className="relative">
-                            🕛 PENDING
+                        <span className="relative text-orange-400">
+                            <span className="text-[19px]">🕛</span>
+                            &nbsp;PENDING
                             <span className="animate-pulse">...</span>
                         </span>
                     )}
                     {status === 'approved' && (
                         <span className="text-green-400">
-                            ✅ APPROVED
+                            <span className="text-[19px]">✅</span>
+                            &nbsp;APPROVED
                         </span>
                     )}
                     {status === 'rejected' && (
                         <span className="text-red-400">
-                            🚫 REJECTED
+                            <span className="text-[19px]">🚫</span>
+                            &nbsp;REJECTED
                         </span>
                     )}
                 </button>
@@ -108,7 +111,7 @@ export function CollabButton() {
             )}
 
             <Dialog open={collabDialogOpen} onOpenChange={setCollabDialogOpen}>
-                <DialogContent className="bg-white w-screen h-screen p-0 m-0 max-w-none">
+                <DialogContent className="bg-white w-screen h-screen p-0 m-0 max-w-none animate-dark-slide">
                     <img
                         src="/images/animals.png"
                         alt="Animals"
