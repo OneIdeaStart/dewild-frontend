@@ -70,7 +70,10 @@ export function CollabButton() {
                             <span className="animate-pulse">...</span>
                         </span>
                     )}
-                    {status === 'approved' && (
+                    {(status === 'approved' || status === ('prompt_received' as any) || 
+                        status === ('nft_pending' as any) || 
+                        status === ('nft_approved' as any) || 
+                        status === ('nft_rejected' as any)) && (
                         <span className="text-green-400">
                             <span className="text-[19px]">✅</span>
                             &nbsp;APPROVED

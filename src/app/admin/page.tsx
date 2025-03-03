@@ -72,7 +72,67 @@ export default async function AdminPage() {
            </div>
          </div>
        </div>
-     </div>
-   </div>
- )
+
+       <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-500 truncate">
+                  NFT Pending
+                </div>
+                <div className="mt-1 text-3xl font-semibold text-orange-500">
+                  {stats?.extras?.nft_pending || 0}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-500 truncate">
+                  NFT Approved
+                </div>
+                <div className="mt-1 text-3xl font-semibold text-green-600">
+                  {stats?.extras?.nft_approved || 0}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-500 truncate">
+                  NFT Rejected
+                </div>
+                <div className="mt-1 text-3xl font-semibold text-red-600">
+                  {stats?.extras?.nft_rejected || 0}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-1">
+                <div className="text-sm font-medium text-gray-500 truncate">
+                  Minted NFTs
+                </div>
+                <div className="mt-1 text-3xl font-semibold text-blue-600">
+                  {stats?.extras?.minted || 0}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -1,6 +1,9 @@
+// src/lib/db/index.ts
 import { kv } from '@vercel/kv';
-import { CollabApplication, CollabStats } from '@/types/collab';
+import { CollabApplication, CollabStats, ApplicationStatus } from '@/types/collab';
 import { generateWildRating } from '@/lib/utils';
+import { PromptData, PromptStatus, PROMPT_KEYS } from '@/types/prompt';
+import { del } from '@vercel/blob';
 
 const COLLAB_LIMIT = 11111;
 
@@ -10,11 +13,19 @@ type ApplicationRecord = {
 } & CollabApplication;
 
 export class DB {
-  private static readonly KEYS = {
+  static readonly KEYS = {
     ALL_APPLICATIONS: 'applications:all',    
     PENDING: 'applications:pending',         
     APPROVED: 'applications:approved',       
-    REJECTED: 'applications:rejected',       
+    REJECTED: 'applications:rejected',
+    // Добавляем новые ключи для статусов
+    PROMPT_RECEIVED: 'applications:prompt_received',
+    PROMPT_EXPIRED: 'applications:prompt_expired',
+    NFT_PENDING: 'applications:nft_pending',
+    NFT_APPROVED: 'applications:nft_approved',
+    NFT_REJECTED: 'applications:nft_rejected',
+    MINTED: 'applications:minted',
+    UNMINTED: 'applications:unminted',
     BY_WALLET: 'applications:by:wallet',     
     BY_TWITTER: 'applications:by:twitter'    
   };
@@ -22,7 +33,7 @@ export class DB {
   static async getApplicationById(id: string): Promise<CollabApplication | null> {
     const record = await kv.hgetall<ApplicationRecord>(`application:${id}`);
     if (!record) return null;
-
+    
     // Преобразуем запись из Redis в CollabApplication
     const application: CollabApplication = {
       id: record.id,
@@ -31,9 +42,25 @@ export class DB {
       discord: record.discord,
       status: record.status,
       createdAt: record.createdAt,
-      moderatorVotes: record.moderatorVotes
+      moderatorVotes: record.moderatorVotes,
+      // Другие поля
+      promptId: record.promptId,
+      promptAssignedAt: record.promptAssignedAt,
+      imageUrl: record.imageUrl,
+      imageUploadedAt: record.imageUploadedAt,
+      mintedAt: record.mintedAt,
+      metadata: record.metadata
     };
-
+  
+    // Теперь проверяем, нужно ли парсить metadata, если она строка
+    if (application.metadata && typeof application.metadata === 'string') {
+      try {
+        application.metadata = JSON.parse(application.metadata as string);
+      } catch (e) {
+        // Ошибка при парсинге, но продолжаем выполнение
+      }
+    }
+  
     return application;
   }
 
@@ -66,21 +93,18 @@ export class DB {
     );
   }
 
-  // Получение заявки по кошельку
   static async getApplicationByWallet(wallet: string): Promise<CollabApplication | null> {
     const id = await kv.hget<string>(this.KEYS.BY_WALLET, wallet.toLowerCase());
     if (!id) return null;
     return this.getApplicationById(id);
   }
 
-  // Получение заявки по twitter
   static async getApplicationByTwitter(twitter: string): Promise<CollabApplication | null> {
     const id = await kv.hget<string>(this.KEYS.BY_TWITTER, twitter.toLowerCase());
     if (!id) return null;
     return this.getApplicationById(id);
   }
 
-  // Создание новой заявки
   static async createApplication(
     wallet: string, 
     twitter: string, 
@@ -119,33 +143,85 @@ export class DB {
 
   static async deleteApplication(id: string) {
     try {
-      console.log('DB: Getting application for deletion:', id);
       const app = await this.getApplicationById(id);
       if (!app) {
-        console.log('DB: Application not found:', id);
         throw new Error('Application not found');
       }
-  
-      console.log('DB: Removing from sets...');
+      
+      // Проверяем, есть ли привязанный промпт
+      if (app.promptId) {
+        // Получаем текущий статус промпта
+        const promptStatus = (await this.getPrompt(app.promptId))?.status;
+        
+        // Если промпт в статусе assigned, возвращаем его в available
+        if (promptStatus === 'assigned') {
+          await this.setPromptStatus(app.promptId, 'available');
+        }
+      }
+      
+      // Удаляем изображение из Blob Storage, если оно существует
+      if (app.imageUrl) {
+        try {
+          if (app.imageUrl.includes('vercel-storage.com')) {
+            // Пробуем получить имя файла из URL
+            const imagePathMatch = app.imageUrl.match(/\/([^\/]+\.[^\/]+)$/);
+            if (imagePathMatch && imagePathMatch[1]) {
+              const fileName = imagePathMatch[1];
+              
+              // Проверяем, есть ли blob-url в разных форматах
+              if (app.imageUrl.includes('/nft-images/')) {
+                // Формат /nft-images/{id}.png
+                await del('nft-images/' + fileName);
+              } else {
+                // Старый формат или другой формат URL
+                await del(fileName);
+              }
+            }
+          }
+        } catch (blobError) {
+          // Игнорируем ошибку удаления изображения
+        }
+      }
+      
+      // Удаляем миниатюры или другие связанные изображения, если они есть
+      try {
+        // Проверяем наличие миниатюр или других форматов
+        if (app.imageUrl) {
+          const baseName = app.imageUrl.replace(/\.[^.]+$/, ''); // Удаляем расширение
+          
+          // Попытка удалить thumbnail версию
+          try {
+            await del(baseName + '_thumb.jpg');
+          } catch (e) {
+            // Игнорируем ошибку, если миниатюры нет
+          }
+          
+          // Попытка удалить preview версию
+          try {
+            await del(baseName + '_preview.jpg');
+          } catch (e) {
+            // Игнорируем ошибку, если preview нет
+          }
+        }
+      } catch (additionalBlobError) {
+        // Игнорируем ошибки при удалении дополнительных изображений
+      }
+      
       // Удаляем из всех сетов
       await kv.srem(this.KEYS.ALL_APPLICATIONS, id);
       await kv.srem(`applications:${app.status}`, id);
       await kv.hdel(this.KEYS.BY_WALLET, app.wallet.toLowerCase());
       await kv.hdel(this.KEYS.BY_TWITTER, app.twitter.toLowerCase());
       
-      console.log('DB: Deleting application record...');
       // Удаляем саму заявку
       await kv.del(`application:${id}`);
-  
-      console.log('DB: Application deleted successfully');
+      
       return true;
     } catch (error) {
-      console.error('DB: Error in deleteApplication:', error);
       throw error;
     }
-  }
+  } 
 
-  // Добавление голоса модератора
   static async addModeratorVote(
     applicationId: string,
     moderatorId: string,
@@ -179,32 +255,191 @@ export class DB {
     });
   }
 
-  // Обновление статуса
-  static async updateStatus(id: string, status: 'pending' | 'approved' | 'rejected') {
+  static async updateStatus(id: string, status: ApplicationStatus) {
     const app = await this.getApplicationById(id);
     if (!app) throw new Error('Application not found');
-
+  
     await kv.srem(`applications:${app.status}`, id);
     await kv.sadd(`applications:${status}`, id);
+    
+    // Обновляем только статус, сохраняя остальные данные
     await kv.hset(`application:${id}`, { status });
   }
 
-  // Получение статистики
   static async getStats(): Promise<CollabStats> {
-    const [total, pending, approved, rejected] = await Promise.all([
+    const [
+      total,
+      pending,
+      approved,
+      prompt_received,
+      prompt_expired,
+      nft_pending,
+      nft_approved,
+      nft_rejected,
+      minted,
+      unminted,
+    ] = await Promise.all([
       kv.scard(this.KEYS.ALL_APPLICATIONS),
       kv.scard(this.KEYS.PENDING),
       kv.scard(this.KEYS.APPROVED),
-      kv.scard(this.KEYS.REJECTED),
+      kv.scard(this.KEYS.PROMPT_RECEIVED),
+      kv.scard(this.KEYS.PROMPT_EXPIRED),
+      kv.scard(this.KEYS.NFT_PENDING),
+      kv.scard(this.KEYS.NFT_APPROVED),
+      kv.scard(this.KEYS.NFT_REJECTED),
+      kv.scard(this.KEYS.MINTED),
+      kv.scard(this.KEYS.UNMINTED),
     ]);
 
     return {
       total,
       pending,
       approved,
-      rejected,
+      rejected: await kv.scard(this.KEYS.REJECTED),
       remaining: COLLAB_LIMIT - total,
-      isFull: total >= COLLAB_LIMIT
+      isFull: total >= COLLAB_LIMIT,
+      // Добавляем дополнительную статистику, если нужно
+      extras: {
+        prompt_received,
+        prompt_expired,
+        nft_pending,
+        nft_approved,
+        nft_rejected,
+        minted,
+        unminted,
+      }
     };
+  }
+
+  static async updateApplicationPrompt(
+    id: string,
+    promptId: string
+  ): Promise<void> {
+    const app = await this.getApplicationById(id);
+    if (!app) throw new Error('Application not found');
+
+    await kv.hset(`application:${id}`, {
+      promptId,
+      promptAssignedAt: new Date().toISOString()
+    });
+  }
+
+  static async updateApplicationNFT(
+    id: string,
+    imageUrl: string
+  ): Promise<void> {
+    const app = await this.getApplicationById(id);
+    if (!app) throw new Error('Application not found');
+
+    await kv.hset(`application:${id}`, {
+      imageUrl,
+      imageUploadedAt: new Date().toISOString()
+    });
+  }
+
+  static async updateMintStatus(
+    id: string,
+    status: 'minted' | 'unminted'
+  ): Promise<void> {
+    const app = await this.getApplicationById(id);
+    if (!app) throw new Error('Application not found');
+
+    await kv.hset(`application:${id}`, {
+      status,
+      mintedAt: status === 'minted' ? new Date().toISOString() : null
+    });
+  }
+
+  static async getPrompt(promptId: string): Promise<PromptData | null> {
+    return kv.hgetall<PromptData>(PROMPT_KEYS.getStatusKey(promptId));
+  }
+
+  static async setPromptStatus(
+    promptId: string,
+    status: PromptStatus,
+    wallet?: string
+  ): Promise<void> {
+    const oldStatus = (await this.getPrompt(promptId))?.status;
+    if (oldStatus) {
+      // Удаляем из старого сета
+      await kv.srem(`prompts:${oldStatus}`, promptId);
+    }
+
+    // Добавляем в новый сет
+    await kv.sadd(`prompts:${status}`, promptId);
+
+    // Обновляем данные промпта
+    const updateData: Partial<PromptData> = {
+      status,
+      ...(status === 'assigned' && {
+        assignedTo: wallet,
+        assignedAt: new Date().toISOString()
+      }),
+      ...(status === 'used' && {
+        usedAt: new Date().toISOString()
+      })
+    };
+
+    await kv.hset(PROMPT_KEYS.getStatusKey(promptId), updateData);
+  }
+
+  static async getRandomAvailablePrompt(): Promise<string | null> {
+    return kv.srandmember(PROMPT_KEYS.AVAILABLE);
+  }
+
+  static async updateApplicationMetadata(
+    id: string,
+    metadata: any
+  ): Promise<void> {
+    const app = await this.getApplicationById(id);
+    if (!app) throw new Error('Application not found');
+  
+    await kv.hset(`application:${id}`, {
+      metadata: JSON.stringify(metadata)
+    });
+  }
+
+  static async saveNFTSignature(
+    id: string,
+    signature: string
+  ): Promise<void> {
+    const app = await this.getApplicationById(id);
+    if (!app) throw new Error('Application not found');
+    
+    await kv.hset(`application:${id}`, {
+      nftSignature: signature
+    });
+  }
+  
+  static async getNFTSignature(wallet: string): Promise<string | null> {
+    const id = await kv.hget<string>(this.KEYS.BY_WALLET, wallet.toLowerCase());
+    if (!id) return null;
+    
+    const signature = await kv.hget<string>(`application:${id}`, 'nftSignature');
+    return signature;
+  }
+
+  static async updateMintTransaction(
+    id: string,
+    txHash: string
+  ): Promise<void> {
+    const app = await this.getApplicationById(id);
+    if (!app) throw new Error('Application not found');
+  
+    await kv.hset(`application:${id}`, {
+      mintTransaction: txHash,
+      mintedAt: new Date().toISOString()
+    });
+  }
+
+  static async clearApplicationImage(id: string): Promise<void> {
+    const app = await this.getApplicationById(id);
+    if (!app) throw new Error('Application not found');
+  
+    // Удаляем URL изображения и временную метку
+    await kv.hset(`application:${id}`, {
+      imageUrl: null,
+      imageUploadedAt: null
+    });
   }
 }

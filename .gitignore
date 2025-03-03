@@ -38,3 +38,6 @@ typechain-types
 
 # Misc
 .DS_Store
+
+# data files
+data/

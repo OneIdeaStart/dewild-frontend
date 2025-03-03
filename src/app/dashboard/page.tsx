@@ -26,10 +26,10 @@ export default function DashboardPage() {
           <div className="absolute inset-0 rounded-2xl z-[2] bg-gradient-to-t from-black/50 to-black/10"></div>
             
             <div className="relative z-[3]">
-              <h2 className="text-[32px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-4">
+              <h2 className="text-[32px] leading-[32px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-4">
                 Step 1. Send Request
               </h2>
-              <p className="text-2xl text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase">
+              <p className="text-[24px] leading-[24px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase">
                 Connect wallet, verify Discord & X, submit your application, and wait for approval (up to 24 hours).
               </p>
             </div>
@@ -70,10 +70,10 @@ export default function DashboardPage() {
           <div className="absolute inset-0 rounded-2xl z-[2] bg-gradient-to-t from-black/50 to-black/10"></div>
             
             <div className="relative z-[3]">
-              <h2 className="text-[32px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-4">
+              <h2 className="text-[32px] leading-[32px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-4">
                 Step 2. Generate
               </h2>
-              <p className="text-2xl text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase">
+              <p className="text-[24px] leading-[24px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase">
                 Get your unique prompt, head to Replicate, and generate your PFP. Customize it for the best result.
               </p>
             </div>
@@ -113,10 +113,10 @@ export default function DashboardPage() {
           <div className="absolute inset-0 rounded-2xl z-[2] bg-gradient-to-t from-black/50 to-black/10"></div>
             
             <div className="relative z-[3]">
-              <h2 className="text-[32px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-4">
+              <h2 className="text-[32px] leading-[32px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-4">
                 Step 3. Upload Image
               </h2>
-              <p className="text-2xl text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase">
+              <p className="text-[24px] leading-[24px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase">
                 Save your generated image, upload it here, add metadata, and wait for approval (up to 24 hours).
               </p>
             </div>
@@ -156,10 +156,10 @@ export default function DashboardPage() {
           <div className="absolute inset-0 rounded-2xl z-[2] bg-gradient-to-t from-black/50 to-black/10"></div>
             
             <div className="relative z-[3]">
-              <h2 className="text-[32px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-4">
+              <h2 className="text-[32px] leading-[32px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-4">
                 Step 4. Mint NFT
               </h2>
-              <p className="text-2xl text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase">
+              <p className="text-[24px] leading-[24px] text-white font-extrabold font-['Sofia Sans Extra Condensed'] uppercase">
                 Mint your NFT, head to DeWild.art, and list it for auction. Let the world see your boldest creation.
               </p>
             </div>

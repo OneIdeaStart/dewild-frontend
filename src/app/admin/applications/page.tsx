@@ -34,15 +34,19 @@ export default async function ApplicationsPage({
            </div>
            
            <select 
-             name="status" 
-             defaultValue={status}
-             className="border rounded-lg px-4 py-2"
-           >
-             <option value="">All Status</option>
-             <option value="pending">Pending</option>
-             <option value="approved">Approved</option>
-             <option value="rejected">Rejected</option>
-           </select>
+              name="status" 
+              defaultValue={status}
+              className="border rounded-lg px-4 py-2"
+            >
+              <option value="">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="nft_pending">NFT Pending</option>
+              <option value="nft_approved">NFT Approved</option>
+              <option value="nft_rejected">NFT Rejected</option>
+              <option value="minted">Minted</option>
+            </select>
 
            <button 
              type="submit"
@@ -56,49 +60,65 @@ export default async function ApplicationsPage({
      
      <div className="bg-white shadow-sm rounded-lg">
        <table className="min-w-full">
-         <thead>
-           <tr className="border-b">
-             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discord</th>
-             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Twitter</th>
-             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
-             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-           </tr>
-         </thead>
-         <tbody className="divide-y divide-gray-200">
-           {applications?.map((app: CollabApplication) => (
-             <tr key={app.id}>
-               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{app.id}</td>
-               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.discord}</td>
-               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                 <a 
-                   href={`https://x.com/${app.twitter}`} 
-                   target="_blank" 
-                   rel="noopener noreferrer"
-                   className="text-indigo-600 hover:text-indigo-900"
-                 >
-                   {app.twitter}
-                 </a>
-               </td>
-               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                 <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                   ${app.status === 'approved' ? 'bg-green-100 text-green-800' : 
-                     app.status === 'rejected' ? 'bg-red-100 text-red-800' : 
-                     'bg-yellow-100 text-yellow-800'}`}>
-                   {app.status}
-                 </span>
-               </td>
-               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                 {new Date(app.createdAt).toLocaleDateString()}
-               </td>
-               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium max-w-32">
-                 <ActionButtons id={app.id} status={app.status} />
-               </td>
-             </tr>
-           ))}
-         </tbody>
-       </table>
+          <thead>
+            <tr className="border-b">
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discord</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Twitter</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Image</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {applications?.map((app: CollabApplication) => (
+              <tr key={app.id}>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{app.id}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{app.discord}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <a 
+                    href={`https://x.com/${app.twitter}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-indigo-600 hover:text-indigo-900"
+                  >
+                    {app.twitter}
+                  </a>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                    ${app.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                      app.status === 'rejected' ? 'bg-red-100 text-red-800' : 
+                      app.status === 'nft_pending' ? 'bg-yellow-100 text-yellow-800' :
+                      app.status === 'nft_approved' ? 'bg-blue-100 text-blue-800' :
+                      app.status === 'nft_rejected' ? 'bg-red-100 text-red-800' :
+                      'bg-gray-100 text-gray-800'}`}>
+                    {app.status}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {app.imageUrl && (
+                    <a 
+                      href={app.imageUrl} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-indigo-600 hover:text-indigo-900 underline"
+                    >
+                      View Image
+                    </a>
+                  )}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  {new Date(app.createdAt).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium max-w-32">
+                  <ActionButtons id={app.id} status={app.status} />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
      </div>
    </div>
  );
