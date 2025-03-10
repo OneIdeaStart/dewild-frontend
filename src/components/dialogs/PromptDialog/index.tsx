@@ -133,7 +133,7 @@ export default function PromptDialog({ promptData, onClose }: PromptDialogProps)
               onClick={onClose}
               className="text-black text-[24px] font-extrabold uppercase w-full"
             >
-              CANCEL
+              CLOSE
             </button>
           </div>
         </div>

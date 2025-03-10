@@ -6,6 +6,7 @@ import { useCollabStatus } from '@/hooks/useCollabStatus';
 import { useWriteContract, useWaitForTransactionReceipt, useChainId } from 'wagmi';
 import { CONTRACTS, ABIS } from '@/lib/web3/contracts';
 import { parseEther } from 'viem';
+import MintSuccessDialog from '../MintSuccessDialog';
 
 interface MintDialogProps {
   onClose: () => void;
@@ -24,21 +25,24 @@ export default function MintDialog({ onClose }: MintDialogProps) {
     const [stage, setStage] = useState<'init' | 'ipfs' | 'mint' | 'done'>('init');
     const [txHash, setTxHash] = useState<string | undefined>(undefined);
     const [nftAlreadyUploaded, setNftAlreadyUploaded] = useState(false);
-    
-    // Добавляем режим тестирования IPFS
-    const [testMode, setTestMode] = useState(true);
+    // Стейт для разворачивания/сворачивания блока трейтов
+    const [traitsExpanded, setTraitsExpanded] = useState(false);
+    // Состояние успешного завершения минта для отображения MintSuccessDialog
+    const [showMintSuccess, setShowMintSuccess] = useState(false);
+    const [mintedTokenId, setMintedTokenId] = useState<string | null>(null);
     
     // Get chainId to check network
     const chainId = useChainId();
     
-    // Base Sepolia chainId
-    const BASE_SEPOLIA_CHAIN_ID = 84532;
+    // Base Mainnet chainId
+    const BASE_MAINNET_CHAIN_ID = 8453;
     
     // Check if on correct network
-    const isCorrectNetwork = chainId === BASE_SEPOLIA_CHAIN_ID;
+    const isCorrectNetwork = chainId === BASE_MAINNET_CHAIN_ID;
+
     
     // Get contract addresses
-    const contractAddresses = CONTRACTS.TESTNET;
+    const contractAddresses = CONTRACTS.MAINNET;
     
     // Use wagmi hooks
     const { writeContractAsync } = useWriteContract();
@@ -71,8 +75,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
                         });
                         
                         setNftAlreadyUploaded(true);
-                        setTestMode(false); // Важно! Отключаем тестовый режим
-                        console.log("NFT already uploaded, disabling test mode");
+                        console.log("NFT already uploaded to IPFS");
                     }
                 }
             } catch (error) {
@@ -128,7 +131,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
         if (!address) return;
         
         try {
-            await fetch('/api/nft/minted', {
+            const response = await fetch('/api/nft/minted', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -139,16 +142,21 @@ export default function MintDialog({ onClose }: MintDialogProps) {
                 }),
             });
             
+            const data = await response.json();
+            
             // Set success status
             setStage('done');
             
             // Re-check status
             await checkCollabStatus();
             
-            // Close dialog after delay
-            setTimeout(() => {
-                onClose();
-            }, 3000);
+            // Если в ответе есть tokenId, сохраняем его
+            if (data && data.tokenId) {
+                setMintedTokenId(data.tokenId);
+            }
+            
+            // Показываем диалог успешного минта
+            setShowMintSuccess(true);
         } catch (error) {
             console.error('Error updating DB status:', error);
             setMintError('NFT minted but failed to update status. Please contact support.');
@@ -200,7 +208,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
     const mintNFT = async () => {
       // Check network first
       if (!isCorrectNetwork) {
-        setMintError(`Please switch to Base Sepolia network to mint your NFT.`);
+        setMintError(`Please switch to Base Mainnet network to mint your NFT.`);
         return;
       }
       
@@ -209,18 +217,12 @@ export default function MintDialog({ onClose }: MintDialogProps) {
         return;
       }
       
-      // В тестовом режиме останавливаемся после загрузки в IPFS
-      if (testMode) {
-        await uploadToIPFS();
-        return;
-      }
-      
       setIsLoading(true);
       setMintError(undefined);
       
       try {
         // Сначала загружаем в IPFS, если еще не загружено
-        if (!nftAlreadyUploaded && !ipfsData && stage === 'init') {
+        if (!nftAlreadyUploaded && !ipfsData) {
           setStage('ipfs');
           const ipfsSuccess = await uploadToIPFS();
           if (!ipfsSuccess) {
@@ -248,8 +250,6 @@ export default function MintDialog({ onClose }: MintDialogProps) {
         // Store tx hash for tracking
         setTxHash(hash);
         
-        // Don't set 'done' status immediately - wait for confirmation
-        
       } catch (error: any) {
         console.error('Mint error:', error);
         setMintError(error.message || 'Failed to mint NFT');
@@ -272,223 +272,231 @@ export default function MintDialog({ onClose }: MintDialogProps) {
         case 'done':
           return "NFT Minted Successfully!";
         default:
-          return testMode ? "Upload to IPFS" : "Mint NFT";
+          return "Upload to IPFS & Mint NFT";
       }
     };
 
-    return (
-      <div className="relative flex flex-col items-center w-full h-full overflow-auto">
-        <div className="relative z-10 flex flex-col items-center gap-8 px-3 mt-20 sm:mt-8 w-full max-w-[448px] pb-10">
-          {/* Header */}
-          <div className="flex justify-between items-center w-full">
-            <h1 className="text-[48px] font-extrabold uppercase leading-[48px]">
-              {testMode ? "Test IPFS Upload" : "Mint NFT"}
-            </h1>
-            <svg
-              onClick={onClose}
-              width="48"
-              height="48"
-              viewBox="0 0 48 48"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="cursor-pointer"
-            >
-              <path d="M12.4501 37.6501L10.3501 35.5501L21.9001 24.0001L10.3501 12.4501L12.4501 10.3501L24.0001 21.9001L35.5501 10.3501L37.6501 12.4501L26.1001 24.0001L37.6501 35.5501L35.5501 37.6501L24.0001 26.1001L12.4501 37.6501Z" fill="black" />
+    // Функция для обновления текста кнопки в зависимости от статуса
+    const renderButtonText = () => {
+      if (isLoading || ipfsLoading || isConfirming) {
+        return (
+          <span className="flex items-center justify-center">
+            <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-          </div>
+            {renderStage()}
+          </span>
+        );
+      }
+      
+      // Если есть ошибка загрузки в IPFS, но нет ошибки минтинга, то кнопка должна быть "UPLOAD TO IPFS & MINT NFT"
+      if (ipfsError && !mintError) {
+        return "UPLOAD TO IPFS & MINT NFT";
+      }
+      
+      // Если есть ошибка минтинга, но не ошибка загрузки в IPFS, то кнопка должна быть "MINT NFT"
+      if (mintError && !ipfsError && nftAlreadyUploaded) {
+        return "MINT NFT";
+      }
+      
+      // По умолчанию
+      return renderStage();
+    };
 
-          {/* Network Warning */}
-          {!isCorrectNetwork && (
-            <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-              <strong className="font-bold">Wrong Network! </strong>
-              <span className="block sm:inline">Please connect to Base Sepolia network to mint your NFT.</span>
+    return (
+      <>
+        <div className="relative flex flex-col items-center w-full h-full overflow-auto">
+          <div className="relative z-10 flex flex-col items-center gap-8 px-3 mt-20 sm:mt-8 w-full max-w-[448px] pb-10">
+            {/* Header */}
+            <div className="flex justify-between items-center w-full">
+              <h1 className="text-[48px] font-extrabold uppercase leading-[48px]">
+                Mint NFT
+              </h1>
+              <svg
+                onClick={onClose}
+                width="48"
+                height="48"
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="cursor-pointer"
+              >
+                <path d="M12.4501 37.6501L10.3501 35.5501L21.9001 24.0001L10.3501 12.4501L12.4501 10.3501L24.0001 21.9001L35.5501 10.3501L37.6501 12.4501L26.1001 24.0001L37.6501 35.5501L35.5501 37.6501L24.0001 26.1001L12.4501 37.6501Z" fill="black" />
+              </svg>
             </div>
-          )}
 
-          <div className="flex flex-col gap-3 w-full">
-            {/* Test Mode Toggle - Hide if NFT already uploaded */}
-            {!nftAlreadyUploaded && (
-              <div className="bg-[#8B1933] p-4 rounded-[16px]">
-                <div className="flex justify-between items-center">
-                  <div className="text-white text-[24px] leading-[24px] font-extrabold">
-                    Test Mode (IPFS Only)
-                  </div>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input type="checkbox"
-                      checked={testMode}
-                      onChange={() => setTestMode(!testMode)}
-                      className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
+            {/* Network Warning */}
+            {!isCorrectNetwork && (
+              <div className="w-full bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                <strong className="font-bold">Wrong Network! </strong>
+                <span className="block sm:inline">Please connect to Base Mainnet network to mint your NFT.</span>
               </div>
             )}
 
-            {/* NFT Preview */}
-            <div className="bg-[#6A35FF] p-4 rounded-[16px]">
-              <div className="text-[#7EF3E1] text-[32px] leading-[32px] font-extrabold uppercase mb-4">
-                Your DeWild NFT
-              </div>
-              
-              {applicationData?.imageUrl && (
-                <div className="mt-4 flex justify-center">
-                  <img 
-                    src={applicationData.imageUrl} 
-                    alt="Your NFT" 
-                    className="max-h-[416px] object-contain"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* IPFS Status */}
-            <div className="bg-[#FF92B9] p-4 rounded-[16px]">
-              <div className="text-[#026551] text-[32px] leading-[32px] font-extrabold uppercase mb-3">
-                IPFS STATUS
-              </div>
-              
-              {ipfsLoading ? (
-                <div className="text-[#026551] text-[24px] font-bold flex items-center">
-                  <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Uploading to IPFS...
-                </div>
-              ) : ipfsData ? (
-                <div className="text-[#026551] text-[18px] leading-[24px] font-bold">
-                  <p>✅ Image uploaded to IPFS</p>
-                  <p>✅ Metadata uploaded to IPFS</p>
-                  <p className="mt-2 font-normal">Image CID: {ipfsData.ipfsImage.substring(0, 20)}...</p>
-                  <p className="font-normal">Metadata CID: {ipfsData.ipfsMetadata.substring(0, 20)}...</p>
-                  
-                  {/* Добавляем ссылки для просмотра в IPFS */}
-                  <div className="mt-3">
-                    <a 
-                      href={ipfsData.ipfsImageUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block text-blue-600 underline"
-                    >
-                      View Image in IPFS
-                    </a>
-                    <a 
-                      href={ipfsData.ipfsMetadataUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block text-blue-600 underline"
-                    >
-                      View Metadata in IPFS
-                    </a>
-                  </div>
-                  
-                  {/* В тестовом режиме добавляем кнопку для продолжения к минту */}
-                  {testMode && ipfsData && (
-                    <div className="mt-4">
-                      <Button
-                        onClick={() => setTestMode(false)}
-                        variant="primary"
-                        size="sm"
-                        className="bg-black hover:bg-gray-700 text-white"
-                      >
-                        Continue to Mint
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="text-[#026551] text-[18px] leading-[24px] font-bold">
-                  {ipfsError ? (
-                    <p className="text-red-600">Error: {ipfsError}</p>
-                  ) : (
-                    <p>Your NFT will be uploaded to IPFS before minting</p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Transaction Status - show when minting */}
-            {(stage === 'mint' || isConfirming) && txHash && (
+            <div className="flex flex-col gap-3 w-full">
+              {/* NFT Preview */}
               <div className="bg-[#6A35FF] p-4 rounded-[16px]">
-                <div className="text-white text-[24px] leading-[24px] font-extrabold mb-2">
-                  Transaction Status
+                <div className="text-[#7EF3E1] text-[32px] leading-[32px] font-extrabold uppercase mb-4">
+                  Your DeWild NFT
                 </div>
-                <p className="text-white text-sm break-all">
-                  Hash: {txHash}
-                </p>
-                <div className="mt-2">
-                  <a 
-                    href={`https://sepolia.basescan.org/tx/${txHash}`}
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="text-[#7EF3E1] underline"
-                  >
-                    View on BaseScan
-                  </a>
-                </div>
-                <div className="mt-2 flex items-center text-white">
-                  {isConfirming ? (
-                    <>
-                      <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Waiting for confirmation...
-                    </>
-                  ) : (
-                    'Transaction submitted'
-                  )}
-                </div>
+                
+                {applicationData?.imageUrl && (
+                  <div className="mt-4 flex justify-center">
+                    <img 
+                      src={applicationData.imageUrl} 
+                      alt="Your NFT" 
+                      className="max-h-[416px] object-contain rounded-[8px]"
+                    />
+                  </div>
+                )}
               </div>
-            )}
 
-            {/* NFT Info - показываем только в режиме минта */}
-            {!testMode && (
+              {/* NFT Traits с возможностью сворачивания */}
+              <div className="bg-[#FF92B9] p-4 rounded-[16px]">
+                <div 
+                  className="flex justify-between items-center cursor-pointer"
+                  onClick={() => setTraitsExpanded(!traitsExpanded)}
+                >
+                  <div className="text-[#026551] text-[32px] leading-[32px] font-extrabold uppercase">
+                    Check NFT Traits
+                  </div>
+                  <div className="text-[#026551]">
+                    {traitsExpanded ? (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 15L12 9L18 15" stroke="#026551" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ) : (
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9L12 15L18 9" stroke="#026551" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                
+                {traitsExpanded && applicationData?.metadata?.traits && (
+                  <div className="mt-3">
+                    <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase">Animal</div>
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase text-right">{applicationData.metadata.traits.animal}</div>
+                      
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase">Material</div>
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase text-right">{applicationData.metadata.traits.material}</div>
+                      
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase">Material Color</div>
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase text-right">{applicationData.metadata.traits.material_color}</div>
+                      
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase">Background</div>
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase text-right">{applicationData.metadata.traits.background}</div>
+                      
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase">Pattern Color</div>
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase text-right">{applicationData.metadata.traits.pattern_color}</div>
+                      
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase">Eyes Color</div>
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase text-right">{applicationData.metadata.traits.eyes_color}</div>
+                      
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase">Artist</div>
+                      <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase text-right">
+                        @{applicationData?.twitter || 'unknown'}
+                      </div>
+                      
+                      {/* Statement, если есть */}
+                      {applicationData?.metadata?.statement && (
+                        <>
+                          <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase">Statement</div>
+                          <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase text-right">{applicationData.metadata.statement}</div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
+                
+                {traitsExpanded && !applicationData?.metadata?.traits && (
+                  <div className="text-[#026551] text-[18px] mt-3">
+                    <p>No traits data available</p>
+                    <p>Check application status or contact support.</p>
+                  </div>
+                )}
+              </div>
+
+              {/* Transaction Status - show when minting */}
+              {(stage === 'mint' || isConfirming) && txHash && (
+                <div className="bg-[#6A35FF] p-4 rounded-[16px]">
+                  <div className="text-white text-[24px] leading-[24px] font-extrabold mb-2">
+                    Transaction Status
+                  </div>
+                  <p className="text-white text-sm break-all">
+                    Hash: {txHash}
+                  </p>
+                  <div className="mt-2">
+                    <a 
+                      href={`https://basescan.org/tx/${txHash}`}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-[#7EF3E1] underline"
+                    >
+                      View on BaseScan
+                    </a>
+                  </div>
+                  <div className="mt-2 flex items-center text-white">
+                    {isConfirming ? (
+                      <>
+                        <svg className="animate-spin h-5 w-5 mr-2" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Waiting for confirmation...
+                      </>
+                    ) : (
+                      'Transaction submitted'
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* NFT Info */}
               <div className="bg-[#F9E52C] p-4 rounded-[16px]">
                 <div className="text-[#48926D] text-[32px] leading-[32px] font-extrabold uppercase mb-3">
                   MINT & MAKE HISTORY
                 </div>
                 <p className="text-[#48926D] text-[24px] leading-[24px] font-extrabold uppercase">
-                Your art. Your message. Locked on-chain forever. Mint it, own it, and let the world take notice.
+                  Your art. Your message. Locked on-chain forever. Mint it, own it, and let the world take notice.
                 </p>
               </div>
-            )}
-          </div>
+            </div>
 
-          <div className="relative w-full max-w-[448px] flex justify-between">
-            <button
-              onClick={onClose}
-              className="text-black text-[24px] font-extrabold uppercase"
-              disabled={isLoading || ipfsLoading || isConfirming}
-            >
-              CANCEL
-            </button>
-            <Button
-              onClick={mintNFT}
-              variant="primary"
-              size="lg"
-              className="bg-black hover:bg-gray-700 text-white"
-              disabled={isLoading || ipfsLoading || isSignatureLoading || !signature || stage === 'done' || (testMode && ipfsData) || isConfirming}
-            >
-              {isLoading || ipfsLoading || isConfirming ? (
-                <span className="flex items-center">
-                  <svg className="animate-spin h-5 w-5 mr-3" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  {renderStage()}
-                </span>
-              ) : (
-                renderStage()
+            <div className="flex flex-col gap-4 w-full max-w-[448px] relative">
+              {/* Ошибка показывается над кнопкой */}
+              {(mintError || ipfsError) && (
+                <div className="bg-[#D90004] rounded-[8px] px-4 py-2 text-white text-[16px] font-extrabold uppercase text-center">
+                  {mintError || ipfsError}
+                </div>
               )}
-            </Button>
+              
+              <Button
+                onClick={mintNFT}
+                variant="primary"
+                size="lg"
+                className="w-full bg-black hover:bg-gray-700 text-white"
+                disabled={isLoading || ipfsLoading || isSignatureLoading || !signature || stage === 'done' || isConfirming}
+              >
+                {renderButtonText()}
+              </Button>
+              <button
+                onClick={onClose}
+                className="text-black text-[24px] font-extrabold uppercase w-full text-center"
+                disabled={isLoading || ipfsLoading || isConfirming}
+              >
+                CANCEL
+              </button>
+            </div>
           </div>
-          
-          {mintError && (
-            <p className="text-red-500 text-sm mt-2">{mintError}</p>
-          )}
         </div>
-      </div>
+
+        {/* Диалог успешного минта */}
+        {showMintSuccess && (
+          <MintSuccessDialog isOpen={showMintSuccess} onClose={() => setShowMintSuccess(false)} tokenId={mintedTokenId} />
+        )}
+      </>
     );
 }

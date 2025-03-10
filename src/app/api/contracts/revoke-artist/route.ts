@@ -6,7 +6,7 @@ import { DB } from '@/lib/db';
 
 // Получаем конфигурацию из переменных окружения
 const PRIVATE_KEY = process.env.CONTRACT_ADMIN_PRIVATE_KEY || '';
-const RPC_URL = process.env.BASE_TESTNET_RPC_URL || 'https://sepolia.base.org';
+const RPC_URL = process.env.BASE_MAINNET_RPC_URL || 'https://mainnet.base.org';
 
 export async function POST(request: Request) {
     try {
@@ -68,7 +68,7 @@ export async function POST(request: Request) {
       }
     
       // Получаем адрес контракта DeWildClub
-      const contractAddress = CONTRACTS.TESTNET.DeWildClub;
+      const contractAddress = CONTRACTS.MAINNET.DeWildClub;
       
       // Используем первый элемент массива ABI
       const abi = ABIS.DeWildClub as any;

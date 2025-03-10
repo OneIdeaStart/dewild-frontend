@@ -3,10 +3,10 @@
 
 import { wagmiAdapter, projectId } from '../config';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { base, baseSepolia } from '@reown/appkit/networks';
+import { base } from '@reown/appkit/networks';
 import { createAppKit } from '@reown/appkit/react';
 import React, { type ReactNode } from 'react';
-import { cookieToInitialState, WagmiProvider, type Config } from 'wagmi';
+import { WagmiProvider, type Config } from 'wagmi';
 
 const queryClient = new QueryClient();
 
@@ -23,8 +23,8 @@ function ContextProvider({ children, cookies }: Props) {
   const modal = createAppKit({
     adapters: [wagmiAdapter],
     projectId,
-    networks: [base, baseSepolia],
-    defaultNetwork: baseSepolia,
+    networks: [base],
+    defaultNetwork: base,
     metadata: {
       name: 'DeWild',
       description: 'NFT Collection',

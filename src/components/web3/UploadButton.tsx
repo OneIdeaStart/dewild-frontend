@@ -71,7 +71,7 @@ export function UploadButton() {
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
         </button>
-      ) : (status === 'nft_pending' || status === 'nft_approved') ? (
+      ) : (status === 'nft_pending' || status === 'nft_approved' || status === ('minted' as any)) ? (
         // Если загрузка завершена и ожидается апрув или уже апрувнуто
         <button 
           disabled
@@ -84,7 +84,7 @@ export function UploadButton() {
               <span className="animate-pulse">...</span>
             </span>
           )}
-          {status === 'nft_approved' && (
+          {(status === 'nft_approved' || status === ('minted' as any)) && (
             <span className="text-green-400">
               <span className="text-[19px]">✅</span>
               &nbsp;APPROVED

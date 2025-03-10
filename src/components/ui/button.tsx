@@ -9,7 +9,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: [
-          'bg-white border-2 border-black text-black rounded-[10px]',
+          'border-2 border-black text-black rounded-[10px]',
           'hover:bg-[#f5f5f5]',
           'active:transform active:translate-y-0.5'
         ],

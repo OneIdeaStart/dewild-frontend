@@ -7,9 +7,11 @@ export function useDeWildContracts() {
   const chainId = useChainId();
   const { address } = useAccount();
   
-  // Определяем, какие адреса использовать (тестнет или мейннет)
-  const isTestnet = chainId !== 8453; // 8453 - ID Base Mainnet
-  const contractAddresses = isTestnet ? CONTRACTS.TESTNET : CONTRACTS.MAINNET;
+  // Всегда используем адреса мейннета
+  const contractAddresses = CONTRACTS.MAINNET;
+  
+  // Проверка, что пользователь находится в правильной сети
+  const isCorrectNetwork = chainId === 8453; // 8453 - ID Base Mainnet
   
   // Функция для минта NFT
   const mintNFT = (signature: string) => {
@@ -78,7 +80,7 @@ export function useDeWildContracts() {
   
   return {
     addresses: contractAddresses,
-    isTestnet,
+    isCorrectNetwork,
     mintNFT,
     createAuction,
     placeBid,

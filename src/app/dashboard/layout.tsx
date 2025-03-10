@@ -12,7 +12,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="bg-white">
-      <div className="h-[calc(100vh-56px)] mt-[56px]">
+      <div className="lg:h-[calc(100vh-56px)] mt-[56px]">
         {children}
       </div>
     </div>

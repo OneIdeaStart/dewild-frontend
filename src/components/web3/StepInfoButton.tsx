@@ -32,18 +32,18 @@ export function StepInfoButton({ step, title, description, requirements, tips }:
               {title}
             </h2>
             
-            <p className="text-xl text-[#606060]">
+            <p className="text-[24px] leading-[24px] text-[#a9a9a9] font-extrabold font-['Sofia Sans Extra Condensed'] uppercase">
               {description}
             </p>
 
             {requirements && requirements.length > 0 && (
               <div>
-                <h3 className="text-2xl font-bold font-['Sofia Sans Extra Condensed'] uppercase mb-2">
+                <h3 className="text-2xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-2">
                   Requirements:
                 </h3>
-                <ul className="list-disc pl-5 space-y-2">
+                <ul className="list-disc pl-5">
                   {requirements.map((req, i) => (
-                    <li key={i} className="text-lg text-[#606060]">{req}</li>
+                    <li key={i} className="text-lg font-extrabold uppercase text-[#a9a9a9]">{req}</li>
                   ))}
                 </ul>
               </div>
@@ -54,9 +54,9 @@ export function StepInfoButton({ step, title, description, requirements, tips }:
                 <h3 className="text-2xl font-bold font-['Sofia Sans Extra Condensed'] uppercase mb-2">
                   Tips:
                 </h3>
-                <ul className="list-disc pl-5 space-y-2">
+                <ul className="list-disc pl-5">
                   {tips.map((tip, i) => (
-                    <li key={i} className="text-lg text-[#606060]">{tip}</li>
+                    <li key={i} className="text-lg font-extrabold uppercase text-[#a9a9a9]">{tip}</li>
                   ))}
                 </ul>
               </div>

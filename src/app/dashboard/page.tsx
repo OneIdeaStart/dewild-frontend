@@ -8,7 +8,7 @@ import { MintButton } from '@/components/web3/MintButton'
 
 export default function DashboardPage() {
     return (
-      <div className="h-full flex flex-col p-6">
+      <div className="h-full flex flex-col px-4 sm:px-6 py-6">
         {/* Верхняя часть с заголовком */}
         <div>
           <h1 className="text-5xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-1">
@@ -20,9 +20,9 @@ export default function DashboardPage() {
         </div>
   
         {/* Карточки этапов */}
-        <div className="grid grid-cols-4 gap-4 flex-1 h-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-1 h-full pb-6 lg:pb-0">
           {/* Step 1 */}
-          <div className="px-10 pt-10 pb-4 bg-[#D41123] rounded-2xl flex flex-col justify-between h-full relative">
+          <div className="px-10 pt-10 pb-4 bg-[#D41123] rounded-2xl flex flex-col justify-between h-full relative min-h-[480px] overflow-hidden">
           <div className="absolute inset-0 rounded-2xl z-[2] bg-gradient-to-t from-black/50 to-black/10"></div>
             
             <div className="relative z-[3]">
@@ -34,7 +34,7 @@ export default function DashboardPage() {
               </p>
             </div>
   
-            <div className="absolute bottom-0 left-0 right-0 rounded-b-2xl overflow-hidden z-[1]">
+            <div className="absolute bottom-0 left-0 rounded-b-2xl overflow-hidden z-[1]">
               <img 
                 src="/images/collab-1.png" 
                 alt="Step 1" 
@@ -52,21 +52,21 @@ export default function DashboardPage() {
                 description="The first step in joining DeWild is submitting your collaboration request. This process involves connecting your wallet and verifying your social media accounts to ensure you're a real artist ready to contribute to our community."
                 requirements={[
                   "Connect your Web3 wallet (Metamask, etc.)",
-                  "Have active Discord account",
+                  "Join Our Discord channel",
                   "Have active Twitter/X account",
                   "Follow DeWild on social media"
                 ]}
                 tips={[
                   "Make sure your social media profiles showcase your art or creative work",
-                  "Have your wallet ready with enough ETH for gas fees",
-                  "Keep an eye on your email for approval notifications"
+                  "Have your wallet ready with enough ETH for mint transaction and gas fees",
+                  "Be ready to spend some funds on Replicate for image generation"
                 ]}
               />
             </div>
           </div>
   
           {/* Step 2 */}
-          <div className="px-10 pt-10 pb-4 bg-[#E5D010] rounded-2xl flex flex-col justify-between h-full relative">
+          <div className="px-10 pt-10 pb-4 bg-[#E5D010] rounded-2xl flex flex-col justify-between h-full relative min-h-[480px] overflow-hidden">
           <div className="absolute inset-0 rounded-2xl z-[2] bg-gradient-to-t from-black/50 to-black/10"></div>
             
             <div className="relative z-[3]">
@@ -93,7 +93,7 @@ export default function DashboardPage() {
               <StepInfoButton 
                 step={2}
                 title="Generating Your NFT"
-                description="After approval, you'll receive a unique prompt to generate your NFT using our AI system. This is where your creativity comes into play as you customize and perfect your digital creation."
+                description="After approval, you'll receive a unique prompt to generate your NFT using Replicate AI model ($0.06 per generation). This is where your creativity comes into play as you customize and perfect your digital creation."
                 requirements={[
                   "Approved collaboration request",
                   "Understanding of basic AI prompt concepts",
@@ -109,7 +109,7 @@ export default function DashboardPage() {
           </div>
   
           {/* Step 3 */}
-          <div className="px-10 pt-10 pb-4 bg-[#09712D] rounded-2xl flex flex-col justify-between h-full relative">
+          <div className="px-10 pt-10 pb-4 bg-[#09712D] rounded-2xl flex flex-col justify-between h-full relative min-h-[480px] overflow-hidden">
           <div className="absolute inset-0 rounded-2xl z-[2] bg-gradient-to-t from-black/50 to-black/10"></div>
             
             <div className="relative z-[3]">
@@ -139,12 +139,12 @@ export default function DashboardPage() {
                 description="Once you're satisfied with your generated artwork, it's time to upload it to our platform. This step includes adding metadata and ensuring your NFT meets our quality standards."
                 requirements={[
                   "Successfully generated NFT image",
-                  "Prepared metadata information",
-                  "Image meets technical requirements"
+                  "Fill in a statement you used on image",
+                  "Image meets technical requirements (.jpg under 1Mb size)"
                 ]}
                 tips={[
                   "Double-check your image resolution and format",
-                  "Write compelling metadata descriptions",
+                  "Check your image to be consistent with metadata",
                   "Save backup copies of your work"
                 ]}
               />
@@ -152,7 +152,7 @@ export default function DashboardPage() {
           </div>
   
           {/* Step 4 */}
-          <div className="px-10 pt-10 pb-4 bg-[#39A4D4] rounded-2xl flex flex-col justify-between h-full relative">
+          <div className="px-10 pt-10 pb-4 bg-[#39A4D4] rounded-2xl flex flex-col justify-between h-full relative min-h-[480px] overflow-hidden">
           <div className="absolute inset-0 rounded-2xl z-[2] bg-gradient-to-t from-black/50 to-black/10"></div>
             
             <div className="relative z-[3]">
@@ -182,7 +182,7 @@ export default function DashboardPage() {
                 description="The final step is minting your NFT on the blockchain. This is where your digital creation becomes a permanent part of the DeWild collection and can be listed for auction."
                 requirements={[
                   "Approved upload",
-                  "ETH for minting (gas fees)",
+                  "ETH for minting (0.0011 ETH) and a bit for gas fees",
                   "Connected wallet"
                 ]}
                 tips={[

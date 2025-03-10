@@ -1,0 +1,9 @@
+{
+    "crons": [
+      {
+        "path": "/api/cron/royalties?cron_key=CRON_SECRET_KEY",
+        "schedule": "0 0 * * *"
+      }
+    ]
+  }
+  
