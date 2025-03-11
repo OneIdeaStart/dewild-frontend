@@ -14,8 +14,14 @@ export default function MintSuccessDialog({ isOpen, onClose, tokenId }: MintSucc
   
     const handleAuctionClick = () => {
       onClose(); // Закрываем диалог
-      // Редиректим на страницу аукциона NFT
-      router.push('/auction');
+      
+      // Редиректим на страницу конкретного NFT с использованием tokenId
+      if (tokenId) {
+        router.push(`/collection/${tokenId}`);
+      } else {
+        // Если по какой-то причине tokenId отсутствует, перенаправляем на страницу коллекции
+        router.push('/collection');
+      }
     };
 
     return (
@@ -53,7 +59,7 @@ export default function MintSuccessDialog({ isOpen, onClose, tokenId }: MintSucc
                     className="bg-yellow-400 hover:bg-yellow-500 text-green-600 font-extrabold uppercase"
                     size="lg"
                 >
-                    VIEW YOUR AUCTION
+                    {tokenId ? "VIEW YOUR NFT" : "VIEW COLLECTION"}
                 </Button>
               </div>
 

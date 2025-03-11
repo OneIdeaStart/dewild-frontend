@@ -121,7 +121,7 @@ export const useCollabConditions = (
         ...prev,
         isTwitterFollowed: true,
       }));
-    }, 1500);
+    }, 3000);
   };
 
   const handleShareTweet = () => {
@@ -134,10 +134,10 @@ export const useCollabConditions = (
   
     Art Status: ${randomStatus}
     Wild Rating: ${wildRating}
-      
+  
     11,111 artists. One wild collection.
     Think you're wild enough?
-      
+  
     #DeWildClub #NFTArt #NFTCommunity`;
   
     const encodedText = encodeURIComponent(text);
@@ -145,10 +145,13 @@ export const useCollabConditions = (
   
     sessionStorage.setItem('wildRating', wildRating);
     
-    setConditions(prev => ({
-      ...prev,
-      hasSharedTweet: true
-    }));
+    // Добавлен таймаут в 3000 мс (3 секунды), точно такой же как в handleTwitterFollow
+    setTimeout(() => {
+      setConditions(prev => ({
+        ...prev,
+        hasSharedTweet: true
+      }));
+    }, 3000);
   }
   
 

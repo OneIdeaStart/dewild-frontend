@@ -1,29 +1,28 @@
-import { NextResponse } from 'next/server'
+// src/app/api/twitter/verify/route.ts
+import { NextResponse } from 'next/server';
 import { ApifyClient } from 'apify-client';
 
-// Используем переменные окружения
+// Используем переменные окружения для конфиденциальной информации
 const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN;
-const TASK_ID = process.env.APIFY_TASK_ID;
+// Правильный формат ID задачи (короткий ID)
+const TASK_ID = process.env.APIFY_TASK_ID || 'WKtp25UyT7PBjTaib';
 
-// Функция для получения имени пользователя
-const getUsernameFromTweet = (tweet: any, tweetUrl: string): string => {
-  if (tweet && typeof tweet === 'object') {
-    if (tweet.user && typeof tweet.user === 'object' && typeof tweet.user.username === 'string') {
-      return tweet.user.username;
-    }
-    
-    if (typeof tweet.username === 'string') {
-      return tweet.username;
-    }
-  }
+// Функции извлечения данных
+const extractTwitterHandle = (tweet: any, tweetUrl: string): string => {
+  if (tweet?.user?.username) return tweet.user.username;
+  if (tweet?.user?.screen_name) return tweet.user.screen_name;
+  if (tweet?.author?.userName) return tweet.author.userName;
+  if (tweet?.author?.screen_name) return tweet.author.screen_name;
   
-  // Извлечение из URL как запасной вариант
-  try {
-    const urlParts = tweetUrl.split('/');
-    return urlParts[3] || '';
-  } catch (e) {
-    return '';
-  }
+  const match = tweetUrl.match(/^https?:\/\/(twitter\.com|x\.com)\/([a-zA-Z0-9_]+)/);
+  return match ? match[2] : '';
+};
+
+const extractTweetText = (tweet: any): string => {
+  if (typeof tweet?.text === 'string') return tweet.text;
+  if (typeof tweet?.full_text === 'string') return tweet.full_text;
+  if (typeof tweet?.content === 'string') return tweet.content;
+  return '';
 };
 
 export async function POST(request: Request) {
@@ -33,24 +32,35 @@ export async function POST(request: Request) {
     return NextResponse.json({ verified: false, error: 'Tweet URL is required' });
   }
 
-  if (!APIFY_API_TOKEN || !TASK_ID) {
-    console.error("Apify credentials not properly configured");
+  if (!APIFY_API_TOKEN) {
+    console.error("APIFY_API_TOKEN is not set in environment variables");
     return NextResponse.json({ verified: false, error: 'API configuration error' });
   }
 
   try {
     console.log("Requesting tweet:", tweetUrl);
 
+    // Проверяем формат URL твита
+    const tweetUrlRegex = /^https?:\/\/(twitter\.com|x\.com)\/([a-zA-Z0-9_]+)\/status\/(\d+)$/;
+    const match = tweetUrl.match(tweetUrlRegex);
+    
+    if (!match) {
+      return NextResponse.json({ 
+        verified: false, 
+        error: 'Invalid tweet URL format' 
+      });
+    }
+
     // Инициализируем клиент Apify
     const client = new ApifyClient({
       token: APIFY_API_TOKEN,
     });
 
-    // Запускаем задачу и ждем ее завершения
+    // Запускаем задачу с правильным форматом входных данных
+    // Исходя из документации, Tweet Scraper V2 принимает startUrls
     const run = await client.task(TASK_ID).call({
       "startUrls": [tweetUrl],
-      maxTweets: 1,
-      addUserInfo: true
+      "maxItems": 1
     });
 
     console.log("Run successful, ID:", run.id);
@@ -61,19 +71,19 @@ export async function POST(request: Request) {
     console.log("Retrieved items:", items.length);
     
     if (!items || items.length === 0) {
-      return NextResponse.json({ verified: false, error: 'Tweet not found or cannot be accessed' });
+      return NextResponse.json({ 
+        verified: false, 
+        error: 'Tweet not found or cannot be accessed' 
+      });
     }
     
     const tweet = items[0];
     
-    // Получаем текст твита
-    const tweetText = typeof tweet.text === 'string' ? tweet.text : '';
+    // Извлекаем текст и имя пользователя
+    const tweetText = extractTweetText(tweet);
+    const twitterHandle = extractTwitterHandle(tweet, tweetUrl);
     
     console.log('Tweet content:', tweetText);
-    
-    // Получаем имя пользователя
-    const twitterHandle = getUsernameFromTweet(tweet, tweetUrl);
-    
     console.log('Twitter handle:', twitterHandle);
     console.log('Verification code:', verificationCode);
     
@@ -88,10 +98,9 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Twitter verification error:', error);
     
-    // Извлекаем имя пользователя из URL
+    // Извлекаем имя пользователя из URL для сообщения об ошибке
     const twitterHandle = tweetUrl.split('/')[3] || '';
     
-    // Возвращаем ошибку
     return NextResponse.json({ 
       verified: false, 
       error: 'Failed to verify tweet. Please try again later.',
