@@ -130,10 +130,6 @@ export const useCollabConditions = (
     const wildRating = generateWildRating();
     const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
     
-    // Выбираем случайное изображение из диапазона 1-22
-    const randomImageNumber = Math.floor(Math.random() * 22) + 1;
-    const imageUrl = `${window.location.origin}/images/sharing/Share-${randomImageNumber}.jpg`;
-    
     const text = `Joining @DeWildClub artist community!
   
     Art Status: ${randomStatus}
@@ -145,14 +141,9 @@ export const useCollabConditions = (
     #DeWildClub #NFTArt #NFTCommunity`;
   
     const encodedText = encodeURIComponent(text);
-    
-    // Twitter API не поддерживает прямую загрузку изображений через intent URL
-    // Поэтому лучший подход - сохранить URL изображения и использовать карточки
-    // с метаданными на вашем сайте
     window.open(`https://twitter.com/intent/tweet?text=${encodedText}`, '_blank');
   
     sessionStorage.setItem('wildRating', wildRating);
-    sessionStorage.setItem('sharedImageUrl', imageUrl);
     
     setConditions(prev => ({
       ...prev,
