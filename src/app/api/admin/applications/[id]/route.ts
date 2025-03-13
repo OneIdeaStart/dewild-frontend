@@ -2,8 +2,10 @@
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
 import { DB } from '@/lib/db';
-import { del } from '@vercel/blob'; // Добавляем этот импорт
-import { kv } from '@vercel/kv'; // Добавляем этот импорт
+import { DiscordDB } from '@/lib/db/discord'; // Импорт для работы с Discord
+import { discordService } from '@/lib/discord'; // Импорт Discord сервиса
+import { del } from '@vercel/blob';
+import { kv } from '@vercel/kv';
 
 export async function DELETE(
   request: NextRequest,
@@ -20,6 +22,9 @@ export async function DELETE(
         { status: 404 }
       );
     }
+
+    // Получаем Discord канал до удаления заявки
+    const channelId = await DiscordDB.getApplicationChannel(id);
 
     // Если заявка уже одобрена на уровне контракта, нужно сначала отозвать разрешение
     if (app.status === 'nft_approved' || app.status === 'minted') {
@@ -57,6 +62,19 @@ export async function DELETE(
         // Если отзыв успешен или артист уже был отозван, удаляем заявку
         if (revokeResult.success) {
           await DB.deleteApplication(id);
+          
+          // Удаляем Discord канал, если он существует
+          if (channelId) {
+            try {
+              await discordService.deleteChannel(channelId);
+              await DiscordDB.deleteApplicationChannelMapping(id, channelId);
+              console.log(`Discord channel ${channelId} for application ${id} deleted`);
+            } catch (discordError) {
+              console.error(`Failed to delete Discord channel: ${discordError}`);
+              // Продолжаем выполнение, даже если не удалось удалить канал
+            }
+          }
+          
           return NextResponse.json({ 
             success: true,
             message: revokeResult.wasAlreadyRevoked ? 
@@ -82,6 +100,19 @@ export async function DELETE(
 
     // Если статус заявки не требует отзыва из контракта, просто удаляем её
     await DB.deleteApplication(id);
+    
+    // Удаляем Discord канал, если он существует
+    if (channelId) {
+      try {
+        await discordService.deleteChannel(channelId);
+        await DiscordDB.deleteApplicationChannelMapping(id, channelId);
+        console.log(`Discord channel ${channelId} for application ${id} deleted`);
+      } catch (discordError) {
+        console.error(`Failed to delete Discord channel: ${discordError}`);
+        // Продолжаем выполнение, даже если не удалось удалить канал
+      }
+    }
+    
     return NextResponse.json({ success: true });
     
   } catch (error: any) {
@@ -106,8 +137,33 @@ export async function PATCH(request: NextRequest, { params }: any) {
     // Обрабатываем действие
     if (data.action === 'approve') {
       await DB.updateStatus(id, 'approved');
+      
+      // Получаем обновленную заявку и обновляем Discord канал
+      const updatedApp = await DB.getApplicationById(id);
+      if (updatedApp) {
+        try {
+          await DiscordDB.updateDiscordChannelStatus(updatedApp);
+          console.log(`Discord channel for application ${id} updated to status 'approved'`);
+        } catch (discordError) {
+          console.error(`Failed to update Discord channel: ${discordError}`);
+          // Продолжаем выполнение, даже если не удалось обновить канал
+        }
+      }
+      
     } else if (data.action === 'reject') {
       await DB.updateStatus(id, 'rejected');
+      
+      // Получаем обновленную заявку и обновляем Discord канал
+      const updatedApp = await DB.getApplicationById(id);
+      if (updatedApp) {
+        try {
+          await DiscordDB.updateDiscordChannelStatus(updatedApp);
+          console.log(`Discord channel for application ${id} updated to status 'rejected'`);
+        } catch (discordError) {
+          console.error(`Failed to update Discord channel: ${discordError}`);
+        }
+      }
+      
     } else if (data.action === 'approve_nft') {
       // Получаем информацию о заявке
       const application = await DB.getApplicationById(id);
@@ -148,6 +204,17 @@ export async function PATCH(request: NextRequest, { params }: any) {
         // Только если контракт обновлен и подпись получена, обновляем статус
         if (contractResult.success) {
           await DB.updateStatus(id, 'nft_approved');
+          
+          // Получаем обновленную заявку и обновляем Discord канал
+          const updatedApp = await DB.getApplicationById(id);
+          if (updatedApp) {
+            try {
+              await DiscordDB.updateDiscordChannelStatus(updatedApp);
+              console.log(`Discord channel for application ${id} updated to status 'nft_approved'`);
+            } catch (discordError) {
+              console.error(`Failed to update Discord channel: ${discordError}`);
+            }
+          }
           
           return NextResponse.json({ 
             success: true, 
@@ -207,6 +274,17 @@ export async function PATCH(request: NextRequest, { params }: any) {
           imageUrl: null,
           imageUploadedAt: null
         });
+        
+        // Получаем обновленную заявку и обновляем Discord канал
+        const updatedApp = await DB.getApplicationById(id);
+        if (updatedApp) {
+          try {
+            await DiscordDB.updateDiscordChannelStatus(updatedApp);
+            console.log(`Discord channel for application ${id} updated to status 'nft_rejected'`);
+          } catch (discordError) {
+            console.error(`Failed to update Discord channel: ${discordError}`);
+          }
+        }
     
         return NextResponse.json({ success: true });
       } catch (error: any) {

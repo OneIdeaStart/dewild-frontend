@@ -4,6 +4,7 @@ import { CollabApplication, CollabStats, ApplicationStatus } from '@/types/colla
 import { generateWildRating } from '@/lib/utils';
 import { PromptData, PromptStatus, PROMPT_KEYS } from '@/types/prompt';
 import { del } from '@vercel/blob';
+import { DiscordDB } from './discord';
 
 const COLLAB_LIMIT = 11111;
 
@@ -115,12 +116,12 @@ export class DB {
     if (existingByWallet) {
       throw new Error('Wallet already has application');
     }
-
+  
     const existingByTwitter = await this.getApplicationByTwitter(twitter);
     if (existingByTwitter) {
       throw new Error('Twitter account already has application');
     }
-
+  
     const id = generateWildRating();
     const application: ApplicationRecord = {
       id,
@@ -131,14 +132,19 @@ export class DB {
       createdAt: new Date().toISOString(),
       moderatorVotes: []
     };
-
+  
     await kv.hset(`application:${id}`, application);
     await kv.sadd(this.KEYS.ALL_APPLICATIONS, id);
     await kv.sadd(this.KEYS.PENDING, id);
     await kv.hset(this.KEYS.BY_WALLET, { [wallet.toLowerCase()]: id });
     await kv.hset(this.KEYS.BY_TWITTER, { [twitter.toLowerCase()]: id });
-
-    return application as CollabApplication;
+  
+    // Создаем канал для новой заявки и отправляем уведомление (асинхронно)
+    const appObj = application as CollabApplication;
+    DiscordDB.createDiscordChannel(appObj)
+      .catch(error => console.error('Failed to create Discord channel:', error));
+  
+    return appObj;
   }
 
   static async deleteApplication(id: string) {
@@ -264,6 +270,25 @@ export class DB {
     
     // Обновляем только статус, сохраняя остальные данные
     await kv.hset(`application:${id}`, { status });
+  
+    // Получаем обновленную заявку
+    const updatedApp = await this.getApplicationById(id);
+    
+    // Асинхронно обновляем статус в Discord канале
+    if (updatedApp) {
+      import('../db/discord').then(({ DiscordDB }) => {
+        DiscordDB.updateDiscordChannelStatus(updatedApp)
+          .catch(error => console.error('Failed to update Discord channel:', error));
+        
+        // Обновляем роль пользователя при необходимости
+        if (status === 'approved' || status === 'minted') {
+          DiscordDB.updateDiscordUserRole(updatedApp)
+            .catch(error => console.error('Failed to update Discord user role:', error));
+        }
+      }).catch(error => {
+        console.error('Failed to import DiscordDB:', error);
+      });
+    }
   }
 
   static async getStats(): Promise<CollabStats> {

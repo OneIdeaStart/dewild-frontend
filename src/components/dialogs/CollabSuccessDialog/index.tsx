@@ -11,11 +11,12 @@ interface WhitelistSuccessDialogProps {
 export default function WhitelistSuccessDialog({ isOpen, onClose }: WhitelistSuccessDialogProps) {
     const router = useRouter()
   
-    const handlePromoClick = () => {
+    const handleDiscordClick = () => {
       onClose() // Закрываем диалог
-      // Редиректим на главную с якорем секции промо
-      router.push('/#promos')
+      // Открываем ссылку на Discord сервер в новой вкладке
+      window.open('https://discord.gg/ygh7CtbNZe', '_blank');
     }
+    
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
           <DialogContent className="max-w-[384px] bg-[#181818] rounded-[24px] p-0 overflow-hidden">
@@ -26,7 +27,7 @@ export default function WhitelistSuccessDialog({ isOpen, onClose }: WhitelistSuc
               ✌️
             </div>
             <div className="text-accent-green text-[24px] font-extrabold uppercase leading-[24px]">
-              WE’VE RECEIVED YOUR APPLICATION!
+              WE'VE RECEIVED YOUR APPLICATION!
             </div>
           </div>
 
@@ -36,23 +37,23 @@ export default function WhitelistSuccessDialog({ isOpen, onClose }: WhitelistSuc
               Congrats,<br/>dewild one!
             </div>
             <div className="text-text-secondary text-[16px] font-extrabold uppercase leading-[16px]">
-            We’re reviewing submissions and will notify you once your collaboration is approved.
+            We're reviewing submissions and will notify you trough Discord once your collaboration is approved.
             </div>
           </div>
 
-          {/* Promo Section */}
+          {/* Discord Section */}
           <div className="flex flex-col items-center gap-4">
             <div className="text-white text-[24px] font-extrabold uppercase leading-[24px]">
-              SPREAD THE WORD & SUPPORT
+              CHECK YOUR APP STATUS IN DISCORD
             </div>
             <Button 
-                onClick={handlePromoClick}
+                onClick={handleDiscordClick}
                 variant="colored" 
-                bgColor="bg-accent-yellow" 
-                textColor="text-accent-green"
+                bgColor="bg-[#5865F2]" // Цвет Discord
+                textColor="text-white"
                 size="lg"
             >
-                Check our promos
+                Open Discord
             </Button>
           </div>
 

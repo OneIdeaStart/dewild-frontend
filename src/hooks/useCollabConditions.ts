@@ -136,7 +136,7 @@ export const useCollabConditions = (
     Wild Rating: ${wildRating}
   
     11,111 artists. One wild collection.
-    Think you're wild enough?
+    Think you're wild enough? 👉 https://dewild.club
   
     #DeWildClub #NFTArt #NFTCommunity`;
   

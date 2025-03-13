@@ -252,7 +252,18 @@ export default function MintDialog({ onClose }: MintDialogProps) {
         
       } catch (error: any) {
         console.error('Mint error:', error);
-        setMintError(error.message || 'Failed to mint NFT');
+        
+        // Проверяем, является ли ошибка отклонением пользователя
+        if (error.message && (
+            error.message.includes('User rejected') || 
+            error.message.includes('user rejected') || 
+            error.message.includes('rejected the transaction') ||
+            error.message.includes('User denied')
+        )) {
+          setMintError('Transaction rejected by user');
+        } else {
+          setMintError(error.message || 'Failed to mint NFT');
+        }
         
         // В случае ошибки возвращаемся на начальную стадию
         setStage('init');
