@@ -14,7 +14,7 @@ export default function WhitelistSuccessDialog({ isOpen, onClose }: WhitelistSuc
     const handleDiscordClick = () => {
       onClose() // Закрываем диалог
       // Открываем ссылку на Discord сервер в новой вкладке
-      window.open('https://discord.gg/ttte5Zqn9X', '_blank');
+      window.open('https://discord.com/channels/1318073258251255878/1349114669293637665', '_blank');
     }
     
     return (
@@ -49,11 +49,11 @@ export default function WhitelistSuccessDialog({ isOpen, onClose }: WhitelistSuc
             <Button 
                 onClick={handleDiscordClick}
                 variant="colored" 
-                bgColor="bg-[#5865F2]" // Цвет Discord
-                textColor="text-white"
+                bgColor="bg-[#F9E52C]"
+                textColor="text-[#005544]"
                 size="lg"
             >
-                Open Discord
+                Check Status
             </Button>
           </div>
 

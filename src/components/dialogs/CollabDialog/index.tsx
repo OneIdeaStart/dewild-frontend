@@ -15,7 +15,9 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
   const [collabError, setCollabError] = useState<CollabError>(null)
   const [collabStats, setCollabStats] = useState<CollabStats | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
-  const [isDiscordVerifying, setIsDiscordVerifying] = useState(false);
+  const [isDiscordVerifying, setIsDiscordVerifying] = useState(false)
+  // Добавляем новое состояние для отслеживания процесса отправки заявки
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { 
     conditions, 
@@ -69,11 +71,14 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
       return
     }
 
+    // Устанавливаем состояние отправки в true
+    setIsSubmitting(true)
+
     try {
       const entry = {
-        wallet: address!,  // было address
+        wallet: address!,
         discord: conditions.discordUsername,
-        twitter: conditions.twitterHandle // из состояния conditions
+        twitter: conditions.twitterHandle
       }
   
       const response = await fetch('/api/collab/join', {
@@ -88,6 +93,8 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
 
       if (!response.ok) {
         setCollabError(data.error)
+        // Сбрасываем состояние отправки при ошибке
+        setIsSubmitting(false)
         return
       }
 
@@ -102,6 +109,8 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
         type: 'server',
         message: 'Failed to submit collab application'
       })
+      // Сбрасываем состояние отправки при ошибке
+      setIsSubmitting(false)
     }
   }
 
@@ -268,13 +277,16 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
               variant="primary"
               size="lg"
               className="w-full"
-              disabled={collabStats?.isFull}
+              disabled={collabStats?.isFull || isSubmitting}
+              withLoader
+              isLoading={isSubmitting}
             >
               {collabStats?.isFull ? 'COLLAB LIST FULL' : 'Submit Application'}
             </Button>
             <button
               onClick={() => onClose(false)}
               className="text-black text-[24px] font-extrabold uppercase w-full"
+              disabled={isSubmitting}
             >
               Cancel
             </button>
