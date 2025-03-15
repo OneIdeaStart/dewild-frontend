@@ -20,7 +20,7 @@ export default function PromptDialog({ promptData, onClose }: PromptDialogProps)
   };
 
   const openDiscord = () => {
-    window.open("https://discord.gg/dewild", "_blank");
+    window.open("https://discord.com/channels/1318073258251255878/1349339989485420575", "_blank");
   };
 
   const openReplicate = () => {
