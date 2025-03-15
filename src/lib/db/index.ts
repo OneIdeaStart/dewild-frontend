@@ -44,7 +44,7 @@ export class DB {
       status: record.status,
       createdAt: record.createdAt,
       moderatorVotes: record.moderatorVotes,
-      // Другие поля
+      discordChannelId: record.discordChannelId,
       promptId: record.promptId,
       promptAssignedAt: record.promptAssignedAt,
       imageUrl: record.imageUrl,
@@ -164,6 +164,12 @@ export class DB {
         throw new Error('Application not found');
       }
       
+      // Сохраняем ID канала Discord для последующего удаления
+      const discordChannelId = app.discordChannelId;
+      if (discordChannelId) {
+        console.log(`Application ${id} has Discord channel ${discordChannelId} that will be deleted`);
+      }
+      
       // Проверяем, есть ли привязанный промпт
       if (app.promptId) {
         // Получаем текущий статус промпта
@@ -196,6 +202,7 @@ export class DB {
           }
         } catch (blobError) {
           // Игнорируем ошибку удаления изображения
+          console.error('Error deleting image blob:', blobError);
         }
       }
       
@@ -221,6 +228,7 @@ export class DB {
         }
       } catch (additionalBlobError) {
         // Игнорируем ошибки при удалении дополнительных изображений
+        console.error('Error deleting additional image files:', additionalBlobError);
       }
       
       // Удаляем из всех сетов
@@ -232,8 +240,22 @@ export class DB {
       // Удаляем саму заявку
       await kv.del(`application:${id}`);
       
+      // Удаляем канал Discord, если он существует
+      if (discordChannelId) {
+        try {
+          // Импортируем discordService динамически
+          const { discordService } = await import('@/lib/discord');
+          console.log(`Attempting to delete Discord channel ${discordChannelId} for application ${id}`);
+          const deleted = await discordService.deleteChannel(discordChannelId);
+          console.log(`Discord channel ${discordChannelId} deletion result: ${deleted ? 'success' : 'failed'}`);
+        } catch (discordError) {
+          console.error(`Failed to delete Discord channel ${discordChannelId}:`, discordError);
+        }
+      }
+      
       return true;
     } catch (error) {
+      console.error(`Error deleting application ${id}:`, error);
       throw error;
     }
   }
@@ -291,32 +313,59 @@ export class DB {
     const app = await this.getApplicationById(id);
     if (!app) throw new Error('Application not found');
   
+    // Сохраняем предыдущий статус для логирования
+    const previousStatus = app.status;
+  
+    // Обновляем статус в сетах Redis
     await kv.srem(`applications:${app.status}`, id);
     await kv.sadd(`applications:${status}`, id);
     
-    // Обновляем только статус, сохраняя остальные данные
+    // Обновляем статус заявки в Redis
     await kv.hset(`application:${id}`, { status });
+    
+    console.log(`Updated application ${id} status from ${previousStatus} to ${status}`);
   
-    // Получаем обновленную заявку
+    // Даем Redis небольшое время на обновление данных
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Получаем полностью обновленную заявку
     const updatedApp = await this.getApplicationById(id);
     
-    // Асинхронно обновляем статус в Discord канале
     if (updatedApp) {
-      import('../db/discord').then(({ DiscordDB }) => {
-        // Добавляем задержку для обеспечения консистентности данных
-        setTimeout(() => {
-          DiscordDB.updateDiscordChannelStatus(updatedApp)
-            .catch(error => console.error('Failed to update Discord channel:', error));
-          
-          // Обновляем роль пользователя при необходимости
-          if (status === 'approved' || status === 'minted') {
-            DiscordDB.updateDiscordUserRole(updatedApp)
-              .catch(error => console.error('Failed to update Discord user role:', error));
-          }
-        }, 1000);
-      }).catch(error => {
-        console.error('Failed to import DiscordDB:', error);
-      });
+      console.log(`Retrieved updated application: ${JSON.stringify({
+        id: updatedApp.id,
+        status: updatedApp.status,
+        promptId: updatedApp.promptId,
+        discordChannelId: updatedApp.discordChannelId
+      })}`);
+      
+      // Импортируем DiscordDB и обновляем канал
+      try {
+        const { DiscordDB } = await import('../db/discord');
+        
+        // Обновляем статус в Discord канале
+        if (updatedApp.discordChannelId) {
+          await DiscordDB.updateDiscordChannelStatus(updatedApp)
+            .then(success => {
+              console.log(`Discord status update for ${id} ${success ? 'succeeded' : 'failed'}`);
+            })
+            .catch(error => {
+              console.error(`Failed to update Discord channel for ${id}:`, error);
+            });
+        }
+        
+        // Обновляем роль пользователя при необходимости
+        if (status === 'approved' || status === 'minted') {
+          await DiscordDB.updateDiscordUserRole(updatedApp)
+            .catch(error => {
+              console.error(`Failed to update Discord user role for ${id}:`, error);
+            });
+        }
+      } catch (error) {
+        console.error(`Failed to import or use DiscordDB for ${id}:`, error);
+      }
+    } else {
+      console.error(`Could not retrieve updated application ${id} after status change`);
     }
   }
 

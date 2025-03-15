@@ -102,12 +102,16 @@ export async function DELETE(
     
     // Удаляем Discord канал, если он существует
     if (channelId) {
+      console.log(`Attempting to delete Discord channel ${channelId} for application ${id}`);
       try {
-        await discordService.deleteChannel(channelId);
-        console.log(`Discord channel ${channelId} for application ${id} deleted`);
+        const deleted = await discordService.deleteChannel(channelId);
+        if (deleted) {
+          console.log(`Discord channel ${channelId} for application ${id} deleted successfully`);
+        } else {
+          console.error(`Failed to delete Discord channel ${channelId} - API returned failure`);
+        }
       } catch (discordError) {
-        console.error(`Failed to delete Discord channel: ${discordError}`);
-        // Продолжаем выполнение, даже если не удалось удалить канал
+        console.error(`Exception while deleting Discord channel ${channelId}:`, discordError);
       }
     }
     

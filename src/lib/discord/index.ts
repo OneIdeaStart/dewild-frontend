@@ -389,10 +389,8 @@ export class DiscordService {
         { headers: this.headers }
       );
       
-      console.log(`Discord channel ${channelId} deleted successfully`);
       return true;
     } catch (error) {
-      console.error('Failed to delete Discord channel:', error);
       return false;
     }
   }

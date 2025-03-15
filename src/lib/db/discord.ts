@@ -56,17 +56,23 @@ export class DiscordDB {
    */
   static async updateDiscordChannelStatus(application: CollabApplication): Promise<boolean> {
     try {
+      console.log(`Attempting to update Discord channel for application ${application.id} with status ${application.status}`);
+      
       // Используем ID канала из заявки
       const channelId = application.discordChannelId;
       if (!channelId) {
         console.log(`Application ${application.id} has no Discord channel, skipping status update`);
         return false;
       }
-
+  
+      console.log(`Updating Discord channel ${channelId} for application ${application.id}`);
+      
       // Обновляем сообщение в существующем канале
-      return await discordService.updateApplicationStatusMessage(channelId, application);
+      const result = await discordService.updateApplicationStatusMessage(channelId, application);
+      console.log(`Discord update result for ${application.id}: ${result}`);
+      return result;
     } catch (error) {
-      console.error('Error updating Discord channel status:', error);
+      console.error(`Error updating Discord channel status for ${application.id}:`, error);
       return false;
     }
   }
