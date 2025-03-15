@@ -1,9 +1,8 @@
-// src/app/api/admin/applications/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
 import { DB } from '@/lib/db';
-import { DiscordDB } from '@/lib/db/discord'; // Импорт для работы с Discord
-import { discordService } from '@/lib/discord'; // Импорт Discord сервиса
+import { DiscordDB } from '@/lib/db/discord';
+import { discordService } from '@/lib/discord';
 import { del } from '@vercel/blob';
 import { kv } from '@vercel/kv';
 
@@ -23,8 +22,8 @@ export async function DELETE(
       );
     }
 
-    // Получаем Discord канал до удаления заявки
-    const channelId = await DiscordDB.getApplicationChannel(id);
+    // Сохраняем ID канала Discord перед удалением заявки
+    const channelId = app.discordChannelId;
 
     // Если заявка уже одобрена на уровне контракта, нужно сначала отозвать разрешение
     if (app.status === 'nft_approved' || app.status === 'minted') {
@@ -67,7 +66,6 @@ export async function DELETE(
           if (channelId) {
             try {
               await discordService.deleteChannel(channelId);
-              await DiscordDB.deleteApplicationChannelMapping(id, channelId);
               console.log(`Discord channel ${channelId} for application ${id} deleted`);
             } catch (discordError) {
               console.error(`Failed to delete Discord channel: ${discordError}`);
@@ -105,7 +103,6 @@ export async function DELETE(
     if (channelId) {
       try {
         await discordService.deleteChannel(channelId);
-        await DiscordDB.deleteApplicationChannelMapping(id, channelId);
         console.log(`Discord channel ${channelId} for application ${id} deleted`);
       } catch (discordError) {
         console.error(`Failed to delete Discord channel: ${discordError}`);

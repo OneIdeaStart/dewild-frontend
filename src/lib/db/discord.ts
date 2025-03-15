@@ -1,72 +1,29 @@
-// src/lib/db/discord.ts
 import { kv } from '@vercel/kv';
 import { discordService } from '@/lib/discord';
 import { CollabApplication } from '@/types/collab';
+import { DB } from '@/lib/db';
 
 /**
  * Расширение DB класса для работы с Discord
  */
 export class DiscordDB {
-  static readonly KEYS = {
-    APPLICATION_CHANNEL_MAP: 'discord:application:channel',
-    CHANNEL_APPLICATION_MAP: 'discord:channel:application',
-  };
-
-  /**
-   * Сохранение связи между заявкой и Discord каналом
-   */
-  static async saveApplicationChannel(applicationId: string, channelId: string): Promise<void> {
-    await kv.hset(this.KEYS.APPLICATION_CHANNEL_MAP, { [applicationId]: channelId });
-    await kv.hset(this.KEYS.CHANNEL_APPLICATION_MAP, { [channelId]: applicationId });
-  }
-
-  /**
-   * Получение Discord канала для заявки
-   */
-  static async getApplicationChannel(applicationId: string): Promise<string | null> {
-    return kv.hget<string>(this.KEYS.APPLICATION_CHANNEL_MAP, applicationId);
-  }
-
-  /**
-   * Получение заявки для Discord канала
-   */
-  static async getChannelApplication(channelId: string): Promise<string | null> {
-    return kv.hget<string>(this.KEYS.CHANNEL_APPLICATION_MAP, channelId);
-  }
-
-  /**
-   * Удаление связи между заявкой и Discord каналом
-   */
-  static async deleteApplicationChannelMapping(applicationId: string, channelId: string): Promise<void> {
-    try {
-      await kv.hdel(this.KEYS.APPLICATION_CHANNEL_MAP, applicationId);
-      await kv.hdel(this.KEYS.CHANNEL_APPLICATION_MAP, channelId);
-      
-      console.log(`Mapping between application ${applicationId} and channel ${channelId} deleted`);
-    } catch (error) {
-      console.error('Error deleting application channel mapping:', error);
-      throw error;
-    }
-  }
-
   /**
    * Создание Discord канала для заявки
    */
   static async createDiscordChannel(application: CollabApplication): Promise<string | null> {
     try {
-      // Проверяем, существует ли уже канал для этой заявки
-      const existingChannelId = await this.getApplicationChannel(application.id);
-      if (existingChannelId) {
-        // Канал уже существует, возвращаем его ID
-        return existingChannelId;
+      // Проверяем, есть ли уже ID канала в заявке
+      if (application.discordChannelId) {
+        console.log(`Using existing Discord channel ${application.discordChannelId} for application ${application.id}`);
+        return application.discordChannelId;
       }
 
       // Создаем новый канал через Discord API
       const channelId = await discordService.createApplicationChannel(application);
       
       if (channelId) {
-        // Сохраняем связь между заявкой и каналом
-        await this.saveApplicationChannel(application.id, channelId);
+        // Сохраняем ID канала прямо в заявке
+        await DB.updateApplication(application.id, { discordChannelId: channelId });
         console.log(`Created Discord channel ${channelId} for application ${application.id}`);
       }
       
@@ -82,10 +39,10 @@ export class DiscordDB {
    */
   static async updateDiscordChannelStatus(application: CollabApplication): Promise<boolean> {
     try {
-      // Получаем ID канала для заявки
-      const channelId = await this.getApplicationChannel(application.id);
+      // Используем ID канала из заявки
+      const channelId = application.discordChannelId;
       if (!channelId) {
-        // Канал не найден, создаем новый
+        // Канал не создан, создаем новый
         const newChannelId = await this.createDiscordChannel(application);
         if (!newChannelId) {
           return false;
@@ -110,6 +67,28 @@ export class DiscordDB {
     } catch (error) {
       console.error('Error updating Discord user role:', error);
       return false;
+    }
+  }
+
+  /**
+   * Получение Discord канала по ID заявки
+   */
+  static async getApplicationChannel(applicationId: string): Promise<string | null> {
+    const application = await DB.getApplicationById(applicationId);
+    return application?.discordChannelId || null;
+  }
+
+  /**
+   * Удаление Discord канала для заявки
+   */
+  static async deleteApplicationChannelMapping(applicationId: string, channelId: string): Promise<void> {
+    try {
+      // Обновляем заявку, удаляя ID канала
+      await DB.updateApplication(applicationId, { discordChannelId: undefined });
+      console.log(`Discord channel reference removed for application ${applicationId}`);
+    } catch (error) {
+      console.error('Error removing Discord channel reference:', error);
+      throw error;
     }
   }
 }

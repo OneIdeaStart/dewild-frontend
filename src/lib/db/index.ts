@@ -139,10 +139,20 @@ export class DB {
     await kv.hset(this.KEYS.BY_WALLET, { [wallet.toLowerCase()]: id });
     await kv.hset(this.KEYS.BY_TWITTER, { [twitter.toLowerCase()]: id });
   
-    // Создаем канал для новой заявки и отправляем уведомление (асинхронно)
+    // Создаем канал для новой заявки и отправляем уведомление
     const appObj = application as CollabApplication;
-    DiscordDB.createDiscordChannel(appObj)
-      .catch(error => console.error('Failed to create Discord channel:', error));
+    try {
+      // Импортируем discordService динамически, чтобы избежать циклических зависимостей
+      const { discordService } = await import('@/lib/discord');
+      const channelId = await discordService.createApplicationChannel(appObj);
+      if (channelId) {
+        // Сохраняем ID канала в заявке
+        await kv.hset(`application:${id}`, { discordChannelId: channelId });
+        appObj.discordChannelId = channelId;
+      }
+    } catch (error) {
+      console.error('Failed to create Discord channel:', error);
+    }
   
     return appObj;
   }
@@ -226,7 +236,23 @@ export class DB {
     } catch (error) {
       throw error;
     }
-  } 
+  }
+
+  static async updateApplication(id: string, updates: Partial<CollabApplication>): Promise<boolean> {
+    try {
+      const app = await this.getApplicationById(id);
+      if (!app) {
+        console.error(`Cannot update application ${id}: not found`);
+        return false;
+      }
+      
+      await kv.hset(`application:${id}`, updates);
+      return true;
+    } catch (error) {
+      console.error(`Failed to update application ${id}:`, error);
+      return false;
+    }
+  }
 
   static async addModeratorVote(
     applicationId: string,

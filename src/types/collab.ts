@@ -19,6 +19,7 @@ export interface CollabApplication {
   discord: string;
   status: string;
   createdAt: string;
+  discordChannelId?: string;
   moderatorVotes: Array<{
     discordId: string;
     vote: 'approve' | 'reject';

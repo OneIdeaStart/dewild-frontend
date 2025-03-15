@@ -289,7 +289,7 @@ export class DiscordService {
         message += `Application is being processed.\n`;
     }
     
-    message += `\n> Check your dashboard at [https://dewild.club/dashboard](https://dewild.club/dashboard) for more details.`;
+    message += `\n> Check your dashboard at https://dewild.club/dashboard for more details.`;
     
     return message;
   }
