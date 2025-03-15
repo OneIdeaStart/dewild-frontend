@@ -14,7 +14,7 @@ export default function WhitelistSuccessDialog({ isOpen, onClose }: WhitelistSuc
     const handleDiscordClick = () => {
       onClose() // Закрываем диалог
       // Открываем ссылку на Discord сервер в новой вкладке
-      window.open('https://discord.gg/ygh7CtbNZe', '_blank');
+      window.open('https://discord.gg/ttte5Zqn9X', '_blank');
     }
     
     return (

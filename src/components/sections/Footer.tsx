@@ -37,7 +37,7 @@ export function Footer() {
          </a>
          
          <a 
-           href="https://discord.gg/ygh7CtbNZe" 
+           href="https://discord.gg/ttte5Zqn9X" 
            target="_blank" 
            rel="noopener noreferrer" 
            className="text-accent-purple text-[32px] leading-[32px] font-bold uppercase hover:opacity-80 transition-opacity"

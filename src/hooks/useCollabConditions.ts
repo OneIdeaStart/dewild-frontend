@@ -203,7 +203,7 @@ export const useCollabConditions = (
   }  
 
   const handleDiscordJoin = () => {
-    window.open('https://discord.gg/ygh7CtbNZe', '_blank');
+    window.open('https://discord.gg/ttte5Zqn9X', '_blank');
   }
 
   const handleDiscordCheck = async () => {

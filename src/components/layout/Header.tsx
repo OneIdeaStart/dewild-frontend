@@ -71,7 +71,7 @@ export default function Header() {
           </a>
           {/* Discord */}
           <a 
-            href="https://discord.gg/ygh7CtbNZe" 
+            href="https://discord.gg/ttte5Zqn9X" 
             target="_blank"
             className="w-10 h-10 flex items-center justify-center hover:opacity-80 transition-opacity hidden sm:block"
           >
