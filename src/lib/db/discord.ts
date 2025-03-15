@@ -1,3 +1,4 @@
+// lib/db/discord.ts
 import { kv } from '@vercel/kv';
 import { discordService } from '@/lib/discord';
 import { CollabApplication } from '@/types/collab';
@@ -12,22 +13,38 @@ export class DiscordDB {
    */
   static async createDiscordChannel(application: CollabApplication): Promise<string | null> {
     try {
-      // Проверяем, есть ли уже ID канала в заявке
+      // Строгая проверка наличия канала
       if (application.discordChannelId) {
-        console.log(`Using existing Discord channel ${application.discordChannelId} for application ${application.id}`);
+        console.log(`Application ${application.id} already has Discord channel ${application.discordChannelId}`);
         return application.discordChannelId;
       }
 
-      // Создаем новый канал через Discord API
-      const channelId = await discordService.createApplicationChannel(application);
-      
-      if (channelId) {
-        // Сохраняем ID канала прямо в заявке
-        await DB.updateApplication(application.id, { discordChannelId: channelId });
-        console.log(`Created Discord channel ${channelId} for application ${application.id}`);
+      // Проверяем, не создается ли канал в данный момент
+      const lockKey = `discord:channel:lock:${application.id}`;
+      const isLocked = await kv.get(lockKey);
+      if (isLocked) {
+        console.log(`Channel creation is already in progress for application ${application.id}`);
+        return null;
       }
-      
-      return channelId;
+
+      // Устанавливаем блокировку на 1 минуту
+      await kv.set(lockKey, true, { ex: 60 });
+
+      try {
+        // Создаем новый канал через Discord API
+        const channelId = await discordService.createApplicationChannel(application);
+        
+        if (channelId) {
+          // Сохраняем ID канала прямо в заявке
+          await DB.updateApplication(application.id, { discordChannelId: channelId });
+          console.log(`Created Discord channel ${channelId} for application ${application.id}`);
+        }
+        
+        return channelId;
+      } finally {
+        // Удаляем блокировку в любом случае
+        await kv.del(lockKey);
+      }
     } catch (error) {
       console.error('Error creating Discord channel:', error);
       return null;
@@ -42,12 +59,8 @@ export class DiscordDB {
       // Используем ID канала из заявки
       const channelId = application.discordChannelId;
       if (!channelId) {
-        // Канал не создан, создаем новый
-        const newChannelId = await this.createDiscordChannel(application);
-        if (!newChannelId) {
-          return false;
-        }
-        return await discordService.sendApplicationStatusMessage(newChannelId, application);
+        console.log(`Application ${application.id} has no Discord channel, skipping status update`);
+        return false;
       }
 
       // Обновляем сообщение в существующем канале

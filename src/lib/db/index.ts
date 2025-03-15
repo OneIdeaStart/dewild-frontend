@@ -303,14 +303,17 @@ export class DB {
     // Асинхронно обновляем статус в Discord канале
     if (updatedApp) {
       import('../db/discord').then(({ DiscordDB }) => {
-        DiscordDB.updateDiscordChannelStatus(updatedApp)
-          .catch(error => console.error('Failed to update Discord channel:', error));
-        
-        // Обновляем роль пользователя при необходимости
-        if (status === 'approved' || status === 'minted') {
-          DiscordDB.updateDiscordUserRole(updatedApp)
-            .catch(error => console.error('Failed to update Discord user role:', error));
-        }
+        // Добавляем задержку для обеспечения консистентности данных
+        setTimeout(() => {
+          DiscordDB.updateDiscordChannelStatus(updatedApp)
+            .catch(error => console.error('Failed to update Discord channel:', error));
+          
+          // Обновляем роль пользователя при необходимости
+          if (status === 'approved' || status === 'minted') {
+            DiscordDB.updateDiscordUserRole(updatedApp)
+              .catch(error => console.error('Failed to update Discord user role:', error));
+          }
+        }, 1000);
       }).catch(error => {
         console.error('Failed to import DiscordDB:', error);
       });
@@ -368,11 +371,15 @@ export class DB {
   ): Promise<void> {
     const app = await this.getApplicationById(id);
     if (!app) throw new Error('Application not found');
-
+  
+    // Обновляем данные заявки с промптом
     await kv.hset(`application:${id}`, {
       promptId,
       promptAssignedAt: new Date().toISOString()
     });
+    
+    // Обновляем статус на prompt_received
+    await this.updateStatus(id, 'prompt_received');
   }
 
   static async updateApplicationNFT(

@@ -1,3 +1,4 @@
+// src/app/api/admin/applications/[id]/route.ts
 import { NextResponse } from 'next/server';
 import { type NextRequest } from 'next/server';
 import { DB } from '@/lib/db';
