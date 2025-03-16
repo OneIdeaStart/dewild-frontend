@@ -29,8 +29,8 @@ export default function MintDialog({ onClose }: MintDialogProps) {
     const [traitsExpanded, setTraitsExpanded] = useState(false);
     // Состояние успешного завершения минта для отображения MintSuccessDialog
     const [showMintSuccess, setShowMintSuccess] = useState(false);
-    const [mintedTokenId, setMintedTokenId] = useState<string | null>(null);
-    
+    const [mintedNftNumber, setMintedNftNumber] = useState<string | number | null>(null);
+        
     // Get chainId to check network
     const chainId = useChainId();
     
@@ -128,7 +128,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
     
     // Function to update DB status after confirmed transaction
     const updateDBStatus = async (txHash: string) => {
-        if (!address) return;
+      if (!address) return;
         
         try {
             const response = await fetch('/api/nft/minted', {
@@ -150,19 +150,25 @@ export default function MintDialog({ onClose }: MintDialogProps) {
             // Re-check status
             await checkCollabStatus();
             
-            // Если в ответе есть tokenId, сохраняем его
-            if (data && data.tokenId) {
-                setMintedTokenId(data.tokenId);
+            // Получаем nftNumber из ответа API или из текущих данных заявки
+            let nftNum: string | number | null = null;
+            if (data && data.nftNumber) {
+                nftNum = data.nftNumber.toString();
+            } else if (applicationData?.nftNumber) {
+                nftNum = applicationData.nftNumber.toString();
             }
+
+            // Устанавливаем nftNumber (вместо tokenId)
+            setMintedNftNumber(nftNum);
             
             // Показываем диалог успешного минта
             setShowMintSuccess(true);
         } catch (error) {
             console.error('Error updating DB status:', error);
             setMintError('NFT minted but failed to update status. Please contact support.');
-        }
+      }
     };
-
+    
     // Загрузка в IPFS
     const uploadToIPFS = async () => {
       if (!address) {
@@ -506,7 +512,11 @@ export default function MintDialog({ onClose }: MintDialogProps) {
 
         {/* Диалог успешного минта */}
         {showMintSuccess && (
-          <MintSuccessDialog isOpen={showMintSuccess} onClose={() => setShowMintSuccess(false)} tokenId={mintedTokenId} />
+          <MintSuccessDialog 
+            isOpen={showMintSuccess} 
+            onClose={() => setShowMintSuccess(false)} 
+            nftNumber={mintedNftNumber || null} // Используем nftNumber вместо tokenId
+          />
         )}
       </>
     );

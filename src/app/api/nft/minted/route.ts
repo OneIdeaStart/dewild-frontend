@@ -29,7 +29,8 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ 
       success: true, 
-      message: 'NFT status updated to minted'
+      message: 'NFT status updated to minted',
+      nftNumber: application.nftNumber // Возвращаем nftNumber из заявки
     });
     
   } catch (error: any) {

@@ -32,7 +32,7 @@ export interface CollabApplication {
   imageUrl?: string;
   imageUploadedAt?: string;
   mintedAt?: string;
-  // Метаданные NFT
+  nftNumber?: number;
   metadata?: {
     traits?: {
       animal: string;
