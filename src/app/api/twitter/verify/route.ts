@@ -1,13 +1,12 @@
-// src/app/api/twitter/verify/route.ts
 import { NextResponse } from 'next/server';
 import { ApifyClient } from 'apify-client';
 
 // Используем переменные окружения для конфиденциальной информации
 const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN;
-// Правильный формат ID задачи (короткий ID)
-const TASK_ID = process.env.APIFY_TASK_ID || 'WKtp25UyT7PBjTaib';
+// Продолжаем использовать TASK_ID, который теперь должен указывать на twitter-scraper-lite
+const TASK_ID = process.env.APIFY_TASK_ID || 'ZeEKg1CpUwyFQhLa1';
 
-// Функции извлечения данных
+// Функции извлечения данных остаются без изменений
 const extractTwitterHandle = (tweet: any, tweetUrl: string): string => {
   if (tweet?.user?.username) return tweet.user.username;
   if (tweet?.user?.screen_name) return tweet.user.screen_name;
@@ -56,8 +55,7 @@ export async function POST(request: Request) {
       token: APIFY_API_TOKEN,
     });
 
-    // Запускаем задачу с правильным форматом входных данных
-    // Исходя из документации, Tweet Scraper V2 принимает startUrls
+    // Продолжаем использовать задачу, но с новым скраппером
     const run = await client.task(TASK_ID).call({
       "startUrls": [tweetUrl],
       "maxItems": 1

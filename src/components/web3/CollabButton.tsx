@@ -14,6 +14,8 @@ export function CollabButton() {
    const [collabDialogOpen, setCollabDialogOpen] = useState(false)
    const [successDialogOpen, setSuccessDialogOpen] = useState(false)
    const [showConnectWalletError, setShowConnectWalletError] = useState(false)
+   // Добавляем состояние для хранения ID заявки
+   const [applicationId, setApplicationId] = useState<string | undefined>()
 
    useEffect(() => {
        if (isCollabFull) {
@@ -29,10 +31,13 @@ export function CollabButton() {
     setCollabDialogOpen(true)
    }
 
-   const handleCollabDialogClose = (success?: boolean) => {
+   // Обновляем обработчик закрытия диалога для получения ID заявки
+   const handleCollabDialogClose = (success?: boolean, appId?: string) => {
        setCollabDialogOpen(false)
        if (success) {
            checkCollabStatus()
+           // Сохраняем ID заявки
+           setApplicationId(appId)
            setSuccessDialogOpen(true)
        }
    }
@@ -42,9 +47,7 @@ export function CollabButton() {
        window.open(`https://twitter.com/intent/tweet?text=${text}`, '_blank')
    }    
 
-   // Обновленная часть CollabButton компонента
-
-    return (
+   return (
         <>
             {address && isLoading ? (
                 // Если кошелек подключен и идет загрузка - показываем спиннер
@@ -128,6 +131,7 @@ export function CollabButton() {
             <CollabSuccessDialog 
                 isOpen={successDialogOpen}
                 onClose={() => setSuccessDialogOpen(false)}
+                applicationId={applicationId} // Передаем ID заявки
             />
         </>
     )

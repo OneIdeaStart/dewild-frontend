@@ -7,7 +7,7 @@ import { useAppKitAccount } from '@reown/appkit/react'
 import { CollabError, CollabStats } from '@/types/collab'
 
 interface CollabDialogProps {
-  onClose: (success?: boolean) => void
+  onClose: (success?: boolean, applicationId?: string) => void
 }
 
 export default function CollabDialog({ onClose }: CollabDialogProps) {
@@ -100,6 +100,7 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
 
       if (data.success) {
         fetchCollabStats()
+        onClose(true, data.application?.id) // Передаем ID заявки
       }
 
       onClose(true)
@@ -276,7 +277,7 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
               onClick={handleSubmit}
               variant="primary"
               size="lg"
-              className="w-full"
+              className="w-full h-[52px] min-h-[52px]"
               disabled={collabStats?.isFull || isSubmitting}
               withLoader
               isLoading={isSubmitting}

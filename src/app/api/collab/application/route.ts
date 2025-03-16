@@ -6,21 +6,28 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const wallet = searchParams.get('wallet');
+    const id = searchParams.get('id');
 
-    if (!wallet) {
-      return NextResponse.json({ error: 'Wallet address is required' }, { status: 400 });
+    if (!wallet && !id) {
+      return Response.json({ error: 'Wallet address or application ID is required' }, { status: 400 });
     }
 
-    const application = await DB.getApplicationByWallet(wallet);
+    let application;
+    
+    if (id) {
+      application = await DB.getApplicationById(id);
+    } else if (wallet) {
+      application = await DB.getApplicationByWallet(wallet);
+    }
     
     if (!application) {
-      return NextResponse.json({ error: 'Application not found' }, { status: 404 });
+      return Response.json({ error: 'Application not found' }, { status: 404 });
     }
 
-    return NextResponse.json(application);
+    return Response.json(application);
   } catch (error: any) {
     console.error('Error fetching application:', error);
-    return NextResponse.json(
+    return Response.json(
       { error: 'Failed to fetch application', details: error?.message },
       { status: 500 }
     );
