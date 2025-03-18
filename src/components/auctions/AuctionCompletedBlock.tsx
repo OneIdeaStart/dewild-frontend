@@ -34,20 +34,20 @@ export default function AuctionCompletedBlock({
   hasBeenSold,
   auctionResult
 }: AuctionCompletedBlockProps) {
-  // Форматирование адреса кошелька
+  // Format wallet address
   const formatAddress = (address: string) => {
     if (!address) return '';
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   };
 
-  // Форматирование даты
+  // Format date
   const formatDate = (timestamp?: string) => {
     if (!timestamp) return 'Unknown';
     const date = new Date(timestamp);
     return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
   };
 
-  // Если NFT не был продан через аукцион, показываем соответствующее сообщение
+  // If NFT wasn't sold through auction, show appropriate message
   if (!hasBeenSold) {
     return (
       <div className="mb-4 p-6 bg-orange-100 rounded-xl">
@@ -76,7 +76,7 @@ export default function AuctionCompletedBlock({
     );
   }
 
-  // Показываем информацию о завершенном аукционе
+  // Show information about completed auction
   return (
     <div className="mb-4 p-6 bg-black rounded-xl text-white">
       <div className="flex flex-row w-full gap-4 justify-between items-center mb-4">

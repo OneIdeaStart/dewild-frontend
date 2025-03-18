@@ -1,15 +1,15 @@
-import 'dotenv/config'  // Добавляем в начало файла
+import 'dotenv/config'  // Add at beginning of file
 import { Redis } from '@upstash/redis'
 import fs from 'fs'
 import path from 'path'
 import { PromptData, PROMPT_KEYS } from '../types/prompt'
 
-// Проверяем наличие необходимых переменных
+// Check for necessary variables
 if (!process.env.KV_REST_API_URL || !process.env.KV_REST_API_TOKEN) {
   throw new Error('Missing required environment variables: KV_REST_API_URL or KV_REST_API_TOKEN')
 }
 
-// Создаем инстанс Redis
+// Create Redis instance
 const redis = new Redis({
   url: process.env.KV_REST_API_URL,
   token: process.env.KV_REST_API_TOKEN
@@ -19,16 +19,16 @@ async function importPrompts() {
   try {
     console.log('Starting prompts import...')
 
-    // Читаем промпты из файла
+    // Read prompts from file
     const promptsFile = path.join(process.cwd(), 'data', 'only_prompts.json')
     const prompts: string[] = JSON.parse(fs.readFileSync(promptsFile, 'utf-8'))
 
     console.log(`Read ${prompts.length} prompts from file`)
 
-    // Создаем pipeline для пакетной загрузки
+    // Create pipeline for batch loading
     const pipeline = redis.pipeline()
     
-    // Очищаем старые данные если есть
+    // Clear old data if exists
     console.log('Clearing old data...')
     pipeline.del(PROMPT_KEYS.ALL)
     pipeline.del(PROMPT_KEYS.AVAILABLE)
@@ -36,11 +36,11 @@ async function importPrompts() {
     pipeline.del(PROMPT_KEYS.USED)
 
     console.log('Importing prompts...')
-    // Загружаем промпты
+    // Load prompts
     prompts.forEach((promptText: string, index: number) => {
       const promptId = `prompt:${index + 1}`
       
-      // Сохраняем текст промпта
+      // Save prompt text
       const promptData: PromptData = {
         text: promptText,
         status: 'available',
@@ -49,16 +49,16 @@ async function importPrompts() {
       
       pipeline.hset(PROMPT_KEYS.getStatusKey(promptId), promptData)
 
-      // Добавляем в сеты
+      // Add to sets
       pipeline.sadd(PROMPT_KEYS.ALL, promptId)
       pipeline.sadd(PROMPT_KEYS.AVAILABLE, promptId)
     })
 
-    // Выполняем все команды
+    // Execute all commands
     console.log('Executing Redis commands...')
     await pipeline.exec()
 
-    // Проверяем количество загруженных промптов
+    // Check number of loaded prompts
     const totalCount = await redis.scard(PROMPT_KEYS.ALL)
     const availableCount = await redis.scard(PROMPT_KEYS.AVAILABLE)
     
@@ -72,5 +72,5 @@ async function importPrompts() {
   }
 }
 
-// Запускаем импорт
+// Start import
 importPrompts()

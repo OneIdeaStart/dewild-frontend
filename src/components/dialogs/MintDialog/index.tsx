@@ -25,9 +25,9 @@ export default function MintDialog({ onClose }: MintDialogProps) {
     const [stage, setStage] = useState<'init' | 'ipfs' | 'mint' | 'done'>('init');
     const [txHash, setTxHash] = useState<string | undefined>(undefined);
     const [nftAlreadyUploaded, setNftAlreadyUploaded] = useState(false);
-    // Стейт для разворачивания/сворачивания блока трейтов
+    // State for expanding/collapsing traits block
     const [traitsExpanded, setTraitsExpanded] = useState(false);
-    // Состояние успешного завершения минта для отображения MintSuccessDialog
+    // Successful mint completion state for displaying MintSuccessDialog
     const [showMintSuccess, setShowMintSuccess] = useState(false);
     const [mintedNftNumber, setMintedNftNumber] = useState<string | number | null>(null);
         
@@ -51,22 +51,22 @@ export default function MintDialog({ onClose }: MintDialogProps) {
     const { isLoading: isConfirming, isSuccess: isConfirmed, isError: isFailedTx } = 
         useWaitForTransactionReceipt({ hash: txHash as `0x${string}` || undefined });
     
-    // Проверка, загружена ли NFT в IPFS при открытии диалога
+    // Check if NFT is uploaded to IPFS when dialog opens
     useEffect(() => {
         const checkNftUploadStatus = async () => {
             if (!address) return;
             
             try {
-                // Проверяем наличие данных IPFS в хранилище Redis для этого кошелька
+                // Check for IPFS data in Redis storage for this wallet
                 const response = await fetch(`/api/nft/details?wallet=${address}`);
                 
                 if (response.ok) {
                     const data = await response.json();
                     console.log("NFT details:", data);
                     
-                    // Проверяем, есть ли данные об IPFS в базе
+                    // Check if there's IPFS data in database
                     if (data && data.ipfsImage) {
-                        // Если в базе есть данные IPFS, значит NFT уже был загружен
+                        // If there's IPFS data in database, it means NFT was already uploaded
                         setIpfsData({
                             ipfsImage: data.ipfsImage,
                             ipfsMetadata: data.ipfsMetadata,
@@ -86,7 +86,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
         checkNftUploadStatus();
     }, [address]);
     
-    // Получение подписи при загрузке диалога
+    // Get signature when dialog loads
     useEffect(() => {
         const getSignature = async () => {
           if (!address) return;
@@ -150,7 +150,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
             // Re-check status
             await checkCollabStatus();
             
-            // Получаем nftNumber из ответа API или из текущих данных заявки
+            // Get nftNumber from API response or from current application data
             let nftNum: string | number | null = null;
             if (data && data.nftNumber) {
                 nftNum = data.nftNumber.toString();
@@ -158,10 +158,10 @@ export default function MintDialog({ onClose }: MintDialogProps) {
                 nftNum = applicationData.nftNumber.toString();
             }
 
-            // Устанавливаем nftNumber (вместо tokenId)
+            // Set nftNumber (instead of tokenId)
             setMintedNftNumber(nftNum);
             
-            // Показываем диалог успешного минта
+            // Show successful mint dialog
             setShowMintSuccess(true);
         } catch (error) {
             console.error('Error updating DB status:', error);
@@ -169,7 +169,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
       }
     };
     
-    // Загрузка в IPFS
+    // Upload to IPFS
     const uploadToIPFS = async () => {
       if (!address) {
         setIpfsError("Wallet not connected");
@@ -180,7 +180,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
       setIpfsError(undefined);
       
       try {
-        // Отправляем запрос на загрузку в IPFS
+        // Send request to upload to IPFS
         const response = await fetch('/api/nft/ipfs-upload', {
           method: 'POST',
           headers: {
@@ -210,7 +210,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
       }
     };
 
-    // Минт NFT
+    // Mint NFT
     const mintNFT = async () => {
       // Check network first
       if (!isCorrectNetwork) {
@@ -227,7 +227,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
       setMintError(undefined);
       
       try {
-        // Сначала загружаем в IPFS, если еще не загружено
+        // First upload to IPFS if not already uploaded
         if (!nftAlreadyUploaded && !ipfsData) {
           setStage('ipfs');
           const ipfsSuccess = await uploadToIPFS();
@@ -236,10 +236,10 @@ export default function MintDialog({ onClose }: MintDialogProps) {
           }
         }
         
-        // Переходим к минту
+        // Proceed to mint
         setStage('mint');
         
-        // Используем writeContractAsync для вызова контракта
+        // Use writeContractAsync to call contract
         console.log('Contract addresses:', contractAddresses);
         console.log('DeWildMinter address:', contractAddresses.DeWildMinter);
         console.log('Using ABI:', ABIS.DeWildMinter);
@@ -259,7 +259,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
       } catch (error: any) {
         console.error('Mint error:', error);
         
-        // Проверяем, является ли ошибка отклонением пользователя
+        // Check if error is user rejection
         if (error.message && (
             error.message.includes('User rejected') || 
             error.message.includes('user rejected') || 
@@ -271,13 +271,13 @@ export default function MintDialog({ onClose }: MintDialogProps) {
           setMintError(error.message || 'Failed to mint NFT');
         }
         
-        // В случае ошибки возвращаемся на начальную стадию
+        // In case of error return to initial stage
         setStage('init');
         setIsLoading(false);
       }
     };
 
-    // Функция для отображения текущего статуса
+    // Function to display current status
     const renderStage = () => {
       if (isConfirming) return "Confirming Transaction...";
       
@@ -293,7 +293,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
       }
     };
 
-    // Функция для обновления текста кнопки в зависимости от статуса
+    // Function to update button text depending on status
     const renderButtonText = () => {
       if (isLoading || ipfsLoading || isConfirming) {
         return (
@@ -307,17 +307,17 @@ export default function MintDialog({ onClose }: MintDialogProps) {
         );
       }
       
-      // Если есть ошибка загрузки в IPFS, но нет ошибки минтинга, то кнопка должна быть "UPLOAD TO IPFS & MINT NFT"
+      // If there's an IPFS upload error but no minting error, button should be "UPLOAD TO IPFS & MINT NFT"
       if (ipfsError && !mintError) {
         return "UPLOAD TO IPFS & MINT NFT";
       }
       
-      // Если есть ошибка минтинга, но не ошибка загрузки в IPFS, то кнопка должна быть "MINT NFT"
+      // If there's a minting error but not an IPFS upload error, button should be "MINT NFT"
       if (mintError && !ipfsError && nftAlreadyUploaded) {
         return "MINT NFT";
       }
       
-      // По умолчанию
+      // Default
       return renderStage();
     };
 
@@ -369,7 +369,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
                 )}
               </div>
 
-              {/* NFT Traits с возможностью сворачивания */}
+              {/* NFT Traits with collapsing capability */}
               <div className="bg-[#FF92B9] p-4 rounded-[16px]">
                 <div 
                   className="flex justify-between items-center cursor-pointer"
@@ -417,7 +417,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
                         @{applicationData?.twitter || 'unknown'}
                       </div>
                       
-                      {/* Statement, если есть */}
+                      {/* Statement, if exists */}
                       {applicationData?.metadata?.statement && (
                         <>
                           <div className="text-[#026551] text-[24px] leading-[24px] font-extrabold uppercase">Statement</div>
@@ -483,7 +483,7 @@ export default function MintDialog({ onClose }: MintDialogProps) {
             </div>
 
             <div className="flex flex-col gap-4 w-full max-w-[448px] relative">
-              {/* Ошибка показывается над кнопкой */}
+              {/* Error is shown above the button */}
               {(mintError || ipfsError) && (
                 <div className="bg-[#D90004] rounded-[8px] px-4 py-2 text-white text-[16px] font-extrabold uppercase text-center">
                   {mintError || ipfsError}
@@ -510,12 +510,12 @@ export default function MintDialog({ onClose }: MintDialogProps) {
           </div>
         </div>
 
-        {/* Диалог успешного минта */}
+        {/* Successful mint dialog */}
         {showMintSuccess && (
           <MintSuccessDialog 
             isOpen={showMintSuccess} 
             onClose={() => setShowMintSuccess(false)} 
-            nftNumber={mintedNftNumber || null} // Используем nftNumber вместо tokenId
+            nftNumber={mintedNftNumber || null} // Use nftNumber instead of tokenId
           />
         )}
       </>

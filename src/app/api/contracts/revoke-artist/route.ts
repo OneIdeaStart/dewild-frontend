@@ -4,13 +4,13 @@ import { ethers } from 'ethers';
 import { CONTRACTS, ABIS } from '@/lib/web3/contracts';
 import { DB } from '@/lib/db';
 
-// Получаем конфигурацию из переменных окружения
+// Get configuration from environment variables
 const PRIVATE_KEY = process.env.CONTRACT_ADMIN_PRIVATE_KEY || '';
 const RPC_URL = process.env.BASE_MAINNET_RPC_URL || 'https://mainnet.base.org';
 
 export async function POST(request: Request) {
     try {
-      // Читаем тело запроса
+      // Read request body
       const requestData = await request.json();
       const { wallet, applicationId } = requestData;
       
@@ -18,19 +18,19 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Artist wallet address is required' }, { status: 400 });
       }
     
-      // Проверка валидности кошелька
+      // Check wallet validity
       if (!wallet.match(/^0x[a-fA-F0-9]{40}$/)) {
         return NextResponse.json({ error: 'Invalid wallet address format' }, { status: 400 });
       }
     
-      // Проверяем наличие приватного ключа
+      // Check for private key presence
       if (!PRIVATE_KEY || PRIVATE_KEY === '') {
         return NextResponse.json({ 
           error: 'CONTRACT_ADMIN_PRIVATE_KEY environment variable is not set' 
         }, { status: 500 });
       }
     
-      // Настройка провайдера и кошелька
+      // Provider and wallet setup
       let provider;
       try {
         provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -50,10 +50,10 @@ export async function POST(request: Request) {
       }
     
       try {
-        // Проверяем подключение к сети
+        // Check network connection
         await provider.getNetwork();
         
-        // Получаем баланс админского кошелька
+        // Get admin wallet balance
         const adminBalance = await provider.getBalance(adminWallet.address);
         
         if (adminBalance === BigInt(0)) {
@@ -67,13 +67,13 @@ export async function POST(request: Request) {
         }, { status: 500 });
       }
     
-      // Получаем адрес контракта DeWildClub
+      // Get DeWildClub contract address
       const contractAddress = CONTRACTS.MAINNET.DeWildClub;
       
-      // Используем первый элемент массива ABI
+      // Use first element of ABI array
       const abi = ABIS.DeWildClub as any;
       
-      // Создаем экземпляр контракта
+      // Create contract instance
       let contract;
       try {
         contract = new ethers.Contract(
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
         }, { status: 500 });
       }
       
-      // Проверяем, одобрен ли этот артист
+      // Check if this artist is approved
       let isApproved;
       try {
         isApproved = await contract.approvedArtists(wallet);
@@ -97,7 +97,7 @@ export async function POST(request: Request) {
         }, { status: 500 });
       }
       
-      // Если артист не одобрен, нет смысла его отзывать
+      // If artist is not approved, no need to revoke
       if (!isApproved) {
         return NextResponse.json({ 
           success: true, 
@@ -106,13 +106,13 @@ export async function POST(request: Request) {
         });
       }
       
-      // Отзываем артиста
+      // Revoke artist
       let txHash = '';
       try {
-        // Вызываем функцию отзыва артиста
+        // Call artist revocation function
         const tx = await contract.revokeArtist(wallet);
         
-        // Ждем подтверждения транзакции
+        // Wait for transaction confirmation
         const receipt = await tx.wait();
         txHash = receipt.hash;
       } catch (revokeError: any) {
@@ -121,10 +121,10 @@ export async function POST(request: Request) {
         }, { status: 500 });
       }
       
-      // Если указан ID заявки, очищаем подпись
+      // If application ID is specified, clear signature
       if (applicationId) {
         try {
-          // Записываем пустую подпись в БД
+          // Write empty signature to DB
           await DB.saveNFTSignature(applicationId, "");
         } catch (dbError: any) {
           return NextResponse.json({ 

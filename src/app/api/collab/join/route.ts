@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const { wallet, twitter, discord } = await request.json();
 
-    // Валидация полей
+    // Field validation
     if (!wallet || !twitter || !discord) {
       return Response.json(
         { error: { type: 'validation', message: 'Missing required fields' }},
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Проверяем лимит
+    // Check limit
     const stats = await DB.getStats();
     if (stats.isFull) {
       return Response.json(
@@ -23,7 +23,7 @@ export async function POST(request: Request) {
     }
 
     try {
-      // Создаем заявку
+      // Create application
       const application = await DB.createApplication(
         wallet,
         twitter,
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
         stats: await DB.getStats()
       });
     } catch (error: any) {
-      // Обрабатываем ошибки дублирования
+      // Handle duplication errors
       if (error.message.includes('already has application')) {
         return Response.json(
           { 

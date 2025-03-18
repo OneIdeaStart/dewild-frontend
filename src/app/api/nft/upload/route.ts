@@ -24,24 +24,24 @@ export async function POST(request: Request) {
       }, { status: 400 });
     }
 
-    // Обработка Base64 изображения
+    // Process Base64 image
     const imageData = image.split(';base64,').pop();
     if (!imageData) {
       return NextResponse.json({ error: 'Invalid image data' }, { status: 400 });
     }
 
-    // Загрузка в Blob Storage
+    // Upload to Blob Storage
     const buffer = Buffer.from(imageData, 'base64');
     const blob = await put(`nft-images/${application.id}.png`, buffer, {
       contentType: 'image/png',
       access: 'public'
     });
 
-    // Обновление данных заявки
+    // Update application data
     await DB.updateApplicationNFT(application.id, blob.url);
     await DB.updateStatus(application.id, 'nft_pending');
 
-    // Сохранение метаданных
+    // Save metadata
     const metadata = {
       name: `DeWild #${application.id}`,
       description: statement,

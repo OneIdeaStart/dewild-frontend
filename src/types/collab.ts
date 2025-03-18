@@ -1,4 +1,4 @@
-// Добавляем новые статусы
+// Add new statuses
 export type ApplicationStatus = 
   | 'pending'
   | 'rejected'
@@ -11,7 +11,7 @@ export type ApplicationStatus =
   | 'minted'
   | 'unminted';
 
-// Обновляем интерфейс, добавляя новые поля и используя новый тип статуса
+// Update interface, adding new fields and using new status type
 export interface CollabApplication {
   id: string;
   wallet: string;
@@ -26,7 +26,7 @@ export interface CollabApplication {
     votedAt: string;
     comment?: string;
   }>;
-  // Дополнительные поля для обработки NFT
+  // Additional fields for NFT processing
   promptId?: string;
   promptAssignedAt?: string;
   imageUrl?: string;
@@ -46,11 +46,11 @@ export interface CollabApplication {
   };
 }
 
-// Также нужно обновить CollabCheckResponse с новыми статусами
+// Also need to update CollabCheckResponse with new statuses
 export interface CollabCheckResponse {
   address?: {
     isApplied: boolean;
-    status?: ApplicationStatus;  // обновляем тип статуса
+    status?: ApplicationStatus;  // Update status type
     isFull: boolean;
   };
   discord?: boolean;
@@ -58,7 +58,7 @@ export interface CollabCheckResponse {
   stats: CollabStats;
 }
 
-// Остальные интерфейсы остаются без изменений
+// Other interfaces remain unchanged
 export interface CollabStats {
   total: number;
   pending: number;

@@ -6,10 +6,10 @@ import { CONTRACTS, ABIS } from '@/lib/web3/contracts';
 import { parseEther } from 'viem';
 import { useAppKitAccount } from '@reown/appkit/react';
 
-// Константы для конфигурации таймаутов и повторных попыток
-const TRANSACTION_TIMEOUT = 60000; // 60 секунд
+// Constants for timeout configuration and retries
+const TRANSACTION_TIMEOUT = 60000; // 60 seconds
 const MAX_RETRIES = 3;
-const RETRY_DELAY = 3000; // 3 секунды между повторными попытками
+const RETRY_DELAY = 3000; // 3 seconds between retry attempts
 
 export function useAuction() {
   const { address } = useAppKitAccount();
@@ -19,43 +19,43 @@ export function useAuction() {
   const [approvalTxHash, setApprovalTxHash] = useState<string>('');
   const [isTransactionInProgress, setIsTransactionInProgress] = useState<boolean>(false);
   
-  // Используем хуки Wagmi
+  // Use Wagmi hooks
   const { writeContractAsync } = useWriteContract();
   
-  // Отслеживаем статус транзакции создания аукциона
+  // Track auction creation transaction status
   const { isLoading: isConfirming, isSuccess: isConfirmed, isError: isFailedTx } = 
     useWaitForTransactionReceipt({ hash: txHash as `0x${string}` || undefined });
   
-  // Отслеживаем статус транзакции одобрения
+  // Track approval transaction status
   const { isLoading: isApprovalConfirming, isSuccess: isApprovalConfirmed } = 
     useWaitForTransactionReceipt({ hash: approvalTxHash as `0x${string}` || undefined });
   
-  // Получаем адреса контрактов для текущей сети
-  const contractAddresses = CONTRACTS.MAINNET; // Для продакшна можно добавить переключение в зависимости от сети
+  // Get contract addresses for current network
+  const contractAddresses = CONTRACTS.MAINNET; // For production can add switching depending on network
   
   /**
-   * Функция для создания транзакции с таймаутом и повторными попытками
-   * @param executeTx Функция для выполнения транзакции
-   * @param errorMessage Сообщение об ошибке
-   * @returns Результат транзакции
+   * Function for creating transaction with timeout and retries
+   * @param executeTx Function to execute transaction
+   * @param errorMessage Error message
+   * @returns Transaction result
    */
   const executeWithRetry = async (executeTx: () => Promise<any>, errorMessage: string) => {
     let retryCount = 0;
     
     const attemptTransaction = async (): Promise<any> => {
       try {
-        // Устанавливаем таймаут
+        // Set timeout
         const timeoutPromise = new Promise((_, reject) => 
           setTimeout(() => reject(new Error("Transaction timeout")), TRANSACTION_TIMEOUT)
         );
         
-        // Оригинальный запрос транзакции
+        // Original transaction request
         const txPromise = executeTx();
         
-        // Выполняем с таймаутом
+        // Execute with timeout
         return await Promise.race([txPromise, timeoutPromise]);
       } catch (error: any) {
-        // Проверяем, является ли ошибка таймаутом или связана с сетью
+        // Check if error is timeout or network related
         const isTimeoutOrNetworkError = 
           error.message.includes("timeout") || 
           error.message.includes("network") || 
@@ -65,17 +65,17 @@ export function useAuction() {
           retryCount++;
           console.log(`Retry attempt ${retryCount} after ${RETRY_DELAY/1000}s delay`);
           
-          // Ждем перед повторной попыткой
+          // Wait before retry
           await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
           
-          // Рекурсивная повторная попытка
+          // Recursive retry
           return attemptTransaction();
         }
         
-        // Если все повторные попытки исчерпаны или это не ошибка таймаута
+        // If all retries exhausted or not a timeout error
         console.error('Transaction failed after retries:', error);
         
-        // Форматируем сообщение об ошибке для пользователя
+        // Format error message for user
         let userErrorMessage = errorMessage;
         if (error.message.includes("User rejected")) {
           userErrorMessage = 'Transaction rejected by user';
@@ -93,16 +93,16 @@ export function useAuction() {
   };
 
   /**
-   * Создает аукцион для NFT с предварительным одобрением
-   * @param tokenId ID токена
-   * @returns Результат операции
+   * Creates auction for NFT with preliminary approval
+   * @param tokenId Token ID
+   * @returns Operation result
    */
   const createAuction = async (tokenId: number) => {
     if (!address) {
       throw new Error('Please connect your wallet first');
     }
     
-    // Проверяем, не выполняется ли уже транзакция
+    // Check if transaction is already in progress
     if (isTransactionInProgress) {
       console.log('Transaction already in progress');
       return { success: false, error: 'Transaction already in progress' };
@@ -115,11 +115,11 @@ export function useAuction() {
     setIsTransactionInProgress(true);
   
     try {
-      // Получаем адреса контрактов
+      // Get contract addresses
       const nftContractAddress = contractAddresses.DeWildClub as `0x${string}`;
       const marketAddress = contractAddresses.PrimarySaleMarket as `0x${string}`;
       
-      // Создаем провайдер и контракт для проверки апрува
+      // Create provider and contract to check approval
       const provider = new ethers.JsonRpcProvider(
         process.env.NEXT_PUBLIC_BASE_MAINNET_RPC_URL || 'https://mainnet.base.org'
       );
@@ -130,11 +130,11 @@ export function useAuction() {
         provider
       );
       
-      // Проверяем, есть ли уже апрув
+      // Check if there's already approval
       const isApproved = await nftContract.isApprovedForAll(address, marketAddress);
       
       if (!isApproved) {
-        // Если нет апрува, выполняем транзакцию setApprovalForAll
+        // If no approval, execute setApprovalForAll transaction
         console.log('Approval needed. Approving NFT for marketplace...');
         
         const approveTxHash = await executeWithRetry(
@@ -144,7 +144,7 @@ export function useAuction() {
               address: nftContractAddress,
               functionName: 'setApprovalForAll',
               args: [marketAddress, true],
-              gas: BigInt(300000) // Увеличенный газовый лимит для предотвращения таймаутов
+              gas: BigInt(300000) // Increased gas limit to prevent timeouts
             });
           },
           'Failed to approve NFT'
@@ -153,15 +153,15 @@ export function useAuction() {
         console.log('Approval transaction submitted:', approveTxHash);
         setApprovalTxHash(approveTxHash);
         
-        // Автоматическое создание аукциона произойдет через эффект, 
-        // следящий за isApprovalConfirmed
+        // Automatic auction creation will happen through effect, 
+        // watching for isApprovalConfirmed
         
         return {
           success: true,
           approvalHash: approveTxHash
         };
       } else {
-        // Если уже есть апрув, создаем аукцион напрямую
+        // If approval already exists, create auction directly
         console.log('Approval already exists, creating auction directly');
         return await createAuctionAfterApproval(tokenId);
       }
@@ -169,7 +169,7 @@ export function useAuction() {
       console.error('Failed to process auction creation:', error);
       setTxStatus('error');
       
-      // Улучшенное сообщение об ошибке
+      // Enhanced error message
       let errorMessage = error.message || 'Failed to create auction';
       if (errorMessage.includes('User rejected')) {
         errorMessage = 'Transaction rejected by user';
@@ -190,12 +190,12 @@ export function useAuction() {
   };  
   
   /**
-   * Создает аукцион после успешного одобрения токена
-   * @param tokenId ID токена
-   * @returns Результат операции
+   * Creates auction after successful token approval
+   * @param tokenId Token ID
+   * @returns Operation result
    */
   const createAuctionAfterApproval = async (tokenId: number) => {
-    // Проверяем, не выполняется ли уже транзакция создания аукциона
+    // Check if auction creation transaction is already in progress
     if (txStatus === 'creating') {
       console.log('Auction creation already in progress');
       return { success: false, error: 'Auction creation already in progress' };
@@ -209,10 +209,10 @@ export function useAuction() {
     setTxHash('');
 
     try {
-      // Фиксированная стартовая цена (0.011 ETH)
+      // Fixed starting price (0.011 ETH)
       const startPrice = parseEther('0.011');
       
-      // Получаем адрес контракта
+      // Get contract address
       const marketAddress = contractAddresses.PrimarySaleMarket as `0x${string}`;
       
       console.log(`Creating auction for token ${tokenId} with starting price: ${parseFloat(startPrice.toString()) / 1e18} ETH`);
@@ -224,7 +224,7 @@ export function useAuction() {
             address: marketAddress,
             functionName: 'createAuction',
             args: [tokenId, startPrice],
-            gas: BigInt(400000) // Увеличенный газовый лимит
+            gas: BigInt(400000) // Increased gas limit
           });
         }, 
         'Failed to create auction'
@@ -242,7 +242,7 @@ export function useAuction() {
       console.error('Failed to create auction:', error);
       setTxStatus('error');
       
-      // Более дружественное сообщение об ошибке
+      // More user-friendly error message
       let errorMessage = error.message || 'Failed to create auction';
       if (errorMessage.includes('User rejected')) {
         errorMessage = 'Transaction rejected by user';
@@ -263,16 +263,16 @@ export function useAuction() {
   };
   
   /**
-   * Отменяет аукцион для NFT
-   * @param tokenId ID токена
-   * @returns Результат операции
+   * Cancels auction for NFT
+   * @param tokenId Token ID
+   * @returns Operation result
    */
   const cancelAuction = async (tokenId: number) => {
     if (!address) {
       throw new Error('Please connect your wallet first');
     }
     
-    // Проверяем, не выполняется ли уже транзакция
+    // Check if transaction is already in progress
     if (isTransactionInProgress) {
       console.log('Transaction already in progress');
       return { success: false, error: 'Transaction already in progress' };
@@ -284,7 +284,7 @@ export function useAuction() {
     setIsTransactionInProgress(true);
 
     try {
-      // Получаем адрес контракта
+      // Get contract address
       const marketAddress = contractAddresses.PrimarySaleMarket as `0x${string}`;
       
       console.log(`Cancelling auction for token ${tokenId}`);
@@ -296,7 +296,7 @@ export function useAuction() {
             address: marketAddress,
             functionName: 'cancelAuction',
             args: [tokenId],
-            gas: BigInt(300000) // Увеличенный лимит газа
+            gas: BigInt(300000) // Increased gas limit
           });
         },
         'Failed to cancel auction'
@@ -314,7 +314,7 @@ export function useAuction() {
       console.error('Failed to cancel auction:', error);
       setTxStatus('error');
       
-      // Более дружественное сообщение об ошибке
+      // More user-friendly error message
       let errorMessage = error.message || 'Failed to cancel auction';
       if (errorMessage.includes('user rejected')) {
         errorMessage = 'Transaction rejected by user';
@@ -331,17 +331,17 @@ export function useAuction() {
   };
   
   /**
-   * Размещает ставку на аукционе
-   * @param tokenId ID токена
-   * @param bidAmount Сумма ставки в ETH
-   * @returns Результат операции
+   * Places bid in auction
+   * @param tokenId Token ID
+   * @param bidAmount Bid amount in ETH
+   * @returns Operation result
    */
   const placeBid = async (tokenId: number, bidAmount: string) => {
     if (!address) {
       throw new Error('Please connect your wallet first');
     }
     
-    // Проверяем, не выполняется ли уже транзакция
+    // Check if transaction is already in progress
     if (isTransactionInProgress) {
       console.log('Transaction already in progress');
       return { success: false, error: 'Transaction already in progress' };
@@ -353,10 +353,10 @@ export function useAuction() {
     setIsTransactionInProgress(true);
 
     try {
-      // Преобразуем сумму ставки в wei
+      // Convert bid amount to wei
       const bidAmountWei = parseEther(bidAmount);
       
-      // Получаем адрес контракта
+      // Get contract address
       const marketAddress = contractAddresses.PrimarySaleMarket as `0x${string}`;
       
       console.log(`Placing bid for token ${tokenId}: ${bidAmount} ETH`);
@@ -369,7 +369,7 @@ export function useAuction() {
             functionName: 'placeBid',
             args: [tokenId],
             value: bidAmountWei,
-            gas: BigInt(400000) // Увеличенный лимит газа
+            gas: BigInt(400000) // Increased gas limit
           });
         },
         'Failed to place bid'
@@ -384,10 +384,10 @@ export function useAuction() {
         hash: txHash
       };
     } catch (error: any) {
-      console.error('Failed to place bid:', error); // Полная ошибка в консоли для отладки
+      console.error('Failed to place bid:', error); // Full error in console for debugging
       setTxStatus('error');
       
-      // Упрощенные пользовательские сообщения об ошибках
+      // Simplified user error messages
       let errorMessage = 'Failed to place bid';
       
       if (error.message?.includes('User rejected')) {
@@ -410,22 +410,22 @@ export function useAuction() {
     } finally {
       setTimeout(() => {
         setIsTransactionInProgress(false);
-      }, 5000); // Даем 5 секунд чтобы состояние обновилось до того, как разрешим новые транзакции
+      }, 5000); // Give 5 seconds for state to update before allowing new transactions
     }
   };
   
   /**
-   * Проверяет наличие активного аукциона для NFT
-   * @param tokenId ID токена
-   * @param provider Провайдер Ethereum
-   * @returns Информация об аукционе
+   * Checks for active auction for NFT
+   * @param tokenId Token ID
+   * @param provider Ethereum provider
+   * @returns Auction information
    */
   const checkAuction = async (tokenId: number, provider: ethers.Provider): Promise<{
     hasAuction: boolean, 
     auctionDetails?: any
   }> => {
     try {
-      // Создаем контракт для взаимодействия с аукционом
+      // Create contract for auction interaction
       const marketAddress = contractAddresses.PrimarySaleMarket;
       const marketContract = new ethers.Contract(
         marketAddress, 
@@ -433,23 +433,23 @@ export function useAuction() {
         provider
       );
       
-      // Пытаемся получить информацию об аукционе
+      // Try to get auction information
       try {
         const auctionInfo = await marketContract.getAuction(tokenId);
         
-        // Структура auctionInfo содержит:
+        // auctionInfo structure contains:
         // [0]: artist (address)
         // [1]: startPrice (bigint)
         // [2]: currentBid (bigint)
         // [3]: highestBidder (address)
-        // [4]: endTime (bigint) - timestamp в секундах
+        // [4]: endTime (bigint) - timestamp in seconds
         // [5]: isActive (bool)
         
         const artist = auctionInfo[0];
         const startPrice = ethers.formatEther(auctionInfo[1]);
         const currentBid = ethers.formatEther(auctionInfo[2]);
         const highestBidder = auctionInfo[3];
-        const endTime = Number(auctionInfo[4]) * 1000; // Преобразуем в миллисекунды
+        const endTime = Number(auctionInfo[4]) * 1000; // Convert to milliseconds
         const isActive = auctionInfo[5];
         
         console.log("Auction data for debugging:", {
@@ -462,17 +462,17 @@ export function useAuction() {
           currentTime: Date.now()
         });
         
-        // ИЗМЕНЕНО: Проверяем только флаг isActive из контракта
-        // Если аукцион неактивен по данным контракта - считаем аукцион неактивным
+        // CHANGED: Check only isActive flag from contract
+        // If auction is inactive according to contract data - consider auction inactive
         if (!isActive) {
           return { hasAuction: false };
         }
         
-        // Получаем оставшееся время из контракта
+        // Get remaining time from contract
         const remainingTime = await marketContract.getRemainingTime(tokenId);
         const isTimeExpired = remainingTime.eq(0);
         
-        // Определяем состояние timeLeft
+        // Determine timeLeft state
         const now = Date.now();
         const timeLeft = endTime > now ? 
           `${Math.floor((endTime - now) / (1000 * 60 * 60))}h ${Math.floor(((endTime - now) % (1000 * 60 * 60)) / (1000 * 60))}m ${Math.floor(((endTime - now) % (1000 * 60)) / 1000)}s` : 
@@ -487,8 +487,8 @@ export function useAuction() {
             highestBidder,
             endTime,
             artist,
-            isTimeExpired, // Добавляем флаг истечения времени
-            timeLeft       // Добавляем предрассчитанное timeLeft
+            isTimeExpired, // Add time expiration flag
+            timeLeft       // Add pre-calculated timeLeft
           }
         };
       } catch (contractError) {
@@ -502,16 +502,16 @@ export function useAuction() {
   };
 
   /**
-   * Функция для завершения аукциона (если время истекло)
-   * @param tokenId ID токена
-   * @returns Результат операции
+   * Function for ending auction (if time expired)
+   * @param tokenId Token ID
+   * @returns Operation result
    */
   const endAuction = async (tokenId: number) => {
     if (!address) {
       throw new Error('Please connect your wallet first');
     }
     
-    // Проверяем, не выполняется ли уже транзакция
+    // Check if transaction is already in progress
     if (isTransactionInProgress) {
       console.log('Transaction already in progress');
       return { success: false, error: 'Transaction already in progress' };
@@ -523,7 +523,7 @@ export function useAuction() {
     setIsTransactionInProgress(true);
 
     try {
-      // Получаем адрес контракта
+      // Get contract address
       const marketAddress = contractAddresses.PrimarySaleMarket as `0x${string}`;
       
       console.log(`Ending auction for token ${tokenId}`);
@@ -535,7 +535,7 @@ export function useAuction() {
             address: marketAddress,
             functionName: 'endAuction',
             args: [tokenId],
-            gas: BigInt(500000) // Увеличенный лимит газа для сложной операции завершения
+            gas: BigInt(500000) // Increased gas limit for complex operation of completion
           });
         },
         'Failed to end auction'
@@ -553,7 +553,7 @@ export function useAuction() {
       console.error('Failed to end auction:', error);
       setTxStatus('error');
       
-      // Более дружественное сообщение об ошибке
+      // More user-friendly error message
       let errorMessage = error.message || 'Failed to end auction';
       if (errorMessage.includes('User rejected')) {
         errorMessage = 'Transaction rejected by user';
@@ -571,11 +571,11 @@ export function useAuction() {
     } finally {
       setTimeout(() => {
         setIsTransactionInProgress(false);
-      }, 5000); // Даем 5 секунд чтобы состояние обновилось
+      }, 5000); // Give 5 seconds for state to update
     }
   };
 
-  // Сбросить состояние ошибки
+  // Reset error state
   const resetError = () => {
     setTxError('');
     setTxStatus('idle');

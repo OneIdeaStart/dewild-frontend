@@ -3,7 +3,7 @@ import 'dotenv/config';
 import { kv } from '@vercel/kv';
 import axios from 'axios';
 
-// Типы для базы данных
+// Types for database
 interface CollabApplication {
   id: string;
   wallet: string;
@@ -25,19 +25,19 @@ interface CollabApplication {
   metadata?: any;
 }
 
-// Константы из оригинального DB класса
+// Constants from original DB class
 const DB_KEYS = {
   APPLICATION_CHANNEL_MAP: 'discord:application:channel',
   CHANNEL_APPLICATION_MAP: 'discord:channel:application',
 };
 
-// Функция для получения заявки по ID
+// Function to get application by ID
 async function getApplicationById(id: string): Promise<CollabApplication | null> {
   try {
     const record = await kv.hgetall<any>(`application:${id}`);
     if (!record) return null;
     
-    // Преобразуем запись из Redis в CollabApplication
+    // Convert record from Redis to CollabApplication
     const application: CollabApplication = {
       id: record.id,
       wallet: record.wallet,
@@ -54,12 +54,12 @@ async function getApplicationById(id: string): Promise<CollabApplication | null>
       metadata: record.metadata
     };
   
-    // Если metadata строка, парсим её в объект
+    // If metadata is string, parse it to object
     if (application.metadata && typeof application.metadata === 'string') {
       try {
         application.metadata = JSON.parse(application.metadata as string);
       } catch (e) {
-        // Ошибка при парсинге, но продолжаем выполнение
+        // Error during parsing, but continue execution
         console.warn('Error parsing metadata for application', id);
       }
     }
@@ -71,7 +71,7 @@ async function getApplicationById(id: string): Promise<CollabApplication | null>
   }
 }
 
-// Функция для получения всех ID заявок
+// Function to get all application IDs
 async function getAllApplicationIds(): Promise<string[]> {
   try {
     return await kv.smembers('applications:all');
@@ -81,7 +81,7 @@ async function getAllApplicationIds(): Promise<string[]> {
   }
 }
 
-// Получение Discord канала для заявки
+// Get Discord channel for application
 async function getApplicationChannel(applicationId: string): Promise<string | null> {
   try {
     return kv.hget<string>(DB_KEYS.APPLICATION_CHANNEL_MAP, applicationId);
@@ -91,13 +91,13 @@ async function getApplicationChannel(applicationId: string): Promise<string | nu
   }
 }
 
-// Отправка сообщения о статусе заявки
+// Send message about application status
 async function sendApplicationStatusMessage(channelId: string, application: CollabApplication): Promise<boolean> {
   try {
-    // Формируем сообщение о статусе
+    // Form message about status
     const message = getStatusMessage(application);
     
-    // Отправляем сообщение через API Discord
+    // Send message through Discord API
     await axios.post(
       `https://discord.com/api/v10/channels/${channelId}/messages`,
       { content: message },
@@ -117,7 +117,7 @@ async function sendApplicationStatusMessage(channelId: string, application: Coll
   }
 }
 
-// Формирование сообщения о статусе заявки
+// Form message about application status
 function getStatusMessage(application: CollabApplication): string {
   const statusEmoji = getStatusEmoji(application.status);
   const created = new Date(application.createdAt).toLocaleString('ru-RU');
@@ -130,7 +130,7 @@ function getStatusMessage(application: CollabApplication): string {
   
   message += `## Current Status: ${statusEmoji} ${formatStatus(application.status)}\n\n`;
   
-  // Добавляем детали в зависимости от статуса
+  // Add details depending on status
   switch (application.status) {
     case 'pending':
       message += `Your application is being reviewed by our team. Please be patient.\n`;
@@ -177,7 +177,7 @@ function getStatusMessage(application: CollabApplication): string {
   return message;
 }
 
-// Получение эмодзи для статуса
+// Get emoji for status
 function getStatusEmoji(status: string): string {
   switch (status) {
     case 'pending': return '⏳';
@@ -194,7 +194,7 @@ function getStatusEmoji(status: string): string {
   }
 }
 
-// Форматирование статуса
+// Format status
 function formatStatus(status: string): string {
   switch (status) {
     case 'pending': return 'Pending Review';
@@ -211,23 +211,23 @@ function formatStatus(status: string): string {
   }
 }
 
-// Основная функция для обновления сообщений в каналах
+// Main function to update messages in channels
 async function updateAllDiscordMessages() {
   try {
     console.log('Updating Discord channel messages...');
 
-    // Получаем все ID заявок
+    // Get all application IDs
     const applicationIds = await getAllApplicationIds();
     console.log(`Found ${applicationIds.length} applications`);
     
-    // Счетчики
+    // Counters
     let updated = 0;
     let errors = 0;
     
-    // Обрабатываем каждую заявку
+    // Process each application
     for (const id of applicationIds) {
       try {
-        // Получаем данные заявки
+        // Get application data
         const app = await getApplicationById(id);
         if (!app) {
           console.error(`Application ${id} not found`);
@@ -235,7 +235,7 @@ async function updateAllDiscordMessages() {
           continue;
         }
         
-        // Получаем ID канала для заявки
+        // Get channel ID for application
         const channelId = await getApplicationChannel(id);
         if (!channelId) {
           console.error(`No Discord channel found for application ${id}`);
@@ -243,7 +243,7 @@ async function updateAllDiscordMessages() {
           continue;
         }
         
-        // Отправляем сообщение в канал
+        // Send message to channel
         console.log(`Updating Discord message for application ${id} in channel ${channelId}...`);
         const success = await sendApplicationStatusMessage(channelId, app);
         
@@ -253,7 +253,7 @@ async function updateAllDiscordMessages() {
           errors++;
         }
         
-        // Небольшая пауза, чтобы не перегружать Discord API
+        // Small pause to not overload Discord API
         await new Promise(resolve => setTimeout(resolve, 1000));
         
       } catch (error) {
@@ -272,26 +272,26 @@ async function updateAllDiscordMessages() {
   }
 }
 
-// Функция для обновления сообщения для конкретной заявки
+// Function to update message for specific application
 async function updateSingleApplication(applicationId: string) {
   try {
     console.log(`Updating Discord message for application ${applicationId}...`);
     
-    // Получаем данные заявки
+    // Get application data
     const app = await getApplicationById(applicationId);
     if (!app) {
       console.error(`Application ${applicationId} not found`);
       return false;
     }
     
-    // Получаем ID канала для заявки
+    // Get channel ID for application
     const channelId = await getApplicationChannel(applicationId);
     if (!channelId) {
       console.error(`No Discord channel found for application ${applicationId}`);
       return false;
     }
     
-    // Отправляем сообщение в канал
+    // Send message to channel
     const success = await sendApplicationStatusMessage(channelId, app);
     
     if (success) {
@@ -307,7 +307,7 @@ async function updateSingleApplication(applicationId: string) {
   }
 }
 
-// Запускаем обновление для конкретной заявки, если указан ID
+// Run update for specific application if ID is specified
 const applicationId = process.argv[2];
 if (applicationId) {
   updateSingleApplication(applicationId)
@@ -317,7 +317,7 @@ if (applicationId) {
       process.exit(1);
     });
 } else {
-  // Иначе обновляем все заявки
+  // Otherwise update all applications
   updateAllDiscordMessages()
     .then(() => process.exit(0))
     .catch(error => {

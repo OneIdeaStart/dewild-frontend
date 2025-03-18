@@ -1,5 +1,5 @@
 // src/app/api/whitelist/discord/auth/route.ts
-import { NextResponse } from 'next/server'; // Правильный импорт для Next.js 13+
+import { NextResponse } from 'next/server'; // Correct import for Next.js 13+
 
 export async function GET(request: Request) {
   try {
@@ -12,7 +12,7 @@ export async function GET(request: Request) {
       '&response_type=code' +
       '&scope=identify%20guilds.members.read';
 
-    return NextResponse.json({ url: oauthUrl }); // Используем NextResponse.json
+    return NextResponse.json({ url: oauthUrl }); // Use NextResponse.json
   } catch (error) {
     console.error('Auth error:', error);
     return NextResponse.json({ error: 'Auth failed' }, { status: 500 });

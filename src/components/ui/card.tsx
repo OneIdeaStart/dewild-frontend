@@ -21,7 +21,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         className={cn("p-4 rounded-[16px] flex flex-wrap items-start gap-3 group", className)}
         {...props}
       >
-        {/* Изображение в контейнере */}
+        {/* Image in container */}
         {image && (
           <div className="w-[112px] h-[112px] rounded-[12px] overflow-hidden flex-shrink-0">
             <img
@@ -32,7 +32,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           </div>
         )}
 
-        {/* Текстовый блок */}
+        {/* Text block */}
         <div
           className="flex flex-col gap-3"
           style={{

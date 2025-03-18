@@ -11,7 +11,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Wallet address is required' }, { status: 400 });
     }
     
-    // Получаем заявку
+    // Get application
     const application = await DB.getApplicationByWallet(wallet);
     
     if (!application) {
@@ -25,7 +25,7 @@ export async function GET(request: Request) {
       }, { status: 400 });
     }
     
-    // Получаем сохраненную подпись
+    // Get saved signature
     const signature = await DB.getNFTSignature(wallet);
     console.log(`Signature for wallet ${wallet}:`, signature);
     

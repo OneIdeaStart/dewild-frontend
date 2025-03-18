@@ -1,6 +1,6 @@
 export const typography = {
     fontFamily: {
-      primary: "var(--font-sofia)", // Используем CSS переменную
+      primary: "var(--font-sofia)", // Use CSS variable
     },
     
     fontSize: {

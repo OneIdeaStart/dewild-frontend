@@ -18,7 +18,7 @@ const buttonVariants = cva(
           'hover:bg-[#3A3A3A]',
           'active:transform active:translate-y-0.5'
         ],
-        'primary-light': [  // Добавляем новый вариант
+        'primary-light': [  // Add new variant
           'bg-[#ECECEC] text-[#202020] rounded-[16px]',
           'hover:bg-[#f5f5f5]',
           'active:transform active:translate-y-0.5'

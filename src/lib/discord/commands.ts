@@ -1,7 +1,7 @@
 // src/lib/discord/commands.ts
 import axios from 'axios';
 
-// Типы для API Discord
+// Types for Discord API
 type DiscordCommand = {
   name: string;
   description: string;
@@ -17,14 +17,14 @@ type DiscordCommandOption = {
   choices?: { name: string; value: string }[];
 };
 
-// Константы из Discord API
+// Constants from Discord API
 const COMMAND_TYPE_CHAT_INPUT = 1;
 const OPTION_TYPE_STRING = 3;
 const OPTION_TYPE_INTEGER = 4;
 const OPTION_TYPE_BOOLEAN = 5;
 
 /**
- * Класс для регистрации и управления slash-командами Discord
+ * Class for registering and managing Discord slash commands
  */
 export class DiscordCommands {
   private token: string;
@@ -49,11 +49,11 @@ export class DiscordCommands {
   }
 
   /**
-   * Регистрирует команды в Discord
+   * Registers commands in Discord
    */
   async registerCommands() {
     try {
-      // Определяем набор команд для приложения
+      // Define command set for application
       const commands: DiscordCommand[] = [
         {
           name: 'status',
@@ -72,7 +72,7 @@ export class DiscordCommands {
         }
       ];
 
-      // Регистрируем команды для конкретного сервера (быстрее обновляются)
+      // Register commands for specific server (update faster)
       const response = await axios.put<DiscordCommand[]>(
         `https://discord.com/api/v10/applications/${this.clientId}/guilds/${this.guildId}/commands`,
         commands,
@@ -88,17 +88,17 @@ export class DiscordCommands {
   }
 
   /**
-   * Удаляет все команды из Discord
+   * Deletes all commands from Discord
    */
   async deleteAllCommands() {
     try {
-      // Получаем список существующих команд
+      // Get list of existing commands
       const response = await axios.get<{ id: string }[]>(
         `https://discord.com/api/v10/applications/${this.clientId}/guilds/${this.guildId}/commands`,
         { headers: this.headers }
       );
 
-      // Удаляем каждую команду
+      // Delete each command
       for (const command of response.data) {
         await axios.delete(
           `https://discord.com/api/v10/applications/${this.clientId}/guilds/${this.guildId}/commands/${command.id}`,
@@ -115,5 +115,5 @@ export class DiscordCommands {
   }
 }
 
-// Экспортируем инстанс для использования в других модулях
+// Export instance for use in other modules
 export const discordCommands = new DiscordCommands();

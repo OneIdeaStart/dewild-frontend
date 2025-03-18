@@ -9,13 +9,13 @@ export function HeaderButton() {
   const pathname = usePathname()
   const router = useRouter()
 
-  // Если мы на дашборде, странице коллекции или странице детальной информации NFT, показываем ConnectButton
+  // If we're on dashboard, collection page or NFT detail page, show ConnectButton
   if (pathname.startsWith('/dashboard') || 
       pathname.startsWith('/collection')) {
     return <ConnectButton />
   }
 
-  // На других страницах (в основном на главной) показываем кнопку перехода в дашборд
+  // On other pages (mainly home) show button to go to dashboard
   return (
     <Button
       onClick={() => router.push('/dashboard')}

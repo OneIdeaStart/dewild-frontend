@@ -23,6 +23,6 @@
 //   });
 // };
 
-// Временный placeholder чтобы не было ошибок при импорте
+// Temporary placeholder to avoid errors when importing
 export const event = () => {};
 export const pageview = () => {};

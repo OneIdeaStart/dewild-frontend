@@ -13,18 +13,18 @@ export function MintButton() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   
-  // Кнопка активна только если NFT одобрен
+  // Button active only if NFT is approved
   const isActive = isCollabApplied && status === ('nft_approved' as any);
 
   const handleMintClick = () => {
     if (!isActive || !address) return;
-    // Просто открываем диалог без получения подписи
+    // Just open dialog without getting signature
     setDialogOpen(true);
   };
 
   const handleDialogClose = () => {
     setDialogOpen(false);
-    // Обновляем статус после закрытия диалога
+    // Update status after dialog closes
     setTimeout(() => {
       checkCollabStatus();
     }, 1000);
@@ -33,7 +33,7 @@ export function MintButton() {
   return (
     <>
       {isLoading ? (
-        // Если идет загрузка - показываем спиннер
+        // If loading - show spinner
         <button 
           disabled
           className="w-full h-[52px] bg-[#202020] rounded-2xl text-white text-2xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase flex items-center justify-center gap-2 cursor-not-allowed"
@@ -44,7 +44,7 @@ export function MintButton() {
           </svg>
         </button>
       ) : status === 'minted' ? (
-        // Если уже заминчено - показываем статус
+        // If already minted - show status
         <button 
           disabled
           className="w-full h-[52px] bg-[#202020] rounded-2xl text-2xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase flex items-center justify-center gap-2 cursor-not-allowed"
@@ -55,7 +55,7 @@ export function MintButton() {
           </span>
         </button>
       ) : (
-        // По умолчанию показываем кнопку Mint
+        // By default show Mint button
         <button 
           onClick={handleMintClick}
           disabled={!isActive}
@@ -76,7 +76,7 @@ export function MintButton() {
             alt="Animals"
             className="absolute w-full left-0 bottom-0 z-0"
           />
-          {/* Удаляем передачу signature, так как получать её будем внутри диалога */}
+          {/* Remove signature passing, as we'll get it inside the dialog */}
           <MintDialog onClose={handleDialogClose} />
         </DialogContent>
       </Dialog>

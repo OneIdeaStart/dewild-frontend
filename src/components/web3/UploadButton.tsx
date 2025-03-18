@@ -15,7 +15,7 @@ export function UploadButton() {
   const [error, setError] = useState<string | null>(null)
   const [promptData, setPromptData] = useState<any>(null)
   
-  // Определяем состояние кнопки в зависимости от статуса
+  // Determine button state depending on status
   const isActive = isCollabApplied && 
     (status === 'approved' || status === ('prompt_received' as any) || 
      status === 'nft_rejected');
@@ -23,7 +23,7 @@ export function UploadButton() {
   const handleUploadClick = async () => {
     if (!isActive || !address) return
     
-    // Если уже на рассмотрении, не открываем диалог
+    // If already under review, don't open dialog
     if (status === 'nft_pending') return;
     
     setIsLoading(true)
@@ -52,7 +52,7 @@ export function UploadButton() {
 
   const handleDialogClose = () => {
     setDialogOpen(false)
-    // Принудительно обновляем статус
+    // Force status update
     setTimeout(() => {
       checkCollabStatus()
     }, 1000);
@@ -61,7 +61,7 @@ export function UploadButton() {
   return (
     <>
       {isLoading ? (
-        // Если идет загрузка - показываем спиннер
+        // If loading - show spinner
         <button 
           disabled
           className="w-full h-[52px] bg-[#202020] rounded-2xl text-white text-2xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase flex items-center justify-center gap-2 cursor-not-allowed"
@@ -72,7 +72,7 @@ export function UploadButton() {
           </svg>
         </button>
       ) : (status === 'nft_pending' || status === 'nft_approved' || status === ('minted' as any)) ? (
-        // Если загрузка завершена и ожидается апрув или уже апрувнуто
+        // If upload complete and waiting for approval or already approved
         <button 
           disabled
           className="w-full h-[52px] bg-[#202020] rounded-2xl text-2xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase flex items-center justify-center gap-2 cursor-not-allowed"
@@ -92,7 +92,7 @@ export function UploadButton() {
           )}
         </button>
       ) : (
-        // По умолчанию показываем кнопку Upload
+        // By default show Upload button
         <button 
           onClick={handleUploadClick}
           disabled={!isActive}

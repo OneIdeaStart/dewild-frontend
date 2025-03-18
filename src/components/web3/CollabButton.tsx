@@ -14,7 +14,7 @@ export function CollabButton() {
    const [collabDialogOpen, setCollabDialogOpen] = useState(false)
    const [successDialogOpen, setSuccessDialogOpen] = useState(false)
    const [showConnectWalletError, setShowConnectWalletError] = useState(false)
-   // Добавляем состояние для хранения ID заявки
+   // Add state to store application ID
    const [applicationId, setApplicationId] = useState<string | undefined>()
 
    useEffect(() => {
@@ -31,12 +31,12 @@ export function CollabButton() {
     setCollabDialogOpen(true)
    }
 
-   // Обновляем обработчик закрытия диалога для получения ID заявки
+   // Update dialog close handler to get application ID
    const handleCollabDialogClose = (success?: boolean, appId?: string) => {
        setCollabDialogOpen(false)
        if (success) {
            checkCollabStatus()
-           // Сохраняем ID заявки
+           // Save application ID
            setApplicationId(appId)
            setSuccessDialogOpen(true)
        }
@@ -50,7 +50,7 @@ export function CollabButton() {
    return (
         <>
             {address && isLoading ? (
-                // Если кошелек подключен и идет загрузка - показываем спиннер
+                // If wallet is connected and loading - show spinner
                 <button 
                     disabled
                     className="w-full h-[52px] bg-[#202020] rounded-2xl text-[#FDC867] text-2xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase flex items-center justify-center gap-2 cursor-not-allowed"
@@ -61,7 +61,7 @@ export function CollabButton() {
                     </svg>
                 </button>
             ) : isCollabApplied ? (
-                // Если проверка завершена и заявка подана - показываем статус
+                // If check complete and application submitted - show status
                 <button 
                     disabled
                     className="w-full h-[52px] bg-[#202020] rounded-2xl text-2xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase flex items-center justify-center gap-2 cursor-not-allowed"
@@ -91,7 +91,7 @@ export function CollabButton() {
                     )}
                 </button>
             ) : (
-                // По умолчанию показываем кнопку Apply for Collab
+                // By default show Apply for Collab button
                 <div className="relative">
                     <Button
                         variant="primary-light" 
@@ -131,7 +131,7 @@ export function CollabButton() {
             <CollabSuccessDialog 
                 isOpen={successDialogOpen}
                 onClose={() => setSuccessDialogOpen(false)}
-                applicationId={applicationId} // Передаем ID заявки
+                applicationId={applicationId} // Pass application ID
             />
         </>
     )

@@ -69,7 +69,7 @@ export default function ActionButtons({ id, status }: ActionButtonsProps) {
   };
 
   const handleNFTAction = async (action: 'approve_nft' | 'reject_nft') => {
-    // Показываем индикатор загрузки только для approve_nft
+    // Show loading indicator only for approve_nft
     if (action === 'approve_nft') {
       setIsContractProcessing(true);
       setContractStatus('idle');
@@ -93,12 +93,12 @@ export default function ActionButtons({ id, status }: ActionButtonsProps) {
         throw new Error(`Failed to ${action.replace('_', ' ')}. ${data.error || ''}`);
       }
   
-      // Проверяем наличие предупреждений
+      // Check for warnings
       if (data.warning) {
         setContractStatus('warning');
         setContractMessage(data.warning);
       } else if (data.signature) {
-        // Если подпись успешно получена
+        // If signature is successfully received
         setContractStatus('success');
         setContractMessage(`NFT approved, signature: ${data.signature.substring(0, 10)}...`);
       } else {
@@ -106,7 +106,7 @@ export default function ActionButtons({ id, status }: ActionButtonsProps) {
         setContractMessage('NFT status updated successfully');
       }
   
-      // Обновляем UI через 3 секунды
+      // Update UI after 3 seconds
       setTimeout(() => {
         router.refresh();
       }, 3000);
@@ -114,7 +114,7 @@ export default function ActionButtons({ id, status }: ActionButtonsProps) {
       console.error(`${action} error:`, error);
       setContractStatus('error');
       
-      // Оставляем индикатор ошибки на экране
+      // Leave error indicator on screen
       setTimeout(() => {
         setIsContractProcessing(false);
       }, 5000);
@@ -123,14 +123,14 @@ export default function ActionButtons({ id, status }: ActionButtonsProps) {
 
   return (
     <div className="flex flex-wrap justify-start gap-2 items-center">
-      {/* Кнопки для NFT статусов */}
+      {/* Buttons for NFT statuses */}
       {['nft_pending', 'nft_approved', 'nft_rejected'].includes(status) && (
         <>
           <button
             onClick={() => handleNFTAction('approve_nft')}
             className={`px-3 py-1 rounded text-xs font-medium flex items-center 
               ${status === 'nft_approved' 
-                ? 'bg-green-200 text-green-800' // Яркий цвет для активного состояния
+                ? 'bg-green-200 text-green-800' // Bright color for active state
                 : 'bg-green-100 text-green-800 hover:bg-green-200'}`}
             disabled={isContractProcessing}
           >
@@ -154,7 +154,7 @@ export default function ActionButtons({ id, status }: ActionButtonsProps) {
             Approve NFT
           </button>
 
-          {/* Показываем сообщение, если есть */}
+          {/* Show message if exists */}
           {contractMessage && (
             <div className={`text-xs px-2 py-1 rounded-lg mt-1 ${
               contractStatus === 'error' ? 'bg-red-100 text-red-800' : 
@@ -169,7 +169,7 @@ export default function ActionButtons({ id, status }: ActionButtonsProps) {
             onClick={() => handleNFTAction('reject_nft')}
             className={`px-3 py-1 rounded text-xs font-medium
               ${status === 'nft_rejected' 
-                ? 'bg-red-200 text-red-800' // Яркий цвет для активного состояния
+                ? 'bg-red-200 text-red-800' // Bright color for active state
                 : 'bg-red-100 text-red-800 hover:bg-red-200'}`}
             disabled={isContractProcessing}
           >
@@ -179,14 +179,14 @@ export default function ActionButtons({ id, status }: ActionButtonsProps) {
         </>
       )}
   
-      {/* Кнопки для обычных статусов (включая approved) */}
+      {/* Buttons for regular statuses (including approved) */}
       {['pending', 'approved', 'rejected', 'prompt_received'].includes(status) && (
         <>
           <button
             onClick={() => handleAction('approve')}
             className={`px-3 py-1 rounded text-xs font-medium
               ${status === 'approved' 
-                ? 'bg-green-200 text-green-800' // Яркий цвет для активного состояния
+                ? 'bg-green-200 text-green-800' // Bright color for active state
                 : 'bg-green-100 text-green-800 hover:bg-green-200'}`}
           >
             {status === 'approved' && <Check className="w-3 h-3 inline mr-1" />}
@@ -196,7 +196,7 @@ export default function ActionButtons({ id, status }: ActionButtonsProps) {
             onClick={() => handleAction('reject')}
             className={`px-3 py-1 rounded text-xs font-medium
               ${status === 'rejected' 
-                ? 'bg-red-200 text-red-800' // Яркий цвет для активного состояния
+                ? 'bg-red-200 text-red-800' // Bright color for active state
                 : 'bg-red-100 text-red-800 hover:bg-red-200'}`}
           >
             {status === 'rejected' && <X className="w-3 h-3 inline mr-1" />}
@@ -205,7 +205,7 @@ export default function ActionButtons({ id, status }: ActionButtonsProps) {
         </>
       )}
   
-      {/* Кнопка удаления */}
+      {/* Delete button */}
       <button
         onClick={handleDelete}
         className="text-gray-600 hover:text-gray-900"

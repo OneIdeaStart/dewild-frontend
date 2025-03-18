@@ -3,7 +3,7 @@ import { DB } from '@/lib/db';
 import { PROMPT_KEYS } from '@/types/prompt';
 import { Redis } from '@upstash/redis';
 
-// Создаем Redis клиент
+// Create Redis client
 const redis = new Redis({
   url: process.env.KV_REST_API_URL!,
   token: process.env.KV_REST_API_TOKEN!
@@ -11,7 +11,7 @@ const redis = new Redis({
 
 export async function GET(request: Request) {
   try {
-    // Получаем адрес кошелька из запроса
+    // Get wallet address from request
     const { searchParams } = new URL(request.url);
     const wallet = searchParams.get('wallet');
 
@@ -19,14 +19,14 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Wallet address is required' }, { status: 400 });
     }
 
-    // Проверяем существование и статус заявки
+    // Check existence and status of application
     const application = await DB.getApplicationByWallet(wallet);
     
     if (!application) {
       return NextResponse.json({ error: 'Application not found' }, { status: 404 });
     }
     
-    // Добавляем 'nft_rejected' в список разрешенных статусов
+    // Add 'nft_rejected' to list of allowed statuses
     if (application.status !== 'approved' && 
         application.status !== 'prompt_received' && 
         application.status !== 'nft_rejected') {
@@ -36,11 +36,11 @@ export async function GET(request: Request) {
       }, { status: 403 });
     }
 
-    // Проверяем, есть ли уже выданный промпт
+    // Check if there's already an assigned prompt
     if (application.promptId) {
         console.log("Found existing promptId:", application.promptId);
         
-        // Получаем существующий промпт
+        // Get existing prompt
         const promptKey = PROMPT_KEYS.getStatusKey(application.promptId);
         console.log("Looking for prompt at key:", promptKey);
         
@@ -57,17 +57,17 @@ export async function GET(request: Request) {
         }
     }
 
-    // Получаем случайный промпт из доступных
+    // Get random prompt from available ones
     const promptId = await redis.srandmember(PROMPT_KEYS.AVAILABLE);
     
     if (!promptId) {
       return NextResponse.json({ error: 'No available prompts' }, { status: 500 });
     }
 
-    // Получаем данные промпта
+    // Get prompt data
     const promptData = await redis.hgetall(PROMPT_KEYS.getStatusKey(String(promptId)));
     
-    // Обновляем статус промпта на assigned
+    // Update prompt status to assigned
     await redis.srem(PROMPT_KEYS.AVAILABLE, String(promptId));
     await redis.sadd(PROMPT_KEYS.ASSIGNED, String(promptId));
     await redis.hset(PROMPT_KEYS.getStatusKey(String(promptId)), {
@@ -76,7 +76,7 @@ export async function GET(request: Request) {
       assignedAt: new Date().toISOString()
     });
 
-    // Обновляем заявку - меняем статус и добавляем promptId
+    // Update application - change status and add promptId
     await DB.updateStatus(application.id, 'prompt_received');
     await DB.updateApplicationPrompt(application.id, String(promptId));
 

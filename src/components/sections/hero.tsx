@@ -23,24 +23,24 @@ export function Hero() {
         clearTimeout(scrollTimer);
       }
  
-      // Получаем текущее время для расчета скорости скролла
+      // Get current time for scroll speed calculation
       const now = Date.now();
       const timeDelta = now - lastTimestamp;
       lastTimestamp = now;
  
-      // Увеличиваем натяжение на основе скорости скролла
+      // Increase tension based on scroll speed
       if (timeDelta > 0) {
-        accumulatedStretch = Math.min(accumulatedStretch + 2, 40); // Более резкое натяжение
+        accumulatedStretch = Math.min(accumulatedStretch + 2, 40); // Sharper tension
         setScrollStretch(accumulatedStretch);
         setIsReleasing(false);
       }
  
-      // Таймер для определения окончания скролла
+      // Timer to determine end of scroll
       scrollTimer = setTimeout(() => {
         setIsReleasing(true);
         setScrollStretch(0);
         accumulatedStretch = 0;
-      }, 25); // Уменьшили задержку для более быстрой реакции
+      }, 25); // Reduced delay for faster reaction
     };
  
     window.addEventListener('scroll', handleScroll);
@@ -77,7 +77,7 @@ export function Hero() {
         >
           <path
             style={{
-              // Более резкий bounce эффект
+              // Sharper bounce effect
               transition: isReleasing ? 'all 0.1s cubic-bezier(.32,2,.55,.27)' : 'none'
             }}
             d={`M0,0 L1440,0 L1440,60 L0,60 Z M0,0 C360,${30 + scrollStretch} 1080,${30 + scrollStretch} 1440,0`}

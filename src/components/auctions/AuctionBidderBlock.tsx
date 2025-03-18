@@ -28,8 +28,8 @@ interface AuctionBidderBlockProps {
   placeBid: (tokenId: number, bidAmount: string) => Promise<any>;
   auctionDetails?: any;
   timeLeft?: string;
-  refreshAuctionData: () => Promise<void>; // Добавляем функцию обновления
-  isRefreshing: boolean; // Добавляем состояние загрузки
+  refreshAuctionData: () => Promise<void>; // Add update function
+  isRefreshing: boolean; // Add loading state
 }
 
 export default function AuctionBidderBlock({
@@ -41,22 +41,22 @@ export default function AuctionBidderBlock({
   placeBid,
   auctionDetails,
   timeLeft,
-  refreshAuctionData, // Получаем функцию обновления
-  isRefreshing // Получаем состояние загрузки
+  refreshAuctionData, // Get update function
+  isRefreshing // Get loading state
 }: AuctionBidderBlockProps) {
   const { address } = useAppKitAccount();
   const [bidAmount, setBidAmount] = useState<string>('');
   const [debug, setDebug] = useState(false);
 
 
-  // Обработчик размещения ставки
+  // Handle bid placement
   const handlePlaceBid = async () => {
     if (!address || !nftDetails || !auctionDetails) return;
     
     try {
-      // Проверка, что ставка выше минимальной
+      // Check that bid is higher than minimum
       const currentBidValue = parseFloat(auctionDetails.currentBid);
-      const minBid = currentBidValue > 0 ? currentBidValue * 1.11 : parseFloat(auctionDetails.startPrice); // +11% или стартовая цена
+      const minBid = currentBidValue > 0 ? currentBidValue * 1.11 : parseFloat(auctionDetails.startPrice); // Min bid is current bid + 11% or starting price
       
       if (parseFloat(bidAmount) < minBid) {
         throw new Error(`Bid must be at least ${minBid.toFixed(4)} ETH`);
@@ -68,11 +68,11 @@ export default function AuctionBidderBlock({
     }
   };
 
-    // Определяем, является ли пользователь лидирующим участником аукциона
+    // Determine if user is leading auction participant
     const isHighestBidder = address && auctionDetails?.highestBidder && 
     address.toLowerCase() === auctionDetails.highestBidder.toLowerCase();
 
-  // Если время аукциона истекло, но аукцион еще активен
+  // If auction time expired but auction is still active
     if (timeLeft === 'Auction ended' && auctionDetails?.isActive) {
         return (
         <div className="mb-4 p-6 bg-gray-800 rounded-xl text-white">
@@ -80,7 +80,7 @@ export default function AuctionBidderBlock({
             AUCTION ENDED
             </h2>
             
-            {/* Сохраняем информацию о текущей ставке и лидирующем участнике */}
+            {/* Save information about current bid and leading participant */}
             <div className="space-y-2 mb-4">
             <div className="flex justify-between">
                 <span className="font-extrabold uppercase">FINAL BID:</span>
@@ -114,7 +114,7 @@ export default function AuctionBidderBlock({
         );
     }
 
-  // Блок аукциона для участия в торгах
+  // Auction block for bidding participation
   return (
     <div className="mb-4 p-6 bg-black rounded-xl text-white">
       <div className="flex flex-row w-full justify-between items-center mb-4">
@@ -122,7 +122,7 @@ export default function AuctionBidderBlock({
           CURRENT AUCTION
         </h2>
         
-        {/* Кнопка обновления данных аукциона */}
+        {/* Button to update auction data */}
         <Button 
           onClick={refreshAuctionData} 
           variant="default"
@@ -173,7 +173,7 @@ export default function AuctionBidderBlock({
         </div>
       </div>
       
-      {/* Отладочная информация */}
+      {/* Debug information */}
       {debug && (
         <div className="p-3 bg-gray-700 text-white text-xs mt-3 mb-3 rounded">
           <p>Debug Info:</p>
@@ -188,7 +188,7 @@ export default function AuctionBidderBlock({
         </div>
       )}
       
-      {/* Форма для ставки */}
+      {/* Bid form */}
       <div className="mt-6">
         <div className="mb-4">
           <label className="block text-sm font-extrabold uppercase mb-2">YOUR BID (ETH)</label>
@@ -204,21 +204,21 @@ export default function AuctionBidderBlock({
           />
         </div>
         
-        {/* Отображаем ошибку, если она есть */}
+        {/* Display error if exists */}
         {txStatus === 'error' && txError && (
           <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
             <p className="font-bold">Error: {txError}</p>
           </div>
         )}
         
-        {/* Отображаем информацию о подтверждении, если транзакция отправлена */}
+        {/* Display confirmation information if transaction is sent */}
         {(txStatus === 'loading' || txStatus === 'success') && isConfirming && (
           <div className="mb-4 p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded">
             <p className="font-bold">Confirming transaction...</p>
           </div>
         )}
         
-        {/* Отображаем сообщение об успехе, если транзакция подтверждена */}
+        {/* Display success message if transaction is confirmed */}
         {txStatus === 'success' && isConfirmed && (
           <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
             <p className="font-bold">Bid placed successfully!</p>

@@ -12,39 +12,39 @@ export default function TestTraitsPage() {
     if (promptText.match(/robot\s+wild\s+boar/i)) {
       animal = 'WILD BOAR';
     } else {
-      // Обычный поиск одиночного слова после "robot"
+      // Regular search for single word after "robot"
       const animalMatch = promptText.match(/robot\s+(\w+)/i);
       if (animalMatch) {
         animal = animalMatch[1].toUpperCase();
       }
     }
     
-    // Извлечение цвета материала и материала
+    // Extract material color and material
     const materialColorMatch = promptText.match(/sleek\s+(\w+)/i);
     const materialColor = materialColorMatch ? materialColorMatch[1].toUpperCase() : 'UNKNOWN';
     
-    // Проверяем, является ли цвет материала специальным (silver, golden, bronze)
+    // Check if material color is special (silver, golden, bronze)
     const isSpecialMaterial = ['SILVER', 'GOLDEN', 'BRONZE'].includes(materialColor);
     
-    // Для обычных материалов ищем второе слово после "sleek"
+    // For regular materials look for second word after "sleek"
     let materialMatch = promptText.match(/sleek\s+\w+\s+(\w+)/i);
     let material = materialMatch ? materialMatch[1].toUpperCase() : 'UNKNOWN';
     
-    // Если это special материал ИЛИ не найден обычный материал
+    // If this is a special material OR regular material not found
     if (isSpecialMaterial) {
-      material = materialColor; // Для special материалов используем цвет как материал
+      material = materialColor; // For special materials use color as material
     }
     
-    // Фон
+    // Background
     const backgroundMatch = promptText.match(/(\w+)\s+background/i);
     const background = backgroundMatch ? backgroundMatch[1].toUpperCase() : 'UNKNOWN';
     
-    // Цвет паттерна для обычных промптов
+    // Pattern color for regular prompts
     let patternColor;
     if (isSpecialMaterial) {
-      patternColor = materialColor; // Для special материалов используем цвет материала
+      patternColor = materialColor; // For special materials use material color
     } else {
-      // Ищем "with [color]" или "[color] 'Your text here'"
+      // Look for "with [color]" or "[color] 'Your text here'"
       const patternColorMatch = promptText.match(/with\s+(\w+)|(\w+)\s+['"]Your text here['"]/i);
       if (patternColorMatch) {
         for (let i = 1; i < patternColorMatch.length; i++) {
@@ -58,7 +58,7 @@ export default function TestTraitsPage() {
       }
     }
     
-    // Цвет глаз
+    // Eye color
     const eyesColorMatch = promptText.match(/(\w+)\s+glowing/i);
     const eyesColor = eyesColorMatch ? eyesColorMatch[1].toUpperCase() : 'UNKNOWN';
     

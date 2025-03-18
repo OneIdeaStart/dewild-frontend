@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { CollabApplication } from '@/types/collab';
 
-// Расширяем типы для работы с Discord API
+// Extend types for working with Discord API
 type DiscordChannel = {
   id: string;
   name: string;
@@ -19,14 +19,14 @@ type DiscordUser = {
 
 type PermissionOverwrite = {
   id: string;
-  type: number; // 0 для роли, 1 для пользователя
+  type: number; // 0 for role, 1 for user
   allow: string;
   deny: string;
 };
 
-// Discord API константы
+// Discord API constants
 const CHANNEL_TYPE_TEXT = 0;
-// Используем обычные строки вместо BigInt для совместимости
+// Use regular strings instead of BigInt for compatibility
 const PERMISSION_VIEW_CHANNEL = "1024"; // (1 << 10)
 const PERMISSION_SEND_MESSAGES = "2048"; // (1 << 11)
 const PERMISSION_READ_MESSAGE_HISTORY = "65536"; // (1 << 16)
@@ -59,26 +59,26 @@ export class DiscordService {
   }
 
   /**
-   * Получает Discord ID пользователя по его Discord тегу (username#discriminator)
+   * Gets Discord user ID by their Discord tag (username#discriminator)
    */
   async getUserIdByUsername(discordTag: string): Promise<string | null> {
     try {
-      // Извлекаем имя пользователя и дискриминатор
+      // Extract username and discriminator
       const [username, discriminator] = discordTag.split('#');
       
-      // Получаем список участников сервера через API Discord
+      // Get server member list through Discord API
       const response = await axios.get<any[]>(
         `https://discord.com/api/v10/guilds/${this.guildId}/members?limit=1000`,
         { headers: this.headers }
       );
       
-      // Проверяем, что response.data это массив
+      // Check that response.data is an array
       if (!Array.isArray(response.data)) {
         console.error('Unexpected response format from Discord API:', response.data);
         return null;
       }
       
-      // Ищем пользователя по имени и дискриминатору
+      // Find user by name and discriminator
       const member = response.data.find((m: any) => {
         if (!m.user) return false;
         const user = m.user;
@@ -94,68 +94,68 @@ export class DiscordService {
   }
 
   /**
-   * Создает приватный канал для заявки артиста
+   * Creates private channel for artist application
    */
   async createApplicationChannel(application: CollabApplication): Promise<string | null> {
     try {
-      // Получаем Discord ID пользователя
+      // Get Discord user ID
       const userId = await this.getUserIdByUsername(application.discord);
       if (!userId) {
         console.error(`User ${application.discord} not found in Discord server`);
         return null;
       }
 
-      // Создаем имя канала на основе ID заявки
-      // Используем префикс app- для различения каналов заявок
+      // Create channel name based on application ID
+      // Use prefix app- to distinguish application channels
       const channelName = `app-${application.id}`;
 
-      // Настраиваем права доступа
-      // 1. По умолчанию, канал скрыт от всех (@everyone)
-      // 2. Пользователь, подавший заявку, имеет доступ к каналу
-      // 3. Добавляем роль бота для доступа
+      // Set up access rights
+      // 1. By default, channel is hidden from everyone (@everyone)
+      // 2. User who submitted application has access to channel
+      // 3. Add bot role for access
       const permissionOverwrites = [
         {
-          id: this.guildId, // @everyone роль
-          type: 0, // тип "роль"
+          id: this.guildId, // @everyone role
+          type: 0, // type "role"
           allow: '0',
-          deny: PERMISSION_VIEW_CHANNEL // Скрываем канал
+          deny: PERMISSION_VIEW_CHANNEL // Hide channel
         },
         {
           id: userId,
-          type: 1, // тип "пользователь"
-          // В качестве разрешений просто указываем суммарное значение
+          type: 1, // type "user"
+          // As permissions just specify sum value
           allow: "68672", // 1024 + 2048 + 65536 + 64
           deny: '0'
         }
       ];
 
-      // Если задана роль бота, добавляем ее в разрешения
+      // If bot role is set, add it to permissions
       if (this.botRoleId) {
         permissionOverwrites.push({
           id: this.botRoleId,
-          type: 0, // тип "роль"
-          allow: "68672", // Такие же разрешения как у пользователя
+          type: 0, // type "role"
+          allow: "68672", // Same permissions as user
           deny: '0'
         });
       }
 
-      // Создаем канал через API Discord
+      // Create channel through Discord API
       const response = await axios.post<{ id: string }>(
         `https://discord.com/api/v10/guilds/${this.guildId}/channels`,
         {
           name: channelName,
           type: CHANNEL_TYPE_TEXT,
-          parent_id: this.applicationsCategoryId, // Категория для каналов заявок
+          parent_id: this.applicationsCategoryId, // Category for applications channel
           permission_overwrites: permissionOverwrites,
           topic: `Application channel for ${application.discord} (${application.twitter})`,
-          sync_permissions: true // Синхронизировать разрешения с категорией
+          sync_permissions: true // Synchronize permissions with category
         },
         { headers: this.headers }
       );
 
       const channelId = response.data.id;
       
-      // Отправляем начальное сообщение с информацией о заявке
+      // Send initial message with application information
       await this.sendApplicationStatusMessage(channelId, application);
       
       return channelId;
@@ -166,14 +166,14 @@ export class DiscordService {
   }
 
   /**
-   * Отправляет сообщение о статусе заявки в канал
+   * Sends application status message to channel
    */
   async sendApplicationStatusMessage(channelId: string, application: CollabApplication): Promise<boolean> {
     try {
-      // Формируем сообщение в зависимости от статуса заявки
+      // Form message depending on application status
       const message = this.getStatusMessage(application);
       
-      // Отправляем сообщение
+      // Send message
       await axios.post(
         `https://discord.com/api/v10/channels/${channelId}/messages`,
         { content: message },
@@ -188,37 +188,37 @@ export class DiscordService {
   }
 
   /**
-   * Обновляет сообщение о статусе заявки
-   * Находит последнее сообщение от бота и обновляет его
+   * Updates application status message
+   * Finds the latest message from the bot and updates it
    */
   async updateApplicationStatusMessage(channelId: string, application: CollabApplication): Promise<boolean> {
     try {
-      // Получаем последние сообщения в канале
+      // Get latest messages in channel
       const messagesResponse = await axios.get<any[]>(
         `https://discord.com/api/v10/channels/${channelId}/messages?limit=10`,
         { headers: this.headers }
       );
       
-      // Проверяем, что response.data это массив
+      // Check that response.data is an array
       if (!Array.isArray(messagesResponse.data)) {
         console.error('Unexpected response format from Discord API:', messagesResponse.data);
-        // Если формат не соответствует ожидаемому, отправляем новое сообщение
+        // If format doesn't match expected, send new message
         return await this.sendApplicationStatusMessage(channelId, application);
       }
       
-      // Находим последнее сообщение от бота
+      // Find last message from bot
       const botMessages = messagesResponse.data.filter((msg: any) => msg.author && msg.author.bot === true);
       if (botMessages.length === 0) {
-        // Если сообщений от бота нет, отправляем новое
+        // If no messages from bot, send new one
         return await this.sendApplicationStatusMessage(channelId, application);
       }
       
       const lastBotMessage = botMessages[0];
       
-      // Формируем новое сообщение
+      // Form new message
       const message = this.getStatusMessage(application);
       
-      // Обновляем сообщение
+      // Update message
       await axios.patch(
         `https://discord.com/api/v10/channels/${channelId}/messages/${lastBotMessage.id}`,
         { content: message },
@@ -233,7 +233,7 @@ export class DiscordService {
   }
 
   /**
-   * Формирует текст сообщения о статусе заявки
+   * Forms text of application status message
    */
   private getStatusMessage(application: CollabApplication): string {
     const statusEmoji = this.getStatusEmoji(application.status);
@@ -247,7 +247,7 @@ export class DiscordService {
     
     message += `## Current Status: ${statusEmoji} ${this.formatStatus(application.status)}\n\n`;
     
-    // Добавляем детали в зависимости от статуса
+    // Add details depending on status
     switch (application.status) {
       case 'pending':
         message += `Your application is being reviewed by our team. Please be patient.\n`;
@@ -295,7 +295,7 @@ export class DiscordService {
   }
 
   /**
-   * Возвращает эмодзи для статуса заявки
+   * Returns emoji for application status
    */
   private getStatusEmoji(status: string): string {
     switch (status) {
@@ -314,7 +314,7 @@ export class DiscordService {
   }
 
   /**
-   * Форматирует статус для отображения
+   * Formats status for display
    */
   private formatStatus(status: string): string {
     switch (status) {
@@ -333,18 +333,18 @@ export class DiscordService {
   }
 
   /**
-   * Обновляет роль пользователя в зависимости от статуса заявки
+   * Updates user role depending on application status
    */
   async updateUserRole(discordTag: string, applicationStatus: string): Promise<boolean> {
     try {
-      // Получаем Discord ID пользователя
+      // Get Discord user ID
       const userId = await this.getUserIdByUsername(discordTag);
       if (!userId) {
         console.error(`User ${discordTag} not found in Discord server`);
         return false;
       }
       
-      // Определяем роль, которую нужно добавить
+      // Determine role to add
       let roleId = '';
       
       switch (applicationStatus) {
@@ -355,7 +355,7 @@ export class DiscordService {
           roleId = process.env.DISCORD_DEWILD_ARTIST_ROLE_ID || '';
           break;
         default:
-          // Для других статусов не меняем роль
+          // For other statuses don't change role
           return true;
       }
       
@@ -364,7 +364,7 @@ export class DiscordService {
         return false;
       }
       
-      // Добавляем роль пользователю
+      // Add role to user
       await axios.put(
         `https://discord.com/api/v10/guilds/${this.guildId}/members/${userId}/roles/${roleId}`,
         {},
@@ -379,11 +379,11 @@ export class DiscordService {
   }
 
   /**
-   * Удаляет канал в Discord
+   * Deletes channel in Discord
    */
   async deleteChannel(channelId: string): Promise<boolean> {
     try {
-      // Удаляем канал через API Discord
+      // Delete channel through Discord API
       await axios.delete(
         `https://discord.com/api/v10/channels/${channelId}`,
         { headers: this.headers }
@@ -396,5 +396,5 @@ export class DiscordService {
   }
 }
 
-// Экспортируем инстанс сервиса для использования в других модулях
+// Export service instance for use in other modules
 export const discordService = new DiscordService();

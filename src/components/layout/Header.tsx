@@ -10,9 +10,9 @@ export default function Header() {
   const [isLoaded, setIsLoaded] = useState(false);
   const pathname = usePathname();
 
-  // Определяем, находимся ли мы на главной странице
+  // Determine if we're on home page
   const isHomePage = pathname === '/';
-  // Определяем, находимся ли мы на странице коллекции
+  // Determine if we're on collection page
   const isCollectionPage = pathname.startsWith('/collection');
 
   useEffect(() => {
@@ -26,9 +26,9 @@ export default function Header() {
       isLoaded ? 'animate-header-slide' : ''
     }`}>
       <div className="mx-auto relative flex justify-between items-center">
-        {/* Левая часть: Логотип и навигация */}
+        {/* Left part: Logo and navigation */}
         <div className="flex items-center gap-6 sm:gap-12">
-          {/* Логотип */}
+          {/* Logo */}
           <Link 
             href="/"
             className="hover:opacity-80 transition-opacity"
@@ -36,7 +36,7 @@ export default function Header() {
             <Logo />
           </Link>
 
-          {/* Навигация */}
+          {/* Navigation */}
           <div className="flex items-center gap-6">
             <Link 
               href="/"
@@ -57,7 +57,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Правая часть хедера: соцсети и кнопка */}
+        {/* Right part of header: social media and button */}
         <div className="flex items-center gap-4">
           {/* Twitter/X */}
           <a 
@@ -80,7 +80,7 @@ export default function Header() {
             </svg>
           </a>
           
-          {/* Кнопка в хедере - всегда HeaderButton, который внутри решает что показывать */}
+          {/* Button in header - always HeaderButton, which decides what to show internally */}
           <HeaderButton />
         </div>
       </div>

@@ -1,4 +1,4 @@
-// src/components/dialogs/UploadDialog/index.tsx (обновленная версия)
+// src/components/dialogs/UploadDialog/index.tsx (updated version)
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useAppKitAccount } from '@reown/appkit/react';
@@ -31,10 +31,10 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
       eyes_color: string;
     } | null>(null);
     const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-    const [fileSize, setFileSize] = useState<number>(0); // Добавляем состояние для размера файла
+    const [fileSize, setFileSize] = useState<number>(0); // Add state for file size
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    // Извлечение трейтов из промпта при загрузке компонента
+    // Extract traits from prompt when component loads
     useEffect(() => {
         if (promptData?.text) {
           console.log("Received prompt text:", promptData.text);
@@ -47,45 +47,45 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
     const extractTraitsFromPrompt = (promptText: string) => {
         console.log("Extracting traits from:", promptText);
         
-        // Проверка на составные имена животных
+        // Check for compound animal names
         let animal = 'UNKNOWN';
         if (promptText.match(/robot\s+wild\s+boar/i)) {
           animal = 'WILD BOAR';
         } else {
-          // Обычный поиск одиночного слова после "robot"
+          // Regular search for single word after "robot"
           const animalMatch = promptText.match(/robot\s+(\w+)/i);
           if (animalMatch) {
             animal = animalMatch[1].toUpperCase();
           }
         }
         
-        // Извлечение цвета материала и материала
+        // Extract material color and material
         const materialColorMatch = promptText.match(/sleek\s+(\w+)/i);
         const materialColor = materialColorMatch ? materialColorMatch[1].toUpperCase() : 'UNKNOWN';
         
-        // Проверяем, является ли цвет материала специальным (silver, golden, bronze)
+        // Check if material color is special (silver, golden, bronze)
         const isSpecialMaterial = ['SILVER', 'GOLDEN', 'BRONZE'].includes(materialColor);
         
-        // Для обычных материалов ищем второе слово после "sleek"
+        // For regular materials look for second word after "sleek"
         let materialMatch = promptText.match(/sleek\s+\w+\s+(\w+)/i);
         let material = materialMatch ? materialMatch[1].toUpperCase() : 'UNKNOWN';
         
-        // Если это special материал ИЛИ не найден обычный материал
+        // If this is a special material OR regular material not found
         if (isSpecialMaterial) {
-          material = materialColor; // Для special материалов используем цвет как материал
+          material = materialColor; // For special materials use color as material
         }
         
-        // Фон
+        // Background
         const backgroundMatch = promptText.match(/(\w+)\s+background/i);
         const background = backgroundMatch ? backgroundMatch[1].toUpperCase() : 'UNKNOWN';
         
-        // Цвет паттерна для обычных промптов
-        let patternColor = 'UNKNOWN'; // Инициализируем со значением по умолчанию
+        // Pattern color for regular prompts
+        let patternColor = 'UNKNOWN'; // Initialize with default value
 
         if (isSpecialMaterial) {
-        patternColor = materialColor; // Для special материалов используем цвет материала
+        patternColor = materialColor; // For special materials use material color
         } else {
-        // Ищем "with [color]" или "[color] 'Your text here'"
+        // Look for "with [color]" or "[color] 'Your text here'"
         const patternColorMatch = promptText.match(/with\s+(\w+)|(\w+)\s+['"]Your text here['"]/i);
         if (patternColorMatch) {
             for (let i = 1; i < patternColorMatch.length; i++) {
@@ -97,7 +97,7 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
         }
         }
         
-        // Цвет глаз
+        // Eye color
         const eyesColorMatch = promptText.match(/(\w+)\s+glowing/i);
         const eyesColor = eyesColorMatch ? eyesColorMatch[1].toUpperCase() : 'UNKNOWN';
         
@@ -122,13 +122,13 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Проверка, что файл JPG
+        // Check that file is JPG
         if (file.type !== 'image/jpeg') {
             setUploadError('Please upload JPEG files only (file type: ' + file.type + ')');
             return;
         }
 
-        // Проверка размера файла (максимум 1MB)
+        // Check file size (maximum 1MB)
         const fileSizeInMB = file.size / (1024 * 1024);
         setFileSize(fileSizeInMB);
         
@@ -140,7 +140,7 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
         setIsUploading(true);
         setUploadError(null);
         try {
-            // Преобразование в base64 для предпросмотра
+            // Convert to base64 for preview
             const reader = new FileReader();
             reader.onload = (event) => {
                 setUploadedImage(event.target?.result as string);
@@ -155,40 +155,40 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
     };
 
     const validateSubmission = (): boolean => {
-        // Проверяем наличие изображения
+        // Check for image presence
         if (!uploadedImage) {
             setUploadError('Please upload an image first');
             return false;
         }
 
-        // Проверяем размер файла
+        // Check file size
         if (fileSize > 1) {
             setUploadError(`File size exceeds 1MB limit (${fileSize.toFixed(2)}MB). Please resize your image.`);
             return false;
         }
 
-        // Проверяем наличие statement
+        // Check for statement presence
         if (!statement.trim()) {
             setUploadError('Please enter your statement');
             return false;
         }
 
-        // Если все проверки пройдены
+        // If all checks passed
         return true;
     };
 
     const handleSubmit = async () => {
-        // Сбрасываем ошибку при новой попытке отправки
+        // Reset error on new submission attempt
         setUploadError(null);
 
-        // Проверяем все условия перед отправкой
+        // Check all conditions before sending
         if (!validateSubmission()) {
             return;
         }
 
         setIsSubmitting(true);
         try {
-            // Собираем данные для отправки
+            // Collect data for sending
             const submissionData = {
                 image: uploadedImage,
                 traits,
@@ -196,7 +196,7 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
                 wallet: address
             };
 
-            // Отправляем данные на сервер
+            // Send data to server
             const response = await fetch('/api/nft/upload', {
                 method: 'POST',
                 headers: {
@@ -211,7 +211,7 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
                 throw new Error(data.error || 'Failed to upload image');
             }
             
-            // Открываем диалог успешной загрузки вместо алерта
+            // Open successful upload dialog instead of alert
             setShowSuccessDialog(true);
         } catch (error: any) {
             console.error('Error submitting NFT:', error);
@@ -223,7 +223,7 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
 
     const handleSuccessDialogClose = () => {
         setShowSuccessDialog(false);
-        onClose(); // Закрываем основной диалог
+        onClose(); // Close main dialog
     };
 
     return (
@@ -273,7 +273,7 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
                      />
                   </div>
                   
-                  {/* Дополнительная информация о требованиях к изображению */}
+                  {/* Additional information about image requirements */}
                   <div className="text-[#7EF3E1] text-[16px] mt-2 font-bold">
                     Requirements: JPEG format, max 1MB file size
                   </div>
@@ -366,7 +366,7 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
               </div>
 
               <div className="relative w-full max-w-[448px] flex flex-col gap-6">
-                {/* Блок с ошибкой */}
+                {/* Error block */}
                 {uploadError && (
                   <div className="absolute top-[-48px] left-[50%] transform -translate-x-[50%] flex flex-col items-center z-10">
                     <div className="bg-[#D90004] rounded-[8px] px-4 py-2 text-white text-[16px] font-extrabold uppercase text-center whitespace-nowrap">
@@ -402,7 +402,7 @@ export default function UploadDialog({ onClose, promptData }: UploadDialogProps)
             </div>
           </div>
 
-          {/* Диалог успешной загрузки */}
+          {/* Successful upload dialog */}
           <UploadSuccessDialog 
             isOpen={showSuccessDialog}
             onClose={handleSuccessDialogClose}

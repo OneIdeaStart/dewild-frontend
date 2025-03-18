@@ -12,19 +12,19 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'Wallet address is required' }, { status: 400 });
       }
   
-      // Получаем заявку
+      // Get application
       const application = await DB.getApplicationByWallet(wallet);
       if (!application) {
         return NextResponse.json({ error: 'Application not found' }, { status: 404 });
       }
   
-      // Проверяем наличие данных IPFS в Redis
+      // Check for IPFS data in Redis
       const ipfsData = await kv.hgetall(`application:${application.id}`);
       
-      // Получаем метаданные
+      // Get metadata
       const metadata = await kv.hget(`application:${application.id}`, 'metadata');
   
-      // Формируем ответ с данными IPFS, если они есть
+      // Form response with IPFS data if available
       return NextResponse.json({ 
         id: application.id,
         imageUrl: application.imageUrl,

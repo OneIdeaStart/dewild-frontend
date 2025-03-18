@@ -9,7 +9,7 @@ import { MintButton } from '@/components/web3/MintButton'
 export default function DashboardPage() {
     return (
       <div className="h-full flex flex-col px-4 sm:px-6 py-6">
-        {/* Верхняя часть с заголовком */}
+        {/* Top part with header */}
         <div>
           <h1 className="text-5xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase mb-1">
             Welcome to DeWild Collab App
@@ -19,7 +19,7 @@ export default function DashboardPage() {
           </p>
         </div>
   
-        {/* Карточки этапов */}
+        {/* Stage cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-1 h-full pb-6 lg:pb-0">
           {/* Step 1 */}
           <div className="px-10 pt-10 pb-4 bg-[#D41123] rounded-2xl flex flex-col justify-between h-full relative min-h-[480px] overflow-hidden">

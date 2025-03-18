@@ -10,33 +10,33 @@ export async function GET(
 ) {
   try {
     const id = params.id;
-    console.log(`Запрос метаданных для NFT #${id}`);
+    console.log(`Metadata request for NFT #${id}`);
     
-    // Получаем информацию о NFT по ID
-    // Сначала пробуем получить из существующего пути
+    // Get NFT information by ID
+    // First try to get from existing path
     let nftInfo = await kv.hgetall(`nft:${id}`);
     
-    // Если нет данных, пробуем альтернативный путь
+    // If no data, try alternative path
     if (!nftInfo || Object.keys(nftInfo).length === 0) {
       nftInfo = await kv.hgetall(`token:${id}`);
     }
     
-    // Если нет данных ни по одному из путей, проверяем приложения
+    // If no data in either path, check applications
     if (!nftInfo || Object.keys(nftInfo).length === 0) {
-      // Попробуем получить ID приложения для этого токена
+      // Try to get application ID for this token
       const applicationId = await kv.get(`token:${id}:applicationId`);
       
       if (applicationId) {
-        // Если нашли ID приложения, получаем данные приложения
+        // If found application ID, get application data
         nftInfo = await kv.hgetall(`application:${applicationId}`);
       }
     }
     
-    console.log(`Данные из Redis:`, nftInfo);
+    console.log(`Data from Redis:`, nftInfo);
     
-    // Если данные не найдены, возвращаем заглушку для тестирования
+    // If data not found, return placeholder for testing
     if (!nftInfo || Object.keys(nftInfo).length === 0) {
-      console.log(`NFT #${id} не найден или не имеет метаданных, возвращаем заглушку`);
+      console.log(`NFT #${id} not found or has no metadata, returning placeholder`);
       
       return NextResponse.json({
         name: `DeWild NFT #${id}`,
@@ -63,12 +63,12 @@ export async function GET(
       });
     }
     
-    // Если есть готовые метаданные в IPFS
+    // If there are ready metadata in IPFS
     if (nftInfo.ipfsMetadata) {
-      // Получаем метаданные из IPFS
+      // Get metadata from IPFS
       try {
         const metadataUrl = getPinataUrl(nftInfo.ipfsMetadata);
-        console.log(`URL метаданных IPFS:`, metadataUrl);
+        console.log(`IPFS metadata URL:`, metadataUrl);
         
         const response = await fetch(metadataUrl);
         
@@ -77,28 +77,28 @@ export async function GET(
         }
         
         const metadata = await response.json();
-        console.log(`Метаданные успешно получены из IPFS`);
+        console.log(`Metadata successfully retrieved from IPFS`);
         
         return NextResponse.json(metadata);
       } catch (ipfsError) {
-        console.error('Ошибка при получении метаданных из IPFS:', ipfsError);
-        // Продолжаем к генерации метаданных
+        console.error('Error retrieving metadata from IPFS:', ipfsError);
+        // Continue to metadata generation
       }
     }
     
-    // Если не смогли получить из IPFS или их там нет, генерируем метаданные на основе данных Redis
-    console.log('Генерируем метаданные на основе данных Redis');
+    // If couldn't get from IPFS or it's not there, generate metadata based on Redis data
+    console.log('Generating metadata based on Redis data');
     
-    // Формируем URL изображения
+    // Form image URL
     let imageUrl;
     if (nftInfo.ipfsImage) {
       imageUrl = getPinataUrl(nftInfo.ipfsImage);
     } else {
-      // Если нет IPFS изображения, используем локальное
+      // If no IPFS image, use local
       imageUrl = `/images/nft-${(Number(id) % 22) + 1}.png`;
     }
     
-    // Формируем атрибуты
+    // Form attributes
     const attributes = [];
     
     if (nftInfo.animal) {
@@ -161,11 +161,11 @@ export async function GET(
       ]
     };
     
-    console.log('Сгенерированные метаданные:', generatedMetadata);
+    console.log('Generated metadata:', generatedMetadata);
     return NextResponse.json(generatedMetadata);
     
   } catch (error) {
-    console.error('Ошибка при получении метаданных:', error);
+    console.error('Error retrieving metadata:', error);
     return NextResponse.json(
       { error: 'Failed to fetch metadata', details: error?.message },
       { status: 500 }

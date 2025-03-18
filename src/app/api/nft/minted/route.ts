@@ -11,17 +11,17 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Wallet and txHash are required' }, { status: 400 });
     }
     
-    // Получаем заявку
+    // Get application
     const application = await DB.getApplicationByWallet(wallet);
     
     if (!application) {
       return NextResponse.json({ error: 'Application not found' }, { status: 404 });
     }
     
-    // Обновляем статус на minted
+    // Update status to minted
     await DB.updateStatus(application.id, 'minted');
     
-    // Сохраняем хэш транзакции и временную метку
+    // Save transaction hash and timestamp
     await kv.hset(`application:${application.id}`, {
       mintTransaction: txHash,
       mintedAt: new Date().toISOString()
@@ -30,7 +30,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ 
       success: true, 
       message: 'NFT status updated to minted',
-      nftNumber: application.nftNumber // Возвращаем nftNumber из заявки
+      nftNumber: application.nftNumber // Return nftNumber from application
     });
     
   } catch (error: any) {

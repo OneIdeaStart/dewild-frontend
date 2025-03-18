@@ -16,7 +16,7 @@ export function PromptButton() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   
-  // Активируем кнопку также при nft_rejected
+  // Activate button also for nft_rejected
   const isActive = isCollabApplied && 
     (status === 'approved' || 
      status === ('prompt_received' as ApplicationStatus) || 
@@ -33,10 +33,10 @@ export function PromptButton() {
       const data = await response.json()
       
       if (!response.ok) {
-        // Если ошибка из-за статуса заявки, 
-        // но локально кнопка активна - обновляем статус
+        // If error due to application status, 
+        // but locally button is active - update status
         if (data.status === 'prompt_received') {
-          // Принудительно обновляем статус в хуке useCollabStatus
+          // Force update status in useCollabStatus hook
           checkCollabStatus(); 
           setPromptData(data.prompt);
           setDialogOpen(true);
@@ -58,13 +58,13 @@ export function PromptButton() {
 
   const handleDialogClose = () => {
     setDialogOpen(false)
-    // Обновляем статус после закрытия диалога
+    // Update status after dialog closes
     setTimeout(() => {
       checkCollabStatus();
     }, 1000);
   }
 
-  // Меняем текст кнопки для случая nft_rejected
+  // Change button text for nft_rejected case
   const buttonText = () => {
     if (isLoading) {
       return (

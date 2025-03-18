@@ -7,13 +7,13 @@ export function useDeWildContracts() {
   const chainId = useChainId();
   const { address } = useAccount();
   
-  // Всегда используем адреса мейннета
+  // Always use mainnet addresses
   const contractAddresses = CONTRACTS.MAINNET;
   
-  // Проверка, что пользователь находится в правильной сети
+  // Check that user is on correct network
   const isCorrectNetwork = chainId === 8453; // 8453 - ID Base Mainnet
   
-  // Функция для минта NFT
+  // Function for minting NFT
   const mintNFT = (signature: string) => {
     const { writeContractAsync } = useWriteContract();
     
@@ -27,7 +27,7 @@ export function useDeWildContracts() {
     };
   };
   
-  // Функция для создания аукциона
+  // Function for creating auction
   const createAuction = (tokenId: number, startPrice: bigint) => {
     const { writeContractAsync } = useWriteContract();
     
@@ -41,7 +41,7 @@ export function useDeWildContracts() {
     };
   };
   
-  // Функция для размещения ставки
+  // Function for placing bid
   const placeBid = (tokenId: number, bidAmount: string) => {
     const { writeContractAsync } = useWriteContract();
     
@@ -56,7 +56,7 @@ export function useDeWildContracts() {
     };
   };
   
-  // Получение данных о токене
+  // Getting token data
   const getTokenData = (tokenId: number) => {
     return useReadContract({
       abi: ABIS.DeWildClub,
@@ -66,7 +66,7 @@ export function useDeWildContracts() {
     });
   };
   
-  // Проверка, является ли пользователь одобренным артистом
+  // Check if user is approved artist
   const isApprovedArtist = () => {
     if (!address) return { data: false };
     

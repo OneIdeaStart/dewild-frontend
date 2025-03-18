@@ -3,7 +3,7 @@ import 'dotenv/config';
 import { kv } from '@vercel/kv';
 import axios from 'axios';
 
-// Типы для базы данных
+// Types for database
 interface CollabApplication {
   id: string;
   wallet: string;
@@ -26,28 +26,28 @@ interface CollabApplication {
   metadata?: any;
 }
 
-// Константы из оригинального DB класса
+// Constants from original DB class
 const DB_KEYS = {
   ALL_APPLICATIONS: 'applications:all',
-  // Старые ключи для мэппинга (будут использоваться только для чтения при миграции)
+  // Old keys for mapping (will be used only for reading during migration)
   APPLICATION_CHANNEL_MAP: 'discord:application:channel',
   CHANNEL_APPLICATION_MAP: 'discord:channel:application',
 };
 
-// Константы для Discord API
+// Constants for Discord API
 const CHANNEL_TYPE_TEXT = 0;
 const PERMISSION_VIEW_CHANNEL = "1024"; // (1 << 10)
 const PERMISSION_SEND_MESSAGES = "2048"; // (1 << 11)
 const PERMISSION_READ_MESSAGE_HISTORY = "65536"; // (1 << 16)
 const PERMISSION_ADD_REACTIONS = "64"; // (1 << 6)
 
-// Функция для получения заявки по ID
+// Function to get application by ID
 async function getApplicationById(id: string): Promise<CollabApplication | null> {
   try {
     const record = await kv.hgetall<any>(`application:${id}`);
     if (!record) return null;
     
-    // Преобразуем запись из Redis в CollabApplication
+    // Convert record from Redis to CollabApplication
     const application: CollabApplication = {
       id: record.id,
       wallet: record.wallet,
@@ -65,12 +65,12 @@ async function getApplicationById(id: string): Promise<CollabApplication | null>
       metadata: record.metadata
     };
   
-    // Если metadata строка, парсим её в объект
+    // If metadata is string, parse it to object
     if (application.metadata && typeof application.metadata === 'string') {
       try {
         application.metadata = JSON.parse(application.metadata as string);
       } catch (e) {
-        // Ошибка при парсинге, но продолжаем выполнение
+        // Error during parsing, but continue execution
         console.warn('Error parsing metadata for application', id);
       }
     }
@@ -82,7 +82,7 @@ async function getApplicationById(id: string): Promise<CollabApplication | null>
   }
 }
 
-// Получение всех ID заявок
+// Get all application IDs
 async function getAllApplicationIds(): Promise<string[]> {
   try {
     return await kv.smembers(DB_KEYS.ALL_APPLICATIONS);
@@ -92,7 +92,7 @@ async function getAllApplicationIds(): Promise<string[]> {
   }
 }
 
-// Обновление заявки
+// Update application
 async function updateApplication(id: string, updates: Partial<CollabApplication>): Promise<boolean> {
   try {
     await kv.hset(`application:${id}`, updates);
@@ -103,7 +103,7 @@ async function updateApplication(id: string, updates: Partial<CollabApplication>
   }
 }
 
-// Получение Discord канала для заявки (из старой системы маппингов)
+// Get Discord channel for application (from old mapping system)
 async function getOldApplicationChannel(applicationId: string): Promise<string | null> {
   try {
     return kv.hget<string>(DB_KEYS.APPLICATION_CHANNEL_MAP, applicationId);
@@ -113,12 +113,12 @@ async function getOldApplicationChannel(applicationId: string): Promise<string |
   }
 }
 
-// Получение Discord ID пользователя по его тегу
+// Get Discord user ID by tag
 async function getUserIdByUsername(discordTag: string): Promise<string | null> {
   try {
     const [username, discriminator] = discordTag.split('#');
     
-    // Получаем список участников сервера через API Discord
+    // Get server member list through Discord API
     const response = await axios.get<any[]>(
       `https://discord.com/api/v10/guilds/${process.env.DISCORD_SERVER_ID}/members?limit=1000`,
       { 
@@ -129,13 +129,13 @@ async function getUserIdByUsername(discordTag: string): Promise<string | null> {
       }
     );
     
-    // Проверяем, что response.data это массив
+    // Check that response.data is an array
     if (!Array.isArray(response.data)) {
       console.error('Unexpected response format from Discord API:', response.data);
       return null;
     }
     
-    // Ищем пользователя по имени и дискриминатору
+    // Find user by name and discriminator
     const member = response.data.find((m: any) => {
       if (!m.user) return false;
       const user = m.user;
@@ -150,56 +150,56 @@ async function getUserIdByUsername(discordTag: string): Promise<string | null> {
   }
 }
 
-// Создание канала для заявки
+// Create channel for application
 async function createApplicationChannel(application: CollabApplication): Promise<string | null> {
   try {
-    // Получаем Discord ID пользователя
+    // Get Discord user ID
     const userId = await getUserIdByUsername(application.discord);
     if (!userId) {
       console.error(`User ${application.discord} not found in Discord server`);
       return null;
     }
 
-    // Создаем имя канала на основе ID заявки
+    // Create channel name based on application ID
     const channelName = `app-${application.id}`;
 
-    // Настраиваем права доступа
+    // Set up access rights
     const permissionOverwrites = [
         {
-          id: process.env.DISCORD_SERVER_ID!, // @everyone роль
-          type: 0, // тип "роль"
+          id: process.env.DISCORD_SERVER_ID!, // @everyone role
+          type: 0, // type "role"
           allow: '0',
-          deny: PERMISSION_VIEW_CHANNEL // Скрываем канал от всех
+          deny: PERMISSION_VIEW_CHANNEL // Hide channel from everyone
         },
         {
-          id: userId, // Конкретный пользователь
-          type: 1, // тип "пользователь"
+          id: userId, // Specific user
+          type: 1, // type "user"
           allow: "68672", // VIEW_CHANNEL + SEND_MESSAGES + READ_MESSAGE_HISTORY + ADD_REACTIONS
           deny: '0'
         }
     ];
 
-    // Добавляем роль бота, если она задана
+    // Add bot role if it's set
     if (process.env.DISCORD_BOT_ROLE_ID) {
       permissionOverwrites.push({
         id: process.env.DISCORD_BOT_ROLE_ID,
-        type: 0, // тип "роль"
+        type: 0, // type "role"
         allow: "68672",
         deny: '0'
       });
     }
 
-    // Добавляем самого бота, если задан CLIENT_ID
+    // Add bot itself if CLIENT_ID is set
     if (process.env.DISCORD_CLIENT_ID) {
       permissionOverwrites.push({
         id: process.env.DISCORD_CLIENT_ID,
-        type: 1, // тип "пользователь" для бота
+        type: 1, // type "user" for bot
         allow: "68672",
         deny: '0'
       });
     }
 
-    // Создаем канал через API Discord
+    // Create channel through Discord API
     const response = await axios.post<{ id: string }>(
       `https://discord.com/api/v10/guilds/${process.env.DISCORD_SERVER_ID}/channels`,
       {
@@ -219,10 +219,10 @@ async function createApplicationChannel(application: CollabApplication): Promise
 
     const channelId = response.data.id;
     
-    // Даем Discord время на применение настроек
+    // Give Discord time to apply settings
     await new Promise(resolve => setTimeout(resolve, 2000));
     
-    // Отправляем начальное сообщение с информацией о заявке
+    // Send initial message with application information
     await sendApplicationStatusMessage(channelId, application);
     
     return channelId;
@@ -232,13 +232,13 @@ async function createApplicationChannel(application: CollabApplication): Promise
   }
 }
 
-// Отправка сообщения о статусе заявки
+// Send message about application status
 async function sendApplicationStatusMessage(channelId: string, application: CollabApplication): Promise<boolean> {
   try {
-    // Формируем сообщение о статусе
+    // Form message about status
     const message = getStatusMessage(application);
     
-    // Отправляем сообщение через API Discord
+    // Send message through Discord API
     await axios.post(
       `https://discord.com/api/v10/channels/${channelId}/messages`,
       { content: message },
@@ -257,7 +257,7 @@ async function sendApplicationStatusMessage(channelId: string, application: Coll
   }
 }
 
-// Формирование сообщения о статусе заявки
+// Form message about application status
 function getStatusMessage(application: CollabApplication): string {
   const statusEmoji = getStatusEmoji(application.status);
   const created = new Date(application.createdAt).toLocaleString('ru-RU');
@@ -270,7 +270,7 @@ function getStatusMessage(application: CollabApplication): string {
   
   message += `## Current Status: ${statusEmoji} ${formatStatus(application.status)}\n\n`;
   
-  // Добавляем детали в зависимости от статуса
+  // Add details depending on status
   switch (application.status) {
     case 'pending':
       message += `Your application is being reviewed by our team. Please be patient.\n`;
@@ -317,7 +317,7 @@ function getStatusMessage(application: CollabApplication): string {
   return message;
 }
 
-// Получение эмодзи для статуса
+// Get emoji for status
 function getStatusEmoji(status: string): string {
   switch (status) {
     case 'pending': return '⏳';
@@ -334,7 +334,7 @@ function getStatusEmoji(status: string): string {
   }
 }
 
-// Форматирование статуса
+// Format status
 function formatStatus(status: string): string {
   switch (status) {
     case 'pending': return 'Pending Review';
@@ -351,17 +351,17 @@ function formatStatus(status: string): string {
   }
 }
 
-// Обновление роли пользователя
+// Update user role
 async function updateUserRole(discordTag: string, applicationStatus: string): Promise<boolean> {
   try {
-    // Получаем Discord ID пользователя
+    // Get Discord user ID
     const userId = await getUserIdByUsername(discordTag);
     if (!userId) {
       console.error(`User ${discordTag} not found in Discord server`);
       return false;
     }
     
-    // Определяем роль, которую нужно добавить
+    // Determine role to add
     let roleId = '';
     
     switch (applicationStatus) {
@@ -372,7 +372,7 @@ async function updateUserRole(discordTag: string, applicationStatus: string): Pr
         roleId = process.env.DISCORD_DEWILD_ARTIST_ROLE_ID || '';
         break;
       default:
-        // Для других статусов не меняем роль
+        // For other statuses don't change role
         return true;
     }
     
@@ -381,7 +381,7 @@ async function updateUserRole(discordTag: string, applicationStatus: string): Pr
       return false;
     }
     
-    // Добавляем роль пользователю
+    // Add role to user
     await axios.put(
       `https://discord.com/api/v10/guilds/${process.env.DISCORD_SERVER_ID}/members/${userId}/roles/${roleId}`,
       {},
@@ -400,25 +400,25 @@ async function updateUserRole(discordTag: string, applicationStatus: string): Pr
   }
 }
 
-// Основная функция миграции
+// Main migration function
 async function migrateApplicationsToDiscord() {
   try {
     console.log('Starting Discord channels migration...');
 
-    // Получаем все ID заявок
+    // Get all application IDs
     const applicationIds = await getAllApplicationIds();
     console.log(`Found ${applicationIds.length} applications`);
     
-    // Счетчики
+    // Counters
     let created = 0;
     let skipped = 0;
     let errors = 0;
     let migrated = 0;
     
-    // Обрабатываем каждую заявку
+    // Process each application
     for (const id of applicationIds) {
       try {
-        // Получаем данные заявки
+        // Get application data
         const app = await getApplicationById(id);
         if (!app) {
           console.error(`Application ${id} not found`);
@@ -426,11 +426,11 @@ async function migrateApplicationsToDiscord() {
           continue;
         }
         
-        // Проверяем, есть ли уже ID канала в заявке
+        // Check if there's already channel ID in application
         if (app.discordChannelId) {
           console.log(`Application ${id} already has Discord channel ID: ${app.discordChannelId}`);
           
-          // Обновляем сообщение статуса в существующем канале
+          // Update status message in existing channel
           try {
             await sendApplicationStatusMessage(app.discordChannelId, app);
             console.log(`Status message updated in channel ${app.discordChannelId}`);
@@ -442,15 +442,15 @@ async function migrateApplicationsToDiscord() {
           continue;
         }
         
-        // Проверяем, есть ли канал в старой системе маппингов
+        // Check if there's a channel in old mapping system
         const oldChannelId = await getOldApplicationChannel(id);
         if (oldChannelId) {
           console.log(`Found channel ${oldChannelId} for application ${id} in old mapping, migrating...`);
           
-          // Обновляем заявку с ID канала из старой системы
+          // Update application with channel ID from old system
           await updateApplication(id, { discordChannelId: oldChannelId });
           
-          // Обновляем сообщение в канале
+          // Update message in channel
           try {
             await sendApplicationStatusMessage(oldChannelId, app);
             console.log(`Status message updated in channel ${oldChannelId}`);
@@ -462,7 +462,7 @@ async function migrateApplicationsToDiscord() {
           continue;
         }
         
-        // Если канала нет ни в заявке, ни в старой системе - создаем новый
+        // If there's no channel in application or old system - create new one
         console.log(`Creating new Discord channel for application ${id}...`);
         const channelId = await createApplicationChannel(app);
         
@@ -472,18 +472,18 @@ async function migrateApplicationsToDiscord() {
           continue;
         }
         
-        // Сохраняем ID канала в заявке
+        // Save channel ID in application
         await updateApplication(id, { discordChannelId: channelId });
         
         console.log(`Created channel ${channelId} for application ${id}`);
         created++;
         
-        // Обновляем роль пользователя, если нужно
+        // Update user role if needed
         if (app.status === 'approved' || app.status === 'minted') {
           await updateUserRole(app.discord, app.status);
         }
         
-        // Небольшая пауза, чтобы не перегружать Discord API
+        // Small pause to not overload Discord API
         await new Promise(resolve => setTimeout(resolve, 1000));
         
       } catch (error) {
@@ -504,7 +504,7 @@ async function migrateApplicationsToDiscord() {
   }
 }
 
-// Запускаем миграцию
+// Start migration
 migrateApplicationsToDiscord()
   .then(() => {
     console.log('Migration completed successfully');

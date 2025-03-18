@@ -6,27 +6,27 @@ export const runtime = 'nodejs';
 
 export async function POST() {
   try {
-    // Инициализация Redis клиента
+    // Initialize Redis client
     const redis = new Redis({
       url: process.env.KV_REST_API_URL || '',
       token: process.env.KV_REST_API_TOKEN || '',
     });
 
-    // Константы для ключей Redis
+    // Constants for Redis keys
     const PROCESSED_TX_KEY = 'royalty:processed_transactions';
     const LAST_RUN_KEY = 'royalty:last_run';
     const LOGS_KEY = 'royalty:logs';
 
-    // Добавляем запись в логи о сбросе
+    // Add record to logs about reset
     await redis.lpush(LOGS_KEY, `[${new Date().toISOString()}] Database reset initiated by admin`);
 
-    // Сбрасываем список обработанных транзакций
+    // Reset list of processed transactions
     await redis.del(PROCESSED_TX_KEY);
     
-    // Сбрасываем время последнего запуска
+    // Reset last run time
     await redis.del(LAST_RUN_KEY);
     
-    // Оставляем лог о сбросе, но удаляем остальные логи
+    // Keep log about reset, but delete other logs
     await redis.ltrim(LOGS_KEY, 0, 0);
     
     return NextResponse.json({

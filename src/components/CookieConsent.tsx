@@ -8,7 +8,7 @@ export function CookieConsent() {
   const [showConsent, setShowConsent] = useState(false)
 
   useEffect(() => {
-    // Проверяем, было ли уже получено согласие
+    // Check if consent was already obtained
     const consent = localStorage.getItem('cookie-consent')
     if (!consent) {
       setShowConsent(true)
@@ -18,7 +18,7 @@ export function CookieConsent() {
   const acceptCookies = () => {
     localStorage.setItem('cookie-consent', 'true')
     setShowConsent(false)
-    // Здесь можно инициализировать GA после получения согласия
+    // Here you can initialize GA after getting consent
     window.gtag?.('consent', 'update', {
       analytics_storage: 'granted'
     })

@@ -9,7 +9,7 @@ import { CONTRACTS, ABIS } from '@/lib/web3/contracts'
 import { Button } from '@/components/ui/button'
 import { getPinataUrl } from '@/lib/pinata'
 
-// Типы для NFT
+// Types for NFT
 interface NFT {
   tokenId: number;
   image: string;
@@ -36,7 +36,7 @@ export default function CollectionPage() {
   const [filteredNFTsCount, setFilteredNFTsCount] = useState(0);
   const { address } = useAppKitAccount();
 
-  // Функция для получения метаданных NFT
+  // Function to get NFT metadata
   async function fetchNFTMetadata(tokenId: number): Promise<any> {
     try {
       const baseURI = `/api/metadata/`;
@@ -51,7 +51,7 @@ export default function CollectionPage() {
     }
   }
 
-  // Функция для проверки наличия активного аукциона
+  // Function to check for active auction
   async function checkAuction(tokenId: number, provider: ethers.Provider): Promise<{hasAuction: boolean, price?: string}> {
     try {
       const marketAddress = CONTRACTS.MAINNET.PrimarySaleMarket;
@@ -61,21 +61,21 @@ export default function CollectionPage() {
         provider
       );
       
-      // Получаем данные аукциона напрямую из контракта
+      // Get auction data directly from contract
       try {
         const auctionInfo = await marketContract.getAuction(tokenId);
-        const isActive = auctionInfo[5]; // isActive - это 6-й элемент (индекс 5)
+        const isActive = auctionInfo[5]; // isActive is the 6th element (index 5)
         
-        // Если аукцион активен, проверяем оставшееся время
+        // If auction is active, check remaining time
         if (isActive) {
-          // Получаем оставшееся время
+          // Get remaining time
           const remainingTime = await marketContract.getRemainingTime(tokenId);
           const isTimeExpired = remainingTime.toString() === "0";
           
-          // Аукцион считается активным только если isActive=true И оставшееся время > 0
+          // Auction is considered active only if isActive=true AND remaining time > 0
           const isActuallyActive = isActive && !isTimeExpired;
           
-          // Получаем текущую ставку
+          // Get current bid
           const currentBid = ethers.formatEther(auctionInfo[2]);
           
           return { 
@@ -84,10 +84,10 @@ export default function CollectionPage() {
           };
         }
         
-        // Если isActive=false, просто возвращаем false
+        // If isActive=false, just return false
         return { hasAuction: false };
       } catch (error) {
-        // Аукцион не найден, возвращаем false
+        // Auction not found, return false
         return { hasAuction: false };
       }
     } catch (error) {
@@ -101,12 +101,12 @@ export default function CollectionPage() {
       if (!nfts.length) return;
       
       try {
-        // Создаем провайдер для подключения к блокчейну
+        // Create provider for blockchain connection
         const provider = new ethers.JsonRpcProvider(
           process.env.NEXT_PUBLIC_BASE_MAINNET_RPC_URL || 'https://mainnet.base.org'
         );
         
-        // Подключаемся к контракту аукциона
+        // Connect to auction contract
         const marketAddress = CONTRACTS.MAINNET.PrimarySaleMarket;
         const marketContract = new ethers.Contract(
           marketAddress, 
@@ -114,20 +114,20 @@ export default function CollectionPage() {
           provider
         );
         
-        // Обновляем статус аукциона для каждого NFT
+        // Update auction status for each NFT
         const updatedNfts = await Promise.all(nfts.map(async (nft) => {
           try {
-            // Получаем информацию об аукционе напрямую из контракта
+            // Get auction information directly from contract
             const auctionInfo = await marketContract.getAuction(nft.tokenId);
-            const isActive = auctionInfo[5]; // isActive - это 6-й элемент (индекс 5)
+            const isActive = auctionInfo[5]; // isActive is the 6th element (index 5)
             
             if (isActive) {
-              // Если аукцион активен, проверяем оставшееся время
+              // If auction is active, check remaining time
               try {
                 const remainingTime = await marketContract.getRemainingTime(nft.tokenId);
                 const isTimeExpired = remainingTime.toString() === "0";
                 
-                // Аукцион считается активным только если isActive=true И оставшееся время > 0
+                // Auction is considered active only if isActive=true AND remaining time > 0
                 const isActuallyActive = isActive && !isTimeExpired;
                 
                 return {
@@ -143,7 +143,7 @@ export default function CollectionPage() {
                 };
               }
             } else {
-              // Если isActive=false, просто возвращаем false
+              // If isActive=false, just return false
               return {
                 ...nft,
                 hasActiveAuction: false
@@ -154,11 +154,11 @@ export default function CollectionPage() {
             return {
               ...nft,
               hasActiveAuction: false
-            }; // Возвращаем оригинальный NFT без активного аукциона в случае ошибки
+            }; // Return original NFT without active auction in case of error
           }
         }));
         
-        // Обновляем состояние с NFTs с актуальным статусом аукционов
+        // Update state with NFTs with current auction status
         setNfts(updatedNfts);
         
       } catch (error) {
@@ -167,26 +167,26 @@ export default function CollectionPage() {
     };
     
     checkAuctionsForNfts();
-  }, [nfts.length]); // Выполняем при изменении количества NFT
+  }, [nfts.length]); // Execute when number of NFTs changes
 
-  // Сбрасываем страницу пагинации при изменении фильтров
+  // Reset pagination page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [filter, animalFilter, materialFilter, colorFilter, bgColorFilter]);
 
   useEffect(() => {
-    // Функция для загрузки NFT из контракта
+    // Function to load NFTs from contract
     async function loadNFTs() {
       setIsLoading(true);
       setError(null);
       
       try {
-        // Подключаемся к провайдеру
+        // Connect to provider
         const provider = new ethers.JsonRpcProvider(
           process.env.NEXT_PUBLIC_BASE_MAINNET_RPC_URL || 'https://mainnet.base.org'
         );
         
-        // Создаем экземпляр контракта
+        // Create contract instance
         const contractAddress = CONTRACTS.MAINNET.DeWildClub;
         const contract = new ethers.Contract(
           contractAddress,
@@ -194,23 +194,23 @@ export default function CollectionPage() {
           provider
         );
         
-        // Получаем общее количество NFT
+        // Get total number of NFTs
         const totalSupply = await contract.totalSupply();
         setTotalNFTs(Number(totalSupply));
         
-        // Получаем данные для каждого токена
+        // Get data for each token
         const nftPromises = [];
-        const maxToShow = Math.min(Number(totalSupply), 50); // Ограничиваем для производительности
+        const maxToShow = Math.min(Number(totalSupply), 50); // Limit for performance
         
         for (let i = 1; i <= maxToShow; i++) {
           nftPromises.push(
             (async () => {
               try {
-                // Получаем токен ID и владельца
+                // Get token ID and owner
                 const tokenId = await contract.tokenByIndex(i - 1);
                 const owner = await contract.ownerOf(tokenId);
                 
-                // Получаем метаданные из нашего API
+                // Get metadata from our API
                 const metadata = await fetchNFTMetadata(Number(tokenId));
                 
                 if (!metadata) {
@@ -218,15 +218,15 @@ export default function CollectionPage() {
                   return null;
                 }
                 
-                // Формируем URL изображения через Pinata, если это IPFS хэш
+                // Form image URL through Pinata if it's IPFS hash
                 let imageUrl = metadata.image;
                 if (imageUrl && imageUrl.startsWith('ipfs://') || (typeof imageUrl === 'string' && !imageUrl.startsWith('http'))) {
-                  // Предполагаем, что это IPFS хэш
+                  // Assume it's an IPFS hash
                   const ipfsHash = imageUrl.replace('ipfs://', '');
                   imageUrl = getPinataUrl(ipfsHash);
                 }
                 
-                // Проверяем наличие аукциона
+                // Check for auction
                 const { hasAuction, price } = await checkAuction(Number(tokenId), provider);
                 
                 return {
@@ -245,25 +245,25 @@ export default function CollectionPage() {
           );
         }
         
-        // Ожидаем завершения всех запросов
+        // Wait for all requests to complete
         const results = await Promise.all(nftPromises);
         const validNFTs = results.filter(nft => nft !== null) as NFT[];
         
-        // Применяем фильтры
+        // Apply filters
         let filteredNFTs = validNFTs;
         
-        // Фильтр по аукциону
+        // Filter by auction
         if (filter === 'current_auctions') {
           filteredNFTs = filteredNFTs.filter(nft => nft.hasActiveAuction);
         } else if (filter === 'my_nfts' && address) {
-          // Фильтр по владельцу (ваши NFT)
+          // Filter by owner (your NFTs)
           const addressLower = address.toLowerCase();
           filteredNFTs = filteredNFTs.filter(
             nft => (nft as any).owner && (nft as any).owner.toLowerCase() === addressLower
           );
         }
         
-        // Применяем фильтры по атрибутам
+        // Apply attribute filters
         if (animalFilter !== 'all') {
           filteredNFTs = filteredNFTs.filter(nft => {
             if (!nft.attributes) return false;
@@ -307,10 +307,10 @@ export default function CollectionPage() {
           });
         }
         
-        // Сохраняем общее количество отфильтрованных NFT для пагинации
+        // Save total number of filtered NFTs for pagination
         setFilteredNFTsCount(filteredNFTs.length);
         
-        // Применяем пагинацию
+        // Apply pagination
         const startIndex = (currentPage - 1) * itemsPerPage;
         const endIndex = startIndex + itemsPerPage;
         filteredNFTs = filteredNFTs.slice(startIndex, endIndex);
@@ -327,7 +327,7 @@ export default function CollectionPage() {
     loadNFTs();
   }, [filter, address, currentPage]);
 
-  // Функция для отображения цены
+  // Function to display price
   const formatPrice = (price?: string) => {
     if (!price) return '';
     return `${parseFloat(price).toFixed(3)} ETH`;
@@ -338,14 +338,14 @@ export default function CollectionPage() {
       <Header />
       
       <div className="w-full px-4 sm:px-6 pt-40">
-        {/* Заголовок */}
+        {/* Header */}
         <h1 className="text-5xl font-extrabold font-['Sofia Sans Extra Condensed'] uppercase text-center mb-[120px]">
           DEWILD CLUB NFT COLLECTION
         </h1>
         
-        {/* Фильтры */}
+        {/* Filters */}
         <div className="mb-20">
-          {/* Основной фильтр */}
+          {/* Main filter */}
           <div className="flex flex-wrap justify-between items-center border-b border-gray-300 pb-4 mb-6">
             <div className="flex items-center gap-4">
               <button 
@@ -370,7 +370,7 @@ export default function CollectionPage() {
               )}
             </div>
             
-            {/* Сброс всех фильтров */}
+            {/* Reset all filters */}
             {(animalFilter !== 'all' || materialFilter !== 'all' || colorFilter !== 'all' || bgColorFilter !== 'all') && (
               <button 
                 className="text-xs font-bold text-gray-500 hover:text-black"
@@ -386,9 +386,9 @@ export default function CollectionPage() {
             )}
           </div>
           
-          {/* Атрибутные фильтры */}
+          {/* Attribute filters */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 hidden">
-            {/* Животные */}
+            {/* Animals */}
             <div className="relative">
               <label className="block text-xs font-bold text-gray-500 mb-2">ANIMAL TYPE</label>
               <select 
@@ -412,7 +412,7 @@ export default function CollectionPage() {
               </div>
             </div>
             
-            {/* Материалы */}
+            {/* Materials */}
             <div className="relative">
               <label className="block text-xs font-bold text-gray-500 mb-2">MATERIAL</label>
               <select 
@@ -435,7 +435,7 @@ export default function CollectionPage() {
               </div>
             </div>
             
-            {/* Цвета глаз */}
+            {/* Eye colors */}
             <div className="relative">
               <label className="block text-xs font-bold text-gray-500 mb-2">EYES COLOR</label>
               <select 
@@ -457,7 +457,7 @@ export default function CollectionPage() {
               </div>
             </div>
             
-            {/* Цвета фона */}
+            {/* Background colors */}
             <div className="relative">
               <label className="block text-xs font-bold text-gray-500 mb-2">BACKGROUND</label>
               <select 
@@ -482,9 +482,9 @@ export default function CollectionPage() {
           </div>
         </div>
         
-        {/* Убрали блок информации о коллекции */}
+        {/* Removed collection info block */}
         
-        {/* Сетка NFT с использованием Grid */}
+        {/* NFT grid using Grid */}
         {isLoading ? (
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#202020]"></div>
@@ -546,7 +546,7 @@ export default function CollectionPage() {
                 </div>
               </Link>
             ))}
-            {/* Добавляем невидимые элементы для равномерного распределения в последней строке */}
+            {/* Add invisible elements for even distribution in the last row */}
             {nfts.length % 7 !== 0 && 
               Array.from({ length: 7 - (nfts.length % 7) }).map((_, index) => (
                 <div key={`spacer-${index}`} className="w-[132px] h-0 m-0 p-0 invisible"></div>
@@ -555,7 +555,7 @@ export default function CollectionPage() {
           </div>
         )}
         
-        {/* Пагинация */}
+        {/* Pagination */}
         {!isLoading && !error && nfts.length > 0 && 
           Math.ceil(filteredNFTsCount / itemsPerPage) > 1 && (
             <div className="flex justify-center items-center mt-10">

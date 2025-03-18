@@ -100,7 +100,7 @@ export const NFTCarousel = () => {
              };
            }
 
-           // Запуск нового спина через 5 секунд после остановки
+           // Start new spin 5 seconds after stopping
            setTimeout(() => {
              spin();
            }, 5000);
@@ -111,17 +111,17 @@ export const NFTCarousel = () => {
  };
 
  useEffect(() => {
-  // Задержка 0.2с после начала анимации заголовка
+  // 0.2s delay after title animation starts
   setTimeout(() => {
     setIsLoaded(true);
-    // Запускаем спин только после завершения анимации появления
-    // 200мс задержка + 500мс анимация + 200мс задержка для последнего слота
+    // Start spin only after appearance animation completes
+    // 200ms delay + 500ms animation + 200ms delay for last slot
     setTimeout(() => {
       spin();
     }, 1800);
   }, 200);
 
-  return () => {}; // Очистка, если потребуется
+  return () => {}; // Cleanup if needed
  }, []);
 
 

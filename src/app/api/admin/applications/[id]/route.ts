@@ -14,7 +14,7 @@ export async function DELETE(
   try {
     const id = (await params).id;
     
-    // Получаем заявку
+    // Get application
     const app = await DB.getApplicationById(id);
     if (!app) {
       return NextResponse.json(
@@ -23,17 +23,17 @@ export async function DELETE(
       );
     }
 
-    // Сохраняем ID канала Discord перед удалением заявки
+    // Save Discord channel ID before deleting application
     const channelId = app.discordChannelId;
 
-    // Если заявка уже одобрена на уровне контракта, нужно сначала отозвать разрешение
+    // If application is already approved at contract level, need to revoke permission first
     if (app.status === 'nft_approved' || app.status === 'minted') {
-      // Определяем базовый URL
+      // Determine base URL
       const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
                      (request.headers.get('host') ? `http://${request.headers.get('host')}` : 'http://localhost:3000');
       
       try {
-        // Вызываем отзыв артиста в контракте
+        // Call artist revocation in contract
         const revokeResponse = await fetch(`${baseUrl}/api/contracts/revoke-artist`, {
           method: 'POST',
           headers: {
@@ -47,11 +47,11 @@ export async function DELETE(
         
         console.log('Revoke response status:', revokeResponse.status);
         
-        // Получаем результат отзыва
+        // Get revocation result
         const revokeResult = await revokeResponse.json();
         console.log('Revoke response data:', revokeResult);
         
-        // Если отзыв не удался, возвращаем ошибку и НЕ удаляем заявку
+        // If revocation failed, return error and DO NOT delete application
         if (!revokeResponse.ok) {
           return NextResponse.json({
             success: false,
@@ -59,18 +59,18 @@ export async function DELETE(
           }, { status: 500 });
         }
         
-        // Если отзыв успешен или артист уже был отозван, удаляем заявку
+        // If revocation is successful or artist was already revoked, delete application
         if (revokeResult.success) {
           await DB.deleteApplication(id);
           
-          // Удаляем Discord канал, если он существует
+          // Delete Discord channel if it exists
           if (channelId) {
             try {
               await discordService.deleteChannel(channelId);
               console.log(`Discord channel ${channelId} for application ${id} deleted`);
             } catch (discordError) {
               console.error(`Failed to delete Discord channel: ${discordError}`);
-              // Продолжаем выполнение, даже если не удалось удалить канал
+              // Continue execution even if failed to delete channel
             }
           }
           
@@ -81,8 +81,8 @@ export async function DELETE(
               'Application deleted and artist revoked successfully'
           });
         } else {
-          // Если result.success === false, но при этом мы дошли до этой точки,
-          // значит что-то пошло не так с логикой
+          // If result.success === false, but we reached this point,
+          // something went wrong with the logic
           return NextResponse.json({
             success: false,
             error: 'Unexpected error with contract revocation'
@@ -97,10 +97,10 @@ export async function DELETE(
       }
     }
 
-    // Если статус заявки не требует отзыва из контракта, просто удаляем её
+    // If application status doesn't require revocation from contract, just delete it
     await DB.deleteApplication(id);
     
-    // Удаляем Discord канал, если он существует
+    // Delete Discord channel if it exists
     if (channelId) {
       console.log(`Attempting to delete Discord channel ${channelId} for application ${id}`);
       try {
@@ -130,17 +130,17 @@ export async function PATCH(request: NextRequest, { params }: any) {
     const id = (await params).id;
     const data = await request.json();
     
-    // Получаем текущую заявку, чтобы сохранить promptId
+    // Get current application to save promptId
     const application = await DB.getApplicationById(id);
     if (!application) {
       return NextResponse.json({ error: 'Application not found' }, { status: 404 });
     }
     
-    // Обрабатываем действие
+    // Process action
     if (data.action === 'approve') {
       await DB.updateStatus(id, 'approved');
       
-      // Получаем обновленную заявку и обновляем Discord канал
+      // Get updated application and update Discord channel
       const updatedApp = await DB.getApplicationById(id);
       if (updatedApp) {
         try {
@@ -148,14 +148,14 @@ export async function PATCH(request: NextRequest, { params }: any) {
           console.log(`Discord channel for application ${id} updated to status 'approved'`);
         } catch (discordError) {
           console.error(`Failed to update Discord channel: ${discordError}`);
-          // Продолжаем выполнение, даже если не удалось обновить канал
+          // Continue execution even if failed to update channel
         }
       }
       
     } else if (data.action === 'reject') {
       await DB.updateStatus(id, 'rejected');
       
-      // Получаем обновленную заявку и обновляем Discord канал
+      // Get updated application and update Discord channel
       const updatedApp = await DB.getApplicationById(id);
       if (updatedApp) {
         try {
@@ -167,18 +167,18 @@ export async function PATCH(request: NextRequest, { params }: any) {
       }
       
     } else if (data.action === 'approve_nft') {
-      // Получаем информацию о заявке
+      // Get application information
       const application = await DB.getApplicationById(id);
       if (!application) {
         return NextResponse.json({ error: 'Application not found' }, { status: 404 });
       }
       
       try {
-        // Определяем базовый URL
+        // Determine base URL
         const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 
                        (request.headers.get('host') ? `http://${request.headers.get('host')}` : 'http://localhost:3000');
         
-        // Вызываем контракт для добавления артиста в вайтлист и получения подписи
+        // Call contract to add artist to whitelist and get signature
         const contractResponse = await fetch(`${baseUrl}/api/contracts/approve-artist`, {
           method: 'POST',
           headers: {
@@ -193,21 +193,21 @@ export async function PATCH(request: NextRequest, { params }: any) {
         if (!contractResponse.ok) {
           const errorData = await contractResponse.json();
           
-          // Не обновляем статус, если контракт не был обновлен
+          // Don't update status if contract wasn't updated
           return NextResponse.json({ 
             success: false, 
             error: `Contract approval failed: ${errorData.error || 'Unknown error'}` 
           }, { status: 500 });
         }
         
-        // Получаем результат операции
+        // Get operation result
         const contractResult = await contractResponse.json();
         
-        // Только если контракт обновлен и подпись получена, обновляем статус
+        // Only if contract is updated and signature is received, update status
         if (contractResult.success) {
           await DB.updateStatus(id, 'nft_approved');
           
-          // Получаем обновленную заявку и обновляем Discord канал
+          // Get updated application and update Discord channel
           const updatedApp = await DB.getApplicationById(id);
           if (updatedApp) {
             try {
@@ -232,7 +232,7 @@ export async function PATCH(request: NextRequest, { params }: any) {
         }
         
       } catch (error: any) {
-        // Не обновляем статус при ошибке
+        // Don't update status on error
         return NextResponse.json({ 
           success: false, 
           error: `Contract approval failed: ${error.message || 'Unknown error'}`
@@ -240,44 +240,44 @@ export async function PATCH(request: NextRequest, { params }: any) {
       }
 
     } else if (data.action === 'reject_nft') {
-      // Получаем информацию о заявке
+      // Get application information
       const application = await DB.getApplicationById(id);
       if (!application) {
         return NextResponse.json({ error: 'Application not found' }, { status: 404 });
       }
     
       try {
-        // Удаляем старое изображение из блоб-хранилища, если оно есть
+        // Delete old image from blob storage if it exists
         if (application.imageUrl) {
           try {
-            // Пробуем получить имя файла из URL
+            // Try to get file name from URL
             const imagePathMatch = application.imageUrl.match(/\/([^\/]+\.[^\/]+)$/);
             if (imagePathMatch && imagePathMatch[1]) {
               const fileName = imagePathMatch[1];
               
-              // Если URL содержит nft-images, удаляем с этим путем
+              // If URL contains nft-images, delete with this path
               if (application.imageUrl.includes('/nft-images/')) {
                 await del('nft-images/' + fileName);
               } else {
-                // Иначе удаляем непосредственно файл
+                // Otherwise delete the file directly
                 await del(fileName);
               }
             }
           } catch (error) {
-            // Если не удалось удалить, продолжаем выполнение
+            // If failed to delete, continue execution
           }
         }
     
-        // Обновляем статус
+        // Update status
         await DB.updateStatus(id, 'nft_rejected');
         
-        // Очищаем URL изображения в заявке
+        // Clear image URL in application
         await kv.hset(`application:${id}`, {
           imageUrl: null,
           imageUploadedAt: null
         });
         
-        // Получаем обновленную заявку и обновляем Discord канал
+        // Get updated application and update Discord channel
         const updatedApp = await DB.getApplicationById(id);
         if (updatedApp) {
           try {

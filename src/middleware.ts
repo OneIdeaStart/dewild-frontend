@@ -6,7 +6,7 @@ export const config = {
   matcher: [
     '/admin/:path*',
     '/admin',
-    // Добавляем matcher для всех путей при запросе через поддомен
+    // Add matcher for all paths when requesting through subdomain
     {
       source: '/:path*',
       has: [
@@ -23,7 +23,7 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host');
   const { pathname } = request.nextUrl;
 
-  // Если это admin поддомен или путь /admin
+  // If this is admin subdomain or path /admin
   if (hostname?.startsWith('admin.') || pathname.startsWith('/admin')) {
     const basicAuth = request.headers.get('authorization')
 
@@ -35,9 +35,9 @@ export function middleware(request: NextRequest) {
         user === process.env.ADMIN_USER &&
         pwd === process.env.ADMIN_PASSWORD
       ) {
-        // Перенаправляем на админские роуты
+        // Redirect to admin routes
         const url = request.nextUrl.clone()
-        // Если это поддомен, убираем /admin из пути
+        // If this is a subdomain, remove /admin from the path
         if (hostname?.startsWith('admin.')) {
           url.pathname = pathname === '/' ? '/admin' : `/admin${pathname}`
         }

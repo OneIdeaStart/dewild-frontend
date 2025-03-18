@@ -27,7 +27,7 @@ export default function PromptDialog({ promptData, onClose }: PromptDialogProps)
     window.open("https://replicate.com/black-forest-labs/flux-1.1-pro-ultra", "_blank");
   };
 
-  // Функция для обрезания текста промпта
+  // Function to truncate prompt text
   const truncatePrompt = (text: string, maxLength = 120) => {
     return text.length > maxLength ? text.substring(0, maxLength) + '...' : text;
   };

@@ -6,20 +6,20 @@ import { useRouter } from 'next/navigation';
 interface MintSuccessDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  nftNumber: string | number | null; // Изменяем tokenId на nftNumber
+  nftNumber: string | number | null; // Change tokenId to nftNumber
 }
 
 export default function MintSuccessDialog({ isOpen, onClose, nftNumber }: MintSuccessDialogProps) {
   const router = useRouter();
 
   const handleAuctionClick = () => {
-    onClose(); // Закрываем диалог
+    onClose(); // Close dialog
     
-    // Редиректим на страницу конкретного NFT с использованием nftNumber
+    // Redirect to specific NFT page using nftNumber
     if (nftNumber) {
       router.push(`/collection/${nftNumber}`);
     } else {
-      // Если по какой-то причине nftNumber отсутствует, перенаправляем на страницу коллекции
+      // If for some reason nftNumber is missing, redirect to collection page
       router.push('/collection');
     }
   };

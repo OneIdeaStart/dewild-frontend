@@ -30,12 +30,12 @@ export default function RoyaltiesAdminPage() {
   const [resetSuccess, setResetSuccess] = useState<string | null>(null);
 
 
-  // Загрузка логов при монтировании компонента
+  // Load logs when component mounts
   useEffect(() => {
     fetchLogs();
   }, []);
 
-  // Функция для загрузки логов
+  // Function to load logs
   const fetchLogs = async () => {
     try {
       setIsLoadingLogs(true);
@@ -51,15 +51,15 @@ export default function RoyaltiesAdminPage() {
       if (data.logs) {
         setLogs(data.logs);
         
-        // Анализируем логи для создания истории распределения
+        // Analyze logs to create distribution history
         const history: DistributionStats[] = [];
         let currentDistribution: Partial<DistributionStats> = {};
         
         data.logs.forEach((log: string) => {
-          // Извлекаем временную метку из лога
+          // Extract timestamp from log
           const timestamp = log.match(/\[(.*?)\]/)?.[1];
           
-          // Определяем начало нового процесса распределения
+          // Determine start of new distribution process
           if (log.includes('Starting royalty distribution process')) {
             currentDistribution = {
               timestamp: timestamp || new Date().toISOString(),
@@ -70,13 +70,13 @@ export default function RoyaltiesAdminPage() {
             };
           }
           
-          // Определяем конец процесса распределения
+          // Determine end of distribution process
           if (log.includes('Royalty distribution process completed successfully') && currentDistribution.timestamp) {
             history.unshift(currentDistribution as DistributionStats);
             currentDistribution = {};
           }
           
-          // Сохраняем ошибки
+          // Save errors
           if (log.includes('Fatal error in royalty distribution:') && currentDistribution.timestamp) {
             currentDistribution.success = false;
             const errorMessage = log.split('Fatal error in royalty distribution:')[1]?.trim();
@@ -85,7 +85,7 @@ export default function RoyaltiesAdminPage() {
             currentDistribution = {};
           }
           
-          // Отслеживаем количество обработанных транзакций
+          // Track number of processed transactions
           if (log.includes('Payment sent to artist, tx hash:') && currentDistribution.processedCount !== undefined) {
             currentDistribution.processedCount += 1;
           }
@@ -120,7 +120,7 @@ export default function RoyaltiesAdminPage() {
       
       setResult(data);
       
-      // Обновляем логи и историю
+      // Update logs and history
       setTimeout(() => {
         fetchLogs();
       }, 3000);
@@ -132,7 +132,7 @@ export default function RoyaltiesAdminPage() {
   };
 
   const handleResetDatabase = async () => {
-    // Запрашиваем подтверждение
+    // Request confirmation
     const confirmed = window.confirm(
       'Are you sure you want to reset the royalty database? This will clear all processed transactions and logs!'
     );
@@ -158,7 +158,7 @@ export default function RoyaltiesAdminPage() {
       
       setResetSuccess(data.message);
       
-      // Обновляем логи и историю
+      // Update logs and history
       setTimeout(() => {
         fetchLogs();
       }, 1000);
@@ -223,7 +223,7 @@ export default function RoyaltiesAdminPage() {
           </div>
         )}
         
-        {/* История распределения */}
+        {/* Distribution history */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-4">Distribution History</h2>
           
@@ -256,7 +256,7 @@ export default function RoyaltiesAdminPage() {
           )}
         </div>
         
-        {/* Логи */}
+        {/* Logs */}
         <div>
           <h2 className="text-2xl font-bold mb-4">Recent Logs</h2>
           

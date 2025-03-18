@@ -1,11 +1,11 @@
 export const colors = {
-    // Основные цвета
+    // Main colors
     primary: {
       black: '#202020',
       white: '#FFFFFF',
     },
     
-    // Акцентные цвета
+    // Accent colors
     accent: {
       yellow: '#F9E52C',
       blue: '#4801FF',
@@ -16,7 +16,7 @@ export const colors = {
       burgundy: '#8B1933',
     },
     
-    // Текстовые цвета
+    // Text colors
     text: {
       primary: '#202020',
       secondary: '#606060',

@@ -1,5 +1,5 @@
 import { Sidebar } from './components/Sidebar'
-import { Header } from './components/Header'  // Только админский хедер
+import { Header } from './components/Header'  // Only admin header
 import { sofia } from '@/styles/fonts'
 
 export const metadata = {

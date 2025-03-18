@@ -5,7 +5,7 @@ import { useAppKitAccount } from '@reown/appkit/react';
 import type { CollabCheckResponse } from '@/types/collab';
 import { CollabApplication, CollabStats } from '@/types/collab';
 
-// Определяем расширенный тип для поддержки всех статусов
+// Define extended type to support all statuses
 type ApplicationStatus = 
  | 'pending' 
  | 'approved' 
@@ -63,14 +63,14 @@ export const useCollabStatus = () => {
      setIsCollabApplied(data.address?.isApplied || false);
      setIsCollabFull(data.stats?.isFull || false);
      
-     // Явно приводим status к типу ApplicationStatus
+     // Explicitly cast status to ApplicationStatus
      if (data.address?.status) {
        setStatus(data.address.status as ApplicationStatus);
      } else {
        setStatus('pending');
      }
 
-     // Получаем полные данные заявки, если она существует
+     // Get full application data if it exists
      if (data.address?.isApplied) {
        const appResponse = await fetch(`/api/collab/application?wallet=${address}`);
        if (appResponse.ok) {

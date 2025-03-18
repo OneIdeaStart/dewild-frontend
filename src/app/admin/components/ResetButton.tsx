@@ -8,7 +8,7 @@ export default function ResetButton() {
   const [isLoading, setIsLoading] = useState(false);
   
   const handleReset = async () => {
-    // Показываем стандартное диалоговое окно подтверждения
+    // Show standard confirmation dialog
     const confirmed = window.confirm(
       'This action will reset all applications, NFTs, and prompt statuses. This cannot be undone. Are you sure?'
     );
@@ -17,7 +17,7 @@ export default function ResetButton() {
       return;
     }
 
-    // Запрашиваем ключ администратора через стандартный prompt
+    // Request admin key through standard prompt
     const adminKey = prompt('Enter admin key to confirm:');
     
     if (!adminKey) {
@@ -42,13 +42,13 @@ export default function ResetButton() {
         throw new Error(data.error || 'Failed to reset database');
       }
       
-      // Показываем сообщение об успехе через стандартный alert
+      // Show success message through standard alert
       alert(`Success: ${data.message || 'Database has been reset successfully'}`);
       
-      // Перезагружаем страницу для обновления данных
+      // Reload page to update data
       window.location.reload();
     } catch (error: any) {
-      // Показываем сообщение об ошибке через стандартный alert
+      // Show error message through standard alert
       alert(`Error: ${error.message || 'An error occurred while resetting the database'}`);
     } finally {
       setIsLoading(false);

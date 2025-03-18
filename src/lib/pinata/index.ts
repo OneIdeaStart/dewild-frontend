@@ -4,13 +4,13 @@ const PINATA_SECRET_KEY = process.env.PINATA_SECRET_KEY;
 const PINATA_GATEWAY = process.env.PINATA_GATEWAY || 'https://gateway.pinata.cloud';
 
 /**
- * Загружает файл в IPFS через Pinata
- * @param file Бинарные данные файла
- * @param fileName Имя файла
- * @param metadata Метаданные для Pinata
- * @returns CID хэш файла
+ * Uploads file to IPFS via Pinata
+ * @param file Binary file data
+ * @param fileName File name
+ * @param metadata Metadata for Pinata
+ * @returns CID hash of file
  */
-// src/lib/pinata/index.ts - исправление обработки ошибки
+// src/lib/pinata/index.ts - fix error handling
 export const uploadFileToPinata = async (
     file: Buffer,
     fileName: string,
@@ -25,11 +25,11 @@ export const uploadFileToPinata = async (
     try {
       const formData = new FormData();
       
-      // Создаем Blob из Buffer
+      // Create Blob from Buffer
       const blob = new Blob([file]);
       formData.append('file', blob, fileName);
       
-      // Добавляем метаданные с временной меткой для уникальности
+      // Add metadata with timestamp for uniqueness
       const pinataMetadata = {
         name: fileName,
         keyvalues: {
@@ -42,7 +42,7 @@ export const uploadFileToPinata = async (
       
       formData.append('pinataMetadata', JSON.stringify(pinataMetadata));
       
-      // Опции для Pinata
+      // Options for Pinata
       formData.append('pinataOptions', JSON.stringify({
         cidVersion: 1
       }));
@@ -79,13 +79,13 @@ export const uploadFileToPinata = async (
       
       console.log('Successfully uploaded to Pinata, CID:', data.IpfsHash);
       return data.IpfsHash;
-    } catch (error: any) { // Указываем тип 'any' для переменной error
+    } catch (error: any) { // Specify 'any' type for error variable
       console.error('Failed to upload to Pinata:', error);
       throw new Error(`Failed to upload file to IPFS: ${error.message || 'Unknown error'}`);
     }
   };
   
-  // Изменения в функции uploadJsonToPinata
+  // Changes in uploadJsonToPinata function
   export const uploadJsonToPinata = async (
     json: Record<string, any>,
     fileName: string
@@ -95,7 +95,7 @@ export const uploadFileToPinata = async (
     }
   
     try {
-      // Добавляем временную метку для уникальности
+      // Add timestamp for uniqueness
       const pinataContent = {
         ...json,
         _metadata: {
@@ -136,9 +136,9 @@ export const uploadFileToPinata = async (
   };  
 
 /**
- * Формирует URL для доступа к файлу через Pinata Gateway
- * @param ipfsHash CID хэш файла
- * @returns Полный URL к файлу
+ * Forms URL for accessing file via Pinata Gateway
+ * @param ipfsHash CID hash of file
+ * @returns Full URL to file
  */
 export const getPinataUrl = (ipfsHash: string): string => {
   return `${PINATA_GATEWAY}/ipfs/${ipfsHash}`;

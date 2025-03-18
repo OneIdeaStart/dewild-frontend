@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server';
 import { ApifyClient } from 'apify-client';
 
-// Используем переменные окружения для конфиденциальной информации
+// Use environment variables for confidential information
 const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN;
-// Продолжаем использовать TASK_ID, который теперь должен указывать на twitter-scraper-lite
+// Continue using TASK_ID, which now should point to twitter-scraper-lite
 const TASK_ID = process.env.APIFY_TASK_ID || 'ZeEKg1CpUwyFQhLa1';
 
-// Функции извлечения данных остаются без изменений
+// Extraction functions remain unchanged
 const extractTwitterHandle = (tweet: any, tweetUrl: string): string => {
   if (tweet?.user?.username) return tweet.user.username;
   if (tweet?.user?.screen_name) return tweet.user.screen_name;
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
   try {
     console.log("Requesting tweet:", tweetUrl);
 
-    // Проверяем формат URL твита
+    // Check tweet URL format
     const tweetUrlRegex = /^https?:\/\/(twitter\.com|x\.com)\/([a-zA-Z0-9_]+)\/status\/(\d+)$/;
     const match = tweetUrl.match(tweetUrlRegex);
     
@@ -50,12 +50,12 @@ export async function POST(request: Request) {
       });
     }
 
-    // Инициализируем клиент Apify
+    // Initialize Apify client
     const client = new ApifyClient({
       token: APIFY_API_TOKEN,
     });
 
-    // Продолжаем использовать задачу, но с новым скраппером
+    // Continue using task, but with new scraper
     const run = await client.task(TASK_ID).call({
       "startUrls": [tweetUrl],
       "maxItems": 1
@@ -63,7 +63,7 @@ export async function POST(request: Request) {
 
     console.log("Run successful, ID:", run.id);
     
-    // Получаем результаты из датасета
+    // Get results from dataset
     const { items } = await client.dataset(run.defaultDatasetId).listItems();
     
     console.log("Retrieved items:", items.length);
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
     
     const tweet = items[0];
     
-    // Извлекаем текст и имя пользователя
+    // Extract text and username
     const tweetText = extractTweetText(tweet);
     const twitterHandle = extractTwitterHandle(tweet, tweetUrl);
     
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
     console.log('Twitter handle:', twitterHandle);
     console.log('Verification code:', verificationCode);
     
-    // Проверяем, содержит ли твит код верификации
+    // Check if tweet contains verification code
     const isVerified = tweetText.includes(verificationCode);
     
     return NextResponse.json({ 
@@ -96,7 +96,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Twitter verification error:', error);
     
-    // Извлекаем имя пользователя из URL для сообщения об ошибке
+    // Extract username from URL for error message
     const twitterHandle = tweetUrl.split('/')[3] || '';
     
     return NextResponse.json({ 

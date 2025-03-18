@@ -15,7 +15,7 @@ import AuctionOwnerBlock from '@/components/auctions/AuctionOwnerBlock'
 import AuctionBidderBlock from '@/components/auctions/AuctionBidderBlock'
 import AuctionCompletedBlock from '@/components/auctions/AuctionCompletedBlock'
 
-// Типы для NFT и аукциона
+// Types for NFT and auction
 interface NFTDetails {
   tokenId: number;
   name: string;
@@ -45,7 +45,7 @@ export default function NFTDetailsPage() {
   const { address } = useAppKitAccount();
   const tokenId = Number(params.tokenId);
   
-  // Используем хук useAuction
+  // Use useAuction hook
   const { 
     createAuction, 
     createAuctionAfterApproval,
@@ -74,9 +74,9 @@ export default function NFTDetailsPage() {
   const [isCreatingAuctionAfterApproval, setIsCreatingAuctionAfterApproval] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isAuctionTimeExpired, setIsAuctionTimeExpired] = useState(false);
-  const [debug, setDebug] = useState(true); // Включаем отладку
+  const [debug, setDebug] = useState(true); // Enable debugging
   
-  // Информация о результате аукциона для завершенных аукционов
+  // Auction result information for completed auctions
   const [auctionResult, setAuctionResult] = useState<{
     finalPrice?: string;
     winner?: string;
@@ -84,27 +84,27 @@ export default function NFTDetailsPage() {
     artist?: string;
   } | undefined>(undefined);
 
-  // Функция для форматирования адреса кошелька
+  // Function to format wallet address
   const formatAddress = (address: string) => {
     if (!address) return '';
     return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
   };
 
-  // Функция для обновления только данных аукциона
+  // Function to update only auction data
   const refreshAuctionData = async () => {
     if (!tokenId) return;
     
-    // Устанавливаем флаг обновления
+    // Set update flag
     setIsRefreshing(true);
     console.log("🔄 Refreshing auction data for token", tokenId);
     
     try {
-      // Подключаемся к провайдеру
+      // Connect to provider
       const provider = new ethers.JsonRpcProvider(
         process.env.NEXT_PUBLIC_BASE_MAINNET_RPC_URL || 'https://mainnet.base.org'
       );
       
-      // Создаем экземпляры контрактов
+      // Create contract instances
       const nftAddress = CONTRACTS.MAINNET.DeWildClub;
       const nftContract = new ethers.Contract(
         nftAddress,
@@ -119,16 +119,16 @@ export default function NFTDetailsPage() {
         provider
       );
       
-      // Получаем данные о владельце NFT
+      // Get data about NFT owner
       const owner = await nftContract.ownerOf(tokenId);
       console.log("👤 NFT owner:", owner);
       
-      // Проверяем, был ли NFT продан через аукцион
+      // Check if NFT was sold through auction
       const nftHasBeenSold = await nftContract.hasBeenSold(tokenId);
       console.log("📊 NFT has been sold:", nftHasBeenSold);
       setHasBeenSold(nftHasBeenSold);
       
-      // Получаем данные аукциона напрямую из контракта
+      // Get auction data directly from contract
       try {
         console.log("🔍 Requesting auction data directly from contract");
         const auctionInfo = await marketContract.getAuction(tokenId);
@@ -137,7 +137,7 @@ export default function NFTDetailsPage() {
         const startPrice = ethers.formatEther(auctionInfo[1]);
         const currentBid = ethers.formatEther(auctionInfo[2]);
         const highestBidder = auctionInfo[3];
-        const endTime = Number(auctionInfo[4]) * 1000; // в миллисекундах
+        const endTime = Number(auctionInfo[4]) * 1000; // in milliseconds
         const isActive = auctionInfo[5];
         
         console.log("📊 Direct auction data from contract:", {
@@ -150,7 +150,7 @@ export default function NFTDetailsPage() {
           currentTime: Date.now()
         });
         
-        // Получаем оставшееся время из контракта
+        // Get remaining time from contract
         let remainingTime;
         let isTimeExpired = false;
         
@@ -165,13 +165,13 @@ export default function NFTDetailsPage() {
           isTimeExpired = true;
         }
         
-        // Определяем состояние timeLeft
+        // Determine timeLeft state
         const now = Date.now();
         const timeLeft = endTime > now ? 
           `${Math.floor((endTime - now) / (1000 * 60 * 60))}h ${Math.floor(((endTime - now) % (1000 * 60 * 60)) / (1000 * 60))}m ${Math.floor(((endTime - now) % (1000 * 60)) / 1000)}s` : 
           'Auction ended';
         
-        // Формируем объект с данными аукциона
+        // Form object with auction data
         const auctionDetails = {
           isActive,
           startPrice,
@@ -187,20 +187,20 @@ export default function NFTDetailsPage() {
         setTimeLeft(timeLeft);
         setIsAuctionTimeExpired(isTimeExpired);
         
-        // Если есть адрес пользователя, проверяем его роль
+        // If there's a user address, check their role
         if (address) {
-          // Проверяем, является ли текущий пользователь создателем аукциона
+          // Check if current user is auction creator
           const isCreator = artist.toLowerCase() === address.toLowerCase();
           console.log("👤 Is user the auction creator?", isCreator);
           setIsAuctionCreator(isCreator);
           
-          // Проверяем, является ли пользователь владельцем NFT
+          // Check if user is NFT owner
           const isNftOwner = address.toLowerCase() === owner.toLowerCase();
           console.log("👤 Is user the NFT owner?", isNftOwner);
           setIsOwner(isNftOwner);
         }
         
-        // Если NFT был продан, получаем информацию о результате аукциона
+        // If NFT was sold, get information about auction result
         if (nftHasBeenSold || (!isActive && highestBidder !== "0x0000000000000000000000000000000000000000")) {
           const auctionResultData = {
             finalPrice: currentBid,
@@ -214,14 +214,14 @@ export default function NFTDetailsPage() {
         }
       } catch (auctionError) {
         console.log("❌ No auction found or error getting auction:", auctionError);
-        // Если аукцион не найден, проверяем, является ли пользователь владельцем
+        // If auction not found, check if user is owner
         if (address) {
           const isNftOwner = address.toLowerCase() === owner.toLowerCase();
           setIsOwner(isNftOwner);
           setIsAuctionCreator(false);
         }
         
-        // Сбрасываем данные аукциона
+        // Reset auction data
         setAuctionDetails(null);
         setTimeLeft('');
         setIsAuctionTimeExpired(false);
@@ -229,13 +229,13 @@ export default function NFTDetailsPage() {
     } catch (error) {
       console.error('❌ Failed to refresh auction data:', error);
     } finally {
-      // Снимаем флаг обновления
+      // Remove update flag
       setIsRefreshing(false);
     }
   };
 
   useEffect(() => {
-    // Если есть аукцион, проверяем его время
+    // If there's an auction, check its time
     if (auctionDetails?.isActive) {
       console.log("🔄 Checking auction expiration due to active auction");
       checkAuctionTimeExpiration();
@@ -255,14 +255,14 @@ export default function NFTDetailsPage() {
         provider
       );
       
-      // Получаем оставшееся время аукциона напрямую из контракта
+      // Get remaining time from contract
       const remainingTime = await marketContract.getRemainingTime(tokenId);
       console.log("⏱️ Contract remaining time:", remainingTime.toString());
       
       const isExpired = remainingTime.toString() === "0";
       console.log("⏱️ Auction time expired:", isExpired);
       
-      // Если время истекло, устанавливаем соответствующие состояния
+      // If time expired, set appropriate states
       if (isExpired) {
         setTimeLeft('Auction ended');
         setIsAuctionTimeExpired(true);
@@ -275,22 +275,22 @@ export default function NFTDetailsPage() {
     }
   };
   
-  // Проверяем статус каждый раз при изменении timeLeft
+  // Check status each time timeLeft changes
   useEffect(() => {
     if (timeLeft === 'Auction ended' && auctionDetails?.isActive) {
-      // Проверяем, действительно ли аукцион завершился в блокчейне
+      // Check if auction has actually ended in blockchain
       console.log("🔄 Checking auction expiration due to time ended");
       checkAuctionTimeExpiration();
     }
   }, [timeLeft, auctionDetails]);
   
-  // Проверяем статус при нажатии на кнопку обновления
+  // Check status when refresh button is pressed
   const handleRefresh = async () => {
     console.log("🔄 Manual refresh triggered");
     await refreshAuctionData();
   };
 
-  // Функция для получения метаданных NFT
+  // Function to get NFT metadata
   async function fetchNFTMetadata(tokenId: number): Promise<any> {
     try {
       const response = await fetch(`/api/metadata/${tokenId}`);
@@ -304,7 +304,7 @@ export default function NFTDetailsPage() {
     }
   }
 
-  // Функция для получения имени артиста из атрибутов
+  // Function to get artist name from attributes
   function getArtistFromAttributes(attributes: any[] | undefined): string | null {
     if (!attributes || !Array.isArray(attributes)) return null;
     
@@ -315,7 +315,7 @@ export default function NFTDetailsPage() {
     return artistAttr ? artistAttr.value : null;
   }
   
-  // Обновляем функцию checkAuction, чтобы использовать наш хук
+  // Update checkAuction function to use our hook
   async function checkAuction(tokenId: number, provider: ethers.Provider): Promise<{hasAuction: boolean, auctionDetails?: any}> {
     try {
       const result = await checkAuctionStatus(tokenId, provider);
@@ -333,12 +333,12 @@ export default function NFTDetailsPage() {
         setIsLoading(true);
         console.log("🔄 Loading NFT details for token", tokenId);
         
-        // Подключаемся к провайдеру
+        // Connect to provider
         const provider = new ethers.JsonRpcProvider(
           process.env.NEXT_PUBLIC_BASE_MAINNET_RPC_URL || 'https://mainnet.base.org'
         );
         
-        // Создаем экземпляр контракта NFT
+        // Create contract instance NFT
         const contractAddress = CONTRACTS.MAINNET.DeWildClub;
         const contract = new ethers.Contract(
           contractAddress,
@@ -346,7 +346,7 @@ export default function NFTDetailsPage() {
           provider
         );
         
-        // Создаем экземпляр контракта маркетплейса
+        // Create marketplace contract instance
         const marketAddress = CONTRACTS.MAINNET.PrimarySaleMarket;
         const marketContract = new ethers.Contract(
           marketAddress, 
@@ -354,17 +354,17 @@ export default function NFTDetailsPage() {
           provider
         );
         
-        // Проверяем, был ли NFT продан через аукцион
+        // Check if NFT was sold through auction
         const nftHasBeenSold = await contract.hasBeenSold(tokenId);
         console.log("📊 NFT has been sold:", nftHasBeenSold);
         setHasBeenSold(nftHasBeenSold);
         
-        // Проверяем существование токена
+        // Check if token exists
         try {
           const owner = await contract.ownerOf(tokenId);
           console.log("👤 NFT owner:", owner);
           
-          // Получаем метаданные
+          // Get metadata
           const metadata = await fetchNFTMetadata(tokenId);
           
           if (!metadata) {
@@ -373,15 +373,15 @@ export default function NFTDetailsPage() {
             return;
           }
           
-          // Форматируем URL изображения
+          // Format image URL
           let imageUrl = metadata.image;
           if (imageUrl && (imageUrl.startsWith('ipfs://') || (typeof imageUrl === 'string' && !imageUrl.startsWith('http')))) {
-            // Предполагаем, что это IPFS хэш
+            // Assume it's an IPFS hash
             const ipfsHash = imageUrl.replace('ipfs://', '');
             imageUrl = getPinataUrl(ipfsHash);
           }
           
-          // Получаем информацию о художнике
+          // Get artist information
           let artistAddress;
           try {
             artistAddress = await contract.tokenArtists(tokenId);
@@ -390,7 +390,7 @@ export default function NFTDetailsPage() {
             artistAddress = "0x0000000000000000000000000000000000000000";
           }
           
-          // Форматируем объект с данными NFT
+          // Format object with NFT data
           const artistName = getArtistFromAttributes(metadata.attributes) || metadata.artist || "DeWild Artist";
           
           const nftData: NFTDetails = {
@@ -407,17 +407,17 @@ export default function NFTDetailsPage() {
           console.log("📊 Setting NFT details:", nftData);
           setNftDetails(nftData);
           
-          // ПРЯМОЕ ПОЛУЧЕНИЕ ДАННЫХ АУКЦИОНА ИЗ КОНТРАКТА
+          // DIRECT AUCTION DATA RETRIEVAL FROM CONTRACT
           try {
             console.log("🔍 Requesting auction data directly from contract for token:", tokenId);
             
             let auctionInfo;
             try {
-              // Получаем данные аукциона напрямую из контракта
+              // Get auction data directly from contract
               auctionInfo = await marketContract.getAuction(tokenId);
             } catch (error) {
               console.log("❌ No auction found:", error);
-              // Если аукцион не найден, проверяем, является ли пользователь владельцем
+              // If auction not found, check if user is owner
               if (address) {
                 const isNftOwner = address.toLowerCase() === owner.toLowerCase();
                 setIsOwner(isNftOwner);
@@ -432,7 +432,7 @@ export default function NFTDetailsPage() {
             const startPrice = ethers.formatEther(auctionInfo[1]);
             const currentBid = ethers.formatEther(auctionInfo[2]);
             const highestBidder = auctionInfo[3];
-            const endTime = Number(auctionInfo[4]) * 1000; // в миллисекундах
+            const endTime = Number(auctionInfo[4]) * 1000; // in milliseconds
             const isActive = auctionInfo[5];
             
             console.log("📊 Direct auction data from contract:", {
@@ -445,7 +445,7 @@ export default function NFTDetailsPage() {
               currentTime: Date.now()
             });
             
-            // Получаем оставшееся время из контракта
+            // Get remaining time from contract
             let remainingTime;
             let isTimeExpired = false;
             
@@ -460,13 +460,13 @@ export default function NFTDetailsPage() {
               isTimeExpired = true;
             }
             
-            // Определяем состояние timeLeft
+            // Determine timeLeft state
             const now = Date.now();
             const timeLeft = endTime > now ? 
               `${Math.floor((endTime - now) / (1000 * 60 * 60))}h ${Math.floor(((endTime - now) % (1000 * 60 * 60)) / (1000 * 60))}m ${Math.floor(((endTime - now) % (1000 * 60)) / 1000)}s` : 
               'Auction ended';
             
-            // Формируем объект с данными аукциона
+            // Form object with auction data
             const auctionDetails = {
               isActive,
               startPrice,
@@ -482,22 +482,22 @@ export default function NFTDetailsPage() {
             setTimeLeft(timeLeft);
             setIsAuctionTimeExpired(isTimeExpired);
             
-            // Если есть адрес пользователя, проверяем его роль
+            // If there's a user address, check their role
             if (address) {
-              // Проверяем, является ли текущий пользователь создателем аукциона
+              // Check if current user is auction creator
               const isCreator = artist.toLowerCase() === address.toLowerCase();
               console.log("👤 Is user the auction creator?", isCreator);
               setIsAuctionCreator(isCreator);
               
-              // Проверяем, является ли пользователь владельцем NFT
+              // Check if user is NFT owner
               const isNftOwner = address.toLowerCase() === owner.toLowerCase();
               console.log("👤 Is user the NFT owner?", isNftOwner);
               setIsOwner(isNftOwner);
             }
             
-            // Если NFT был продан, получаем информацию о результате аукциона
+            // If NFT was sold, get information about auction result
             if (nftHasBeenSold || (!isActive && highestBidder !== "0x0000000000000000000000000000000000000000")) {
-              // Формируем данные о результате аукциона
+              // Form data about auction result
               const auctionResultData = {
                 finalPrice: currentBid,
                 winner: highestBidder !== "0x0000000000000000000000000000000000000000" ? highestBidder : owner,
@@ -511,7 +511,7 @@ export default function NFTDetailsPage() {
           } catch (contractError) {
             console.error("❌ Error interacting with market contract:", contractError);
             
-            // Даже при ошибке определяем, является ли пользователь владельцем NFT
+            // Even with error, determine if user is NFT owner
             if (address) {
               const isNftOwner = address.toLowerCase() === owner.toLowerCase();
               console.log("👤 Is user the NFT owner?", isNftOwner);
@@ -520,7 +520,7 @@ export default function NFTDetailsPage() {
           }
         } catch (error) {
           console.error("❌ Error checking token existence:", error);
-          // Токен не существует или другая ошибка
+          // Token doesn't exist or other error
         }
         
         setIsLoading(false);
@@ -535,7 +535,7 @@ export default function NFTDetailsPage() {
     }
   }, [tokenId, address]);
 
-  // Обновление времени до конца аукциона
+  // Update time until end of auction
   useEffect(() => {
     if (!auctionDetails?.isActive) return;
     
@@ -548,11 +548,11 @@ export default function NFTDetailsPage() {
         console.log("⏱️ Auction time ended in timer");
         setTimeLeft('Auction ended');
         
-        // УДАЛЯЕМ автоматическое завершение аукциона
-        // Просто обновляем UI для показа кнопки завершения
+        // REMOVE automatic auction completion
+        // Just update UI to show completion button
         setIsAuctionTimeExpired(true);
         
-        // Останавливаем таймер
+        // Stop timer
         clearInterval(interval);
         return;
       }
@@ -567,23 +567,23 @@ export default function NFTDetailsPage() {
     return () => clearInterval(interval);
   }, [auctionDetails, tokenId]);
 
-  // Эффект для автоматического создания аукциона после подтверждения одобрения
+  // Effect for automatic auction creation after approval confirmation
   useEffect(() => {
-    // Если одобрение подтверждено, автоматически создаем аукцион
+    // If approval confirmed, automatically create auction
     if (isApprovalConfirmed && nftDetails && !isCreatingAuctionAfterApproval) {
       const runCreateAuction = async () => {
         try {
-          setIsCreatingAuctionAfterApproval(true); // Устанавливаем флаг, что уже начали процесс
+          setIsCreatingAuctionAfterApproval(true); // Set flag that process has already started
           
-          // Добавляем задержку перед созданием аукциона
+          // Add delay before creating auction
           console.log('✅ Approval confirmed, waiting 3 seconds before creating auction...');
-          await new Promise(resolve => setTimeout(resolve, 3000)); // 3 секунды задержки
+          await new Promise(resolve => setTimeout(resolve, 3000)); // 3 seconds delay
           
           console.log('🔄 Now creating auction after delay');
           await createAuctionAfterApproval(nftDetails.tokenId);
         } catch (error) {
           console.error('❌ Failed to create auction after approval:', error);
-          setIsCreatingAuctionAfterApproval(false); // Сбрасываем флаг в случае ошибки
+          setIsCreatingAuctionAfterApproval(false); // Reset flag in case of error
         }
       };
       
@@ -591,13 +591,13 @@ export default function NFTDetailsPage() {
     }
   }, [isApprovalConfirmed, nftDetails, createAuctionAfterApproval, isCreatingAuctionAfterApproval]);
 
-  // Эффект для обновления страницы после подтверждения транзакции
+  // Effect to update page after transaction confirmation
   useEffect(() => {
     if (isConfirmed) {
-      // Обновляем всю страницу через 1 секунды после подтверждения транзакции
+      // Update whole page 1 second after transaction confirmation
       console.log("✅ Transaction confirmed, reloading page in 1 second");
       const timer = setTimeout(() => {
-        // Используем полную перезагрузку страницы вместо router.refresh()
+        // Use complete page reload instead of router.refresh()
         window.location.reload();
       }, 1000);
       
@@ -606,14 +606,14 @@ export default function NFTDetailsPage() {
   }, [isConfirmed]);
 
   useEffect(() => {
-    // Проверяем только если есть и аукцион, и адрес пользователя
+    // Check only if there's both an auction and user address
     if (auctionDetails?.artist && address) {
       console.log("👤 Checking auction creator status:", {
         artistAddress: auctionDetails.artist.toLowerCase(),
         userAddress: address.toLowerCase(),
       });
       
-      // Явно конвертируем адреса в нижний регистр и сравниваем
+      // Explicitly convert addresses to lowercase and compare
       const isCreator = auctionDetails.artist.toLowerCase() === address.toLowerCase();
       
       console.log("👤 Is user the auction creator?", isCreator);
@@ -621,7 +621,7 @@ export default function NFTDetailsPage() {
     }
   }, [auctionDetails, address]);
 
-  // Определяем, является ли пользователь лидирующим участником аукциона
+  // Determine if user is leading auction participant
   const isHighestBidder: boolean | undefined = address && auctionDetails?.highestBidder ? 
     address.toLowerCase() === auctionDetails.highestBidder.toLowerCase() : 
     false;
@@ -658,7 +658,7 @@ export default function NFTDetailsPage() {
     );
   }
 
-  // Для отладки: вывод состояния перед отрисовкой
+  // For debugging: output state before rendering
   console.log("🔄 Render state:", {
     hasBeenSold,
     isActive: auctionDetails?.isActive,
@@ -686,7 +686,7 @@ export default function NFTDetailsPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 w-full">
-          {/* Левая колонка - изображение NFT */}
+          {/* Left column - NFT image */}
           <div className="overflow-hidden">
             <img 
               src={nftDetails.image} 
@@ -695,7 +695,7 @@ export default function NFTDetailsPage() {
             />
           </div>
 
-          {/* Правая колонка - информация об NFT и аукционе */}
+          {/* Right column - NFT and auction information */}
           <div>
             <h1 className="text-6xl font-extrabold uppercase">
               {nftDetails.name}
@@ -717,7 +717,7 @@ export default function NFTDetailsPage() {
               </div>
             )}
             
-            {/* Блок аукциона - используем компоненты */}
+            {/* Auction block - using components */}
             {hasBeenSold || (!auctionDetails?.isActive && auctionDetails?.highestBidder && auctionDetails.highestBidder !== "0x0000000000000000000000000000000000000000") ? (
               <AuctionCompletedBlock 
                 nftDetails={nftDetails}
@@ -770,7 +770,7 @@ export default function NFTDetailsPage() {
               />
             )}
             
-            {/* Ссылка на просмотр контракта */}
+            {/* Link to view contract */}
             <div className="mt-4">
               <h3 className="text-2xl font-extrabold uppercase mb-2">TOKEN INFO:</h3>
               <div className="bg-gray-100 p-6 rounded-lg">
@@ -802,7 +802,7 @@ export default function NFTDetailsPage() {
               </div>
             </div>
 
-            {/* Атрибуты NFT */}
+            {/* NFT attributes */}
             <div className="mt-4">
               <h2 className="text-2xl font-extrabold uppercase mb-2">
                 ATTRIBUTES

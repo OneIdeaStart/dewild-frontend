@@ -6,10 +6,10 @@ export const runtime = 'nodejs';
 
 export async function POST() {
   try {
-    // Запуск распределения роялти
+    // Start royalty distribution
     const result = await manualDistribution();
     
-    // Возвращаем результат
+    // Return result
     return NextResponse.json(result);
   } catch (error: any) {
     console.error('Error distributing royalties:', error);
@@ -22,7 +22,7 @@ export async function POST() {
 
 export async function GET() {
   try {
-    // Получаем последние 50 логов
+    // Get last 50 logs
     const logs = await getRecentLogs(50);
     
     return NextResponse.json({ logs });

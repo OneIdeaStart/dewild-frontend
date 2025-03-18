@@ -8,21 +8,21 @@ export async function GET(request: Request) {
     const discord = searchParams.get('discord');
     const twitter = searchParams.get('twitter');
 
-    // Получаем статистику
+    // Get statistics
     const stats = await DB.getStats();
 
     if (!address && !discord && !twitter) {
       return Response.json({ stats });
     }
 
-    // Получаем данные для проверок
+    // Get data for checks
     const application = address 
       ? await DB.getApplicationByWallet(address)
       : twitter 
         ? await DB.getApplicationByTwitter(twitter)
         : null;
 
-    // Гарантируем, что status всегда будет одним из допустимых значений
+    // Ensure that status will always be one of the valid values
     const status = application?.status || 'pending';
     
     const checks = {

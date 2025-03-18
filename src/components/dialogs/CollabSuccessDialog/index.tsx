@@ -8,7 +8,7 @@ import { useAppKitAccount } from '@reown/appkit/react'
 interface WhitelistSuccessDialogProps {
   isOpen: boolean
   onClose: () => void
-  applicationId?: string // Добавлено поле для ID заявки
+  applicationId?: string // Added field for application ID
 }
 
 export default function WhitelistSuccessDialog({ isOpen, onClose, applicationId }: WhitelistSuccessDialogProps) {
@@ -17,13 +17,13 @@ export default function WhitelistSuccessDialog({ isOpen, onClose, applicationId 
     const [loading, setLoading] = useState(false)
     const [discordChannelId, setDiscordChannelId] = useState<string | null>(null)
     
-    // Получаем данные о канале при открытии диалога
+    // Get channel data when dialog opens
     useEffect(() => {
       if (!isOpen) return
       
       setLoading(true)
       
-      // Формируем URL в зависимости от доступных данных
+      // Form URL depending on available data
       let fetchUrl = '/api/collab/application?'
       if (applicationId) {
         fetchUrl += `id=${applicationId}`
@@ -34,7 +34,7 @@ export default function WhitelistSuccessDialog({ isOpen, onClose, applicationId 
         return
       }
       
-      // Запрашиваем данные заявки
+      // Request application data
       fetch(fetchUrl)
         .then(response => {
           if (!response.ok) {
@@ -56,12 +56,12 @@ export default function WhitelistSuccessDialog({ isOpen, onClose, applicationId 
     }, [isOpen, applicationId, address])
   
     const handleDiscordClick = () => {
-      onClose() // Закрываем диалог
+      onClose() // Close dialog
       
-      // Формируем URL для Discord канала
-      const serverId = '1318073258251255878' // ID вашего сервера
+      // Form URL for Discord channel
+      const serverId = '1318073258251255878' // ID of your server
       
-      // Используем ID канала из заявки или запасной URL
+      // Use channel ID from application or fallback URL
       const discordUrl = discordChannelId 
         ? `https://discord.com/channels/${serverId}/${discordChannelId}`
         : 'https://discord.gg/ttte5Zqn9X'

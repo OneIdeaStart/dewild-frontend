@@ -8,7 +8,7 @@ import { DiscordDB } from './discord';
 
 const COLLAB_LIMIT = 11111;
 
-// Используем тот же интерфейс, что и в CollabApplication
+// Use same interface as in CollabApplication
 type ApplicationRecord = {
   [key: string]: unknown;
 } & CollabApplication;
@@ -19,7 +19,7 @@ export class DB {
     PENDING: 'applications:pending',         
     APPROVED: 'applications:approved',       
     REJECTED: 'applications:rejected',
-    // Добавляем новые ключи для статусов
+    // Add new keys for statuses
     PROMPT_RECEIVED: 'applications:prompt_received',
     PROMPT_EXPIRED: 'applications:prompt_expired',
     NFT_PENDING: 'applications:nft_pending',
@@ -35,7 +35,7 @@ export class DB {
     const record = await kv.hgetall<ApplicationRecord>(`application:${id}`);
     if (!record) return null;
     
-    // Преобразуем запись из Redis в CollabApplication
+    // Convert record from Redis to CollabApplication
     const application: CollabApplication = {
       id: record.id,
       wallet: record.wallet,
@@ -53,12 +53,12 @@ export class DB {
       metadata: record.metadata
     };
   
-    // Теперь проверяем, нужно ли парсить metadata, если она строка
+    // Now check if metadata needs parsing, if it's a string
     if (application.metadata && typeof application.metadata === 'string') {
       try {
         application.metadata = JSON.parse(application.metadata as string);
       } catch (e) {
-        // Ошибка при парсинге, но продолжаем выполнение
+        // Error during parsing, but continue execution
       }
     }
   
@@ -66,19 +66,19 @@ export class DB {
   }
 
   static async getAllApplications(status?: string, search?: string): Promise<CollabApplication[]> {
-    // Если указан статус, берем из соответствующего сета
+    // If status specified, take from corresponding set
     const setKey = status ? `applications:${status}` : this.KEYS.ALL_APPLICATIONS;
     const applicationIds = await kv.smembers(setKey);
     
-    // Получаем данные каждой заявки
+    // Get data of each application
     const applications = await Promise.all(
       applicationIds.map(id => this.getApplicationById(id))
     );
   
-    // Фильтруем null значения
+    // Filter null values
     const filteredApps = applications.filter((app): app is CollabApplication => app !== null);
   
-    // Применяем поиск если указан
+    // Apply search if specified
     if (search) {
       const searchLower = search.toLowerCase();
       return filteredApps.filter(app => 
@@ -88,7 +88,7 @@ export class DB {
       );
     }
   
-    // Сортируем по дате создания (новые первыми)
+    // Sort by creation date (newest first)
     return filteredApps.sort((a, b) => 
       new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
@@ -111,7 +111,7 @@ export class DB {
     twitter: string, 
     discord: string
   ): Promise<CollabApplication> {
-    // Проверяем существующие заявки
+    // Check existing applications
     const existingByWallet = await this.getApplicationByWallet(wallet);
     if (existingByWallet) {
       throw new Error('Wallet already has application');
@@ -139,14 +139,14 @@ export class DB {
     await kv.hset(this.KEYS.BY_WALLET, { [wallet.toLowerCase()]: id });
     await kv.hset(this.KEYS.BY_TWITTER, { [twitter.toLowerCase()]: id });
   
-    // Создаем канал для новой заявки и отправляем уведомление
+    // Create channel for new application and send notification
     const appObj = application as CollabApplication;
     try {
-      // Импортируем discordService динамически, чтобы избежать циклических зависимостей
+      // Import discordService dynamically to avoid circular dependencies
       const { discordService } = await import('@/lib/discord');
       const channelId = await discordService.createApplicationChannel(appObj);
       if (channelId) {
-        // Сохраняем ID канала в заявке
+        // Save channel ID in application
         await kv.hset(`application:${id}`, { discordChannelId: channelId });
         appObj.discordChannelId = channelId;
       }
@@ -164,86 +164,86 @@ export class DB {
         throw new Error('Application not found');
       }
       
-      // Сохраняем ID канала Discord для последующего удаления
+      // Save Discord channel ID for subsequent deletion
       const discordChannelId = app.discordChannelId;
       if (discordChannelId) {
         console.log(`Application ${id} has Discord channel ${discordChannelId} that will be deleted`);
       }
       
-      // Проверяем, есть ли привязанный промпт
+      // Check if there's a linked prompt
       if (app.promptId) {
-        // Получаем текущий статус промпта
+        // Get current prompt status
         const promptStatus = (await this.getPrompt(app.promptId))?.status;
         
-        // Если промпт в статусе assigned, возвращаем его в available
+        // If prompt is in assigned status, return it to available
         if (promptStatus === 'assigned') {
           await this.setPromptStatus(app.promptId, 'available');
         }
       }
       
-      // Удаляем изображение из Blob Storage, если оно существует
+      // Delete image from Blob Storage if it exists
       if (app.imageUrl) {
         try {
           if (app.imageUrl.includes('vercel-storage.com')) {
-            // Пробуем получить имя файла из URL
+            // Try to get file name from URL
             const imagePathMatch = app.imageUrl.match(/\/([^\/]+\.[^\/]+)$/);
             if (imagePathMatch && imagePathMatch[1]) {
               const fileName = imagePathMatch[1];
               
-              // Проверяем, есть ли blob-url в разных форматах
+              // Check if blob-url is in different formats
               if (app.imageUrl.includes('/nft-images/')) {
-                // Формат /nft-images/{id}.png
+                // Format /nft-images/{id}.png
                 await del('nft-images/' + fileName);
               } else {
-                // Старый формат или другой формат URL
+                // Old format or other URL format
                 await del(fileName);
               }
             }
           }
         } catch (blobError) {
-          // Игнорируем ошибку удаления изображения
+          // Ignore image deletion error
           console.error('Error deleting image blob:', blobError);
         }
       }
       
-      // Удаляем миниатюры или другие связанные изображения, если они есть
+      // Delete thumbnails or other related images if they exist
       try {
-        // Проверяем наличие миниатюр или других форматов
+        // Check for thumbnails or other formats
         if (app.imageUrl) {
-          const baseName = app.imageUrl.replace(/\.[^.]+$/, ''); // Удаляем расширение
+          const baseName = app.imageUrl.replace(/\.[^.]+$/, ''); // Remove extension
           
-          // Попытка удалить thumbnail версию
+          // Try to delete thumbnail version
           try {
             await del(baseName + '_thumb.jpg');
           } catch (e) {
-            // Игнорируем ошибку, если миниатюры нет
+            // Ignore error if thumbnail doesn't exist
           }
           
-          // Попытка удалить preview версию
+          // Try to delete preview version
           try {
             await del(baseName + '_preview.jpg');
           } catch (e) {
-            // Игнорируем ошибку, если preview нет
+            // Ignore error if preview doesn't exist
           }
         }
       } catch (additionalBlobError) {
-        // Игнорируем ошибки при удалении дополнительных изображений
+        // Ignore errors when deleting additional images
         console.error('Error deleting additional image files:', additionalBlobError);
       }
       
-      // Удаляем из всех сетов
+      // Delete from all sets
       await kv.srem(this.KEYS.ALL_APPLICATIONS, id);
       await kv.srem(`applications:${app.status}`, id);
       await kv.hdel(this.KEYS.BY_WALLET, app.wallet.toLowerCase());
       await kv.hdel(this.KEYS.BY_TWITTER, app.twitter.toLowerCase());
       
-      // Удаляем саму заявку
+      // Delete application itself
       await kv.del(`application:${id}`);
       
-      // Удаляем канал Discord, если он существует
+      // Delete Discord channel if it exists
       if (discordChannelId) {
         try {
-          // Импортируем discordService динамически
+          // Import discordService dynamically
           const { discordService } = await import('@/lib/discord');
           console.log(`Attempting to delete Discord channel ${discordChannelId} for application ${id}`);
           const deleted = await discordService.deleteChannel(discordChannelId);
@@ -313,22 +313,22 @@ export class DB {
     const app = await this.getApplicationById(id);
     if (!app) throw new Error('Application not found');
   
-    // Сохраняем предыдущий статус для логирования
+    // Save previous status for logging
     const previousStatus = app.status;
   
-    // Обновляем статус в сетах Redis
+    // Update status in Redis sets
     await kv.srem(`applications:${app.status}`, id);
     await kv.sadd(`applications:${status}`, id);
     
-    // Обновляем статус заявки в Redis
+    // Update application status in Redis
     await kv.hset(`application:${id}`, { status });
     
     console.log(`Updated application ${id} status from ${previousStatus} to ${status}`);
   
-    // Даем Redis небольшое время на обновление данных
+    // Give Redis a little time to update data
     await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Получаем полностью обновленную заявку
+    // Get fully updated application
     const updatedApp = await this.getApplicationById(id);
     
     if (updatedApp) {
@@ -339,11 +339,11 @@ export class DB {
         discordChannelId: updatedApp.discordChannelId
       })}`);
       
-      // Импортируем DiscordDB и обновляем канал
+      // Import DiscordDB and update channel
       try {
         const { DiscordDB } = await import('../db/discord');
         
-        // Обновляем статус в Discord канале
+        // Update status in Discord channel
         if (updatedApp.discordChannelId) {
           await DiscordDB.updateDiscordChannelStatus(updatedApp)
             .then(success => {
@@ -354,7 +354,7 @@ export class DB {
             });
         }
         
-        // Обновляем роль пользователя при необходимости
+        // Update user role if necessary
         if (status === 'approved' || status === 'minted') {
           await DiscordDB.updateDiscordUserRole(updatedApp)
             .catch(error => {
@@ -401,7 +401,7 @@ export class DB {
       rejected: await kv.scard(this.KEYS.REJECTED),
       remaining: COLLAB_LIMIT - total,
       isFull: total >= COLLAB_LIMIT,
-      // Добавляем дополнительную статистику, если нужно
+      // Add additional statistics if needed
       extras: {
         prompt_received,
         prompt_expired,
@@ -421,13 +421,13 @@ export class DB {
     const app = await this.getApplicationById(id);
     if (!app) throw new Error('Application not found');
   
-    // Обновляем данные заявки с промптом
+    // Update application data with prompt
     await kv.hset(`application:${id}`, {
       promptId,
       promptAssignedAt: new Date().toISOString()
     });
     
-    // Обновляем статус на prompt_received
+    // Update status to prompt_received
     await this.updateStatus(id, 'prompt_received');
   }
 
@@ -468,14 +468,14 @@ export class DB {
   ): Promise<void> {
     const oldStatus = (await this.getPrompt(promptId))?.status;
     if (oldStatus) {
-      // Удаляем из старого сета
+      // Remove from old set
       await kv.srem(`prompts:${oldStatus}`, promptId);
     }
 
-    // Добавляем в новый сет
+    // Add to new set
     await kv.sadd(`prompts:${status}`, promptId);
 
-    // Обновляем данные промпта
+    // Update prompt data
     const updateData: Partial<PromptData> = {
       status,
       ...(status === 'assigned' && {
@@ -543,7 +543,7 @@ export class DB {
     const app = await this.getApplicationById(id);
     if (!app) throw new Error('Application not found');
   
-    // Удаляем URL изображения и временную метку
+    // Remove image URL and timestamp
     await kv.hset(`application:${id}`, {
       imageUrl: null,
       imageUploadedAt: null

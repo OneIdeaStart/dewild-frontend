@@ -16,7 +16,7 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
   const [collabStats, setCollabStats] = useState<CollabStats | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
   const [isDiscordVerifying, setIsDiscordVerifying] = useState(false)
-  // Добавляем новое состояние для отслеживания процесса отправки заявки
+  // Add new state to track application submission process
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const { 
@@ -71,7 +71,7 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
       return
     }
 
-    // Устанавливаем состояние отправки в true
+    // Set submission state to true
     setIsSubmitting(true)
 
     try {
@@ -93,14 +93,14 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
 
       if (!response.ok) {
         setCollabError(data.error)
-        // Сбрасываем состояние отправки при ошибке
+        // Reset submission state on error
         setIsSubmitting(false)
         return
       }
 
       if (data.success) {
         fetchCollabStats()
-        onClose(true, data.application?.id) // Передаем ID заявки
+        onClose(true, data.application?.id) // Pass application ID
       }
 
       onClose(true)
@@ -110,7 +110,7 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
         type: 'server',
         message: 'Failed to submit collab application'
       })
-      // Сбрасываем состояние отправки при ошибке
+      // Reset submission state on error
       setIsSubmitting(false)
     }
   }
@@ -243,7 +243,7 @@ export default function CollabDialog({ onClose }: CollabDialogProps) {
                 value={tweetUrl}
                 onChange={(e) => handleTweetUrlInput(e.target.value)}
                 placeholder="Paste your tweet URL here"
-                className="outline-none w-[calc(100%-68px)]" // вычитаем ширину кнопки и отступ
+                className="outline-none w-[calc(100%-68px)]" // subtract button width and padding
                 id="tweet-url"
                 name="tweet-url"
               />

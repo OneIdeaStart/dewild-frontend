@@ -5,21 +5,21 @@ import { CollabApplication } from '@/types/collab';
 import { DB } from '@/lib/db';
 
 /**
- * Расширение DB класса для работы с Discord
+ * Extension of DB class for working with Discord
  */
 export class DiscordDB {
   /**
-   * Создание Discord канала для заявки
+   * Creating Discord channel for application
    */
   static async createDiscordChannel(application: CollabApplication): Promise<string | null> {
     try {
-      // Строгая проверка наличия канала
+      // Strict check for channel existence
       if (application.discordChannelId) {
         console.log(`Application ${application.id} already has Discord channel ${application.discordChannelId}`);
         return application.discordChannelId;
       }
 
-      // Проверяем, не создается ли канал в данный момент
+      // Check if channel is currently being created
       const lockKey = `discord:channel:lock:${application.id}`;
       const isLocked = await kv.get(lockKey);
       if (isLocked) {
@@ -27,22 +27,22 @@ export class DiscordDB {
         return null;
       }
 
-      // Устанавливаем блокировку на 1 минуту
+      // Set lock for 1 minute
       await kv.set(lockKey, true, { ex: 60 });
 
       try {
-        // Создаем новый канал через Discord API
+        // Create new channel through Discord API
         const channelId = await discordService.createApplicationChannel(application);
         
         if (channelId) {
-          // Сохраняем ID канала прямо в заявке
+          // Save channel ID directly in application
           await DB.updateApplication(application.id, { discordChannelId: channelId });
           console.log(`Created Discord channel ${channelId} for application ${application.id}`);
         }
         
         return channelId;
       } finally {
-        // Удаляем блокировку в любом случае
+        // Remove lock in any case
         await kv.del(lockKey);
       }
     } catch (error) {
@@ -52,13 +52,13 @@ export class DiscordDB {
   }
 
   /**
-   * Обновление статуса заявки в Discord канале
+   * Updating application status in Discord channel
    */
   static async updateDiscordChannelStatus(application: CollabApplication): Promise<boolean> {
     try {
       console.log(`Attempting to update Discord channel for application ${application.id} with status ${application.status}`);
       
-      // Используем ID канала из заявки
+      // Use channel ID from application
       const channelId = application.discordChannelId;
       if (!channelId) {
         console.log(`Application ${application.id} has no Discord channel, skipping status update`);
@@ -67,7 +67,7 @@ export class DiscordDB {
   
       console.log(`Updating Discord channel ${channelId} for application ${application.id}`);
       
-      // Обновляем сообщение в существующем канале
+      // Update message in existing channel
       const result = await discordService.updateApplicationStatusMessage(channelId, application);
       console.log(`Discord update result for ${application.id}: ${result}`);
       return result;
@@ -78,7 +78,7 @@ export class DiscordDB {
   }
 
   /**
-   * Обновление роли пользователя при изменении статуса заявки
+   * Updating user role when application status changes
    */
   static async updateDiscordUserRole(application: CollabApplication): Promise<boolean> {
     try {
@@ -90,7 +90,7 @@ export class DiscordDB {
   }
 
   /**
-   * Получение Discord канала по ID заявки
+   * Getting Discord channel by application ID
    */
   static async getApplicationChannel(applicationId: string): Promise<string | null> {
     const application = await DB.getApplicationById(applicationId);
@@ -98,11 +98,11 @@ export class DiscordDB {
   }
 
   /**
-   * Удаление Discord канала для заявки
+   * Deleting Discord channel for application
    */
   static async deleteApplicationChannelMapping(applicationId: string, channelId: string): Promise<void> {
     try {
-      // Обновляем заявку, удаляя ID канала
+      // Update application, removing channel ID
       await DB.updateApplication(applicationId, { discordChannelId: undefined });
       console.log(`Discord channel reference removed for application ${applicationId}`);
     } catch (error) {

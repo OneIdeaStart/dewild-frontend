@@ -12,8 +12,8 @@ export default function UploadSuccessDialog({ isOpen, onClose }: UploadSuccessDi
   const router = useRouter()
   
   const handlePromptButtonClick = () => {
-    onClose() // Закрываем диалог
-    // Опционально: можно редиректить куда-то после закрытия
+    onClose() // Close dialog
+    // Optional: can redirect somewhere after closing
     // router.push('/#steps')
   }
   

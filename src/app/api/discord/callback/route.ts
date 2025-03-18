@@ -8,12 +8,12 @@ export async function GET(request: Request) {
       throw new Error('No code provided');
     }
 
-    // Объявляем переменные
+    // Declare variables
     let tokenData;
     let userData;
     let isMember;
 
-    // Получаем токен
+    // Get token
     const tokenResponse = await fetch('https://discord.com/api/oauth2/token', {
       method: 'POST',
       headers: {
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 
     tokenData = await tokenResponse.json();
 
-    // Получаем данные пользователя
+    // Get user data
     const userResponse = await fetch('https://discord.com/api/v10/users/@me', {
       headers: {
         Authorization: `Bearer ${tokenData.access_token}`,
@@ -47,7 +47,7 @@ export async function GET(request: Request) {
 
     userData = await userResponse.json();
 
-    // Проверяем членство в сервере
+    // Check server membership
     const memberCheck = await fetch(
       `https://discord.com/api/v10/users/@me/guilds/${process.env.DISCORD_SERVER_ID}/member`,
       {
@@ -59,14 +59,14 @@ export async function GET(request: Request) {
 
     isMember = memberCheck.ok;
 
-    // Возвращаем HTML с обработкой как для десктопа, так и для мобильных
+    // Return HTML with processing for both desktop and mobile
     return new Response(
       `
       <html>
         <body>
           <script>
             if (window.opener) {
-              // Для десктопа: отправляем сообщение и закрываем окно
+              // For desktop: send message and close window
               window.opener.postMessage(
                 { 
                   type: 'discord-auth', 
@@ -77,7 +77,7 @@ export async function GET(request: Request) {
               );
               setTimeout(() => window.close(), 2000);
             } else {
-                // Для мобильных: сохраняем данные в localStorage и редиректим
+                // For mobile: save data in localStorage and redirect
                 localStorage.setItem('discord_auth', JSON.stringify({
                   success: ${isMember},
                   username: "${userData.username}"
@@ -102,14 +102,14 @@ export async function GET(request: Request) {
         <body>
           <script>
             if (window.opener) {
-              // Для десктопа
+              // For desktop
               window.opener.postMessage(
                 { type: 'discord-auth', success: false },
                 '${process.env.NEXT_PUBLIC_APP_URL}'
               );
               setTimeout(() => window.close(), 2000);
             } else {
-              // Для мобильных
+              // For mobile
               localStorage.setItem('discord_auth', JSON.stringify({
                 success: false
               }));

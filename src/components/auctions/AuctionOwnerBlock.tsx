@@ -35,8 +35,8 @@ interface AuctionOwnerBlockProps {
   isAuctionTimeExpired?: boolean;
   isEndingAuction: boolean;
   setIsEndingAuction: (value: boolean) => void;
-  refreshAuctionData: () => Promise<void>; // Добавляем функцию обновления
-  isRefreshing: boolean; // Добавляем состояние загрузки
+  refreshAuctionData: () => Promise<void>; // Add update function
+  isRefreshing: boolean; // Add loading state
 }
 
 export default function AuctionOwnerBlock({
@@ -60,10 +60,10 @@ export default function AuctionOwnerBlock({
 }: AuctionOwnerBlockProps) {
   const { address } = useAppKitAccount();
   
-  // State для отладки (можно удалить позже)
+  // State for debugging (can be removed later)
   const [debug, setDebug] = useState(false);
 
-  // Обработчик создания аукциона
+  // Handle auction creation
   const handleCreateAuction = async () => {
     if (!address || !nftDetails) return;
     try {
@@ -73,7 +73,7 @@ export default function AuctionOwnerBlock({
     }
   };
 
-  // Обработчик отмены аукциона
+  // Handle auction cancellation
   const handleCancelAuction = async () => {
     if (!address || !nftDetails || !auctionDetails) return;
     try {
@@ -83,7 +83,7 @@ export default function AuctionOwnerBlock({
     }
   };
   
-  // Обработчик завершения аукциона
+  // Handle auction completion
   const handleEndAuction = async () => {
     if (!address || !nftDetails) return;
     try {
@@ -95,11 +95,11 @@ export default function AuctionOwnerBlock({
     }
   };
 
-  // Определяем, можно ли отменить аукцион (нет ставок)
+  // Determine if auction can be cancelled (no bids)
   const canCancel = auctionDetails?.highestBidder === "0x0000000000000000000000000000000000000000" || 
                    parseFloat(auctionDetails?.currentBid || "0") === 0;
 
-  // Если аукцион активен, показываем панель управления аукционом
+  // If auction is active, show auction management panel
     if (auctionDetails?.isActive) {
         return (
         <div className="mb-4 p-6 bg-black rounded-xl text-white">
@@ -108,7 +108,7 @@ export default function AuctionOwnerBlock({
                 YOUR ACTIVE AUCTION
             </h2>
             
-            {/* Кнопка обновления данных */}
+            {/* Data update button */}
             <Button 
                 onClick={refreshAuctionData} 
                 variant="default"
@@ -155,24 +155,24 @@ export default function AuctionOwnerBlock({
             </div>
             </div>
             
-            {/* Показываем кнопку отмены только если нет ставок */}
+            {/* Show cancel button only if there are no bids */}
             {canCancel ? (
             <>
-                {/* Отображаем ошибку, если она есть */}
+                {/* Display error if exists */}
                 {txStatus === 'error' && txError && (
                 <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                     <p className="font-bold">Error: {txError}</p>
                 </div>
                 )}
                 
-                {/* Отображаем информацию о подтверждении, если транзакция отправлена */}
+                {/* Display confirmation information if transaction is sent */}
                 {txStatus === 'loading' && isConfirming && (
                 <div className="mb-4 p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded">
                     <p className="font-bold">Confirming transaction...</p>
                 </div>
                 )}
                 
-                {/* Отображаем сообщение об успехе, если транзакция подтверждена */}
+                {/* Display success message if transaction is confirmed */}
                 {txStatus === 'success' && isConfirmed && (
                 <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
                     <p className="font-bold">Auction cancelled successfully!</p>
@@ -197,9 +197,9 @@ export default function AuctionOwnerBlock({
                 </Button>
             </>
             ) : (
-            // ИЗМЕНЕНИЕ: Убираем сообщение для аукционов с ставками, заменяем на пустую область для возможных уведомлений
+            // CHANGE: Remove message for auctions with bids, replace with empty area for possible notifications
             <div>
-                {/* Здесь будут отображаться статусы транзакций */}
+                {/* Transaction statuses will be displayed here */}
                 {txStatus === 'error' && txError && (
                 <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded mt-4">
                     <p className="font-bold">Error: {txError}</p>
@@ -208,24 +208,24 @@ export default function AuctionOwnerBlock({
             </div>
             )}
             
-            {/* Кнопка завершения аукциона, если время истекло */}
+            {/* Auction end button if time has expired */}
             {(isAuctionTimeExpired || timeLeft === 'Auction ended') && (
             <div className="mt-4">
-                {/* Отображаем ошибку, если она есть */}
+                {/* Display error if exists */}
                 {txStatus === 'error' && txError && (
                 <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
                     <p className="font-bold">Error: {txError}</p>
                 </div>
                 )}
                 
-                {/* Отображаем информацию о подтверждении, если транзакция отправлена */}
+                {/* Display confirmation information if transaction is sent */}
                 {txStatus === 'loading' && isConfirming && (
                 <div className="mb-4 p-3 bg-blue-100 border border-blue-400 text-blue-700 rounded">
                     <p className="font-bold">Confirming transaction...</p>
                 </div>
                 )}
                 
-                {/* Отображаем сообщение об успехе, если транзакция подтверждена */}
+                {/* Display success message if transaction is confirmed */}
                 {txStatus === 'success' && isConfirmed && (
                 <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
                     <p className="font-bold">Auction ended successfully!</p>
@@ -260,7 +260,7 @@ export default function AuctionOwnerBlock({
         );
     }
 
-  // По умолчанию: NFT не на аукционе, показываем форму создания аукциона
+  // Default: NFT not in auction, show auction creation form
   return (
     <div className="mb-4 p-6 bg-yellow-400 rounded-xl">
     <h2 className="text-2xl font-extrabold uppercase text-black mb-2">
@@ -270,14 +270,14 @@ export default function AuctionOwnerBlock({
       LIST YOUR NFT FOR AUCTION AND LET COLLECTORS BID FOR IT. YOU'LL RECEIVE 75% OF THE FINAL SALE PRICE. All auctions start at 0.011 ETH. The minimum bid increment is 11%.
     </p>
     
-    {/* Отображаем только сообщения об ошибке или успехе */}
+    {/* Display only error or success messages */}
     {txStatus === 'error' && txError && (
       <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
         <p className="font-bold">Error: {txError}</p>
       </div>
     )}
     
-    {/* Отображаем только успех, если транзакция подтверждена */}
+    {/* Display only success if transaction is confirmed */}
     {txStatus === 'success' && isConfirmed && (
       <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded">
         <p className="font-bold">Auction created successfully!</p>

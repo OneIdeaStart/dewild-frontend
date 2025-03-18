@@ -17,7 +17,7 @@ export function StepInfoButton({ step, title, description, requirements, tips }:
   
     return (
       <>
-        {/* Обновленная ссылка Learn more */}
+        {/* Updated Learn more link */}
         <button 
           onClick={() => setDialogOpen(true)}
           className="mt-2 text-[24px] leading-[36px] font-bold uppercase text-white underline hover:no-underline transition-all font-['Sofia Sans Extra Condensed']"

@@ -2,12 +2,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkAndRunDistribution } from '@/scripts/royalty-distributor';
 
-// Предотвращает превращение функции в Edge Function
+// Prevents function from becoming an Edge Function
 export const runtime = 'nodejs';
 
 export async function GET(request: NextRequest) {
   try {
-    // Добавляем базовую защиту с помощью секретного ключа
+    // Add basic protection with secret key
     const { searchParams } = new URL(request.url);
     const key = searchParams.get('cron_key');
     
@@ -15,10 +15,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    // Запускаем проверку и распределение роялти
+    // Run royalty check and distribution
     const result = await checkAndRunDistribution();
     
-    // Логируем результат
+    // Log result
     console.log('Cron job result:', result);
     
     return NextResponse.json({

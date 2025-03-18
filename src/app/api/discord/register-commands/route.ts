@@ -3,12 +3,12 @@ import { NextResponse } from 'next/server';
 import { discordCommands } from '@/lib/discord/commands';
 
 /**
- * Эндпоинт для регистрации slash-команд Discord
- * Защищен паролем админа из переменных окружения
+ * Endpoint for registering Discord slash commands
+ * Protected by admin password from environment variables
  */
 export async function POST(request: Request) {
   try {
-    // Проверяем авторизацию
+    // Check authorization
     const authHeader = request.headers.get('authorization');
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 403 });
     }
     
-    // Запрос авторизован, регистрируем команды
+    // Request authorized, register commands
     const result = await discordCommands.registerCommands();
     
     return NextResponse.json({
@@ -39,12 +39,12 @@ export async function POST(request: Request) {
 }
 
 /**
- * Эндпоинт для удаления всех slash-команд Discord
- * Защищен паролем админа из переменных окружения
+ * Endpoint for deleting all Discord slash commands
+ * Protected by admin password from environment variables
  */
 export async function DELETE(request: Request) {
   try {
-    // Проверяем авторизацию
+    // Check authorization
     const authHeader = request.headers.get('authorization');
     
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -56,7 +56,7 @@ export async function DELETE(request: Request) {
       return NextResponse.json({ error: 'Invalid token' }, { status: 403 });
     }
     
-    // Запрос авторизован, удаляем команды
+    // Request authorized, delete commands
     await discordCommands.deleteAllCommands();
     
     return NextResponse.json({

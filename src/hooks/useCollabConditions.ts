@@ -28,7 +28,7 @@ export const useCollabConditions = (
     isTwitterFollowed: false,
     isDiscordJoined: false,
     hasSharedTweet: false,
-    hasTweetUrlInput: false,  // изменили
+    hasTweetUrlInput: false,  // changed
     discordUsername: '',
     discordId: '',
     twitterHandle: ''
@@ -44,7 +44,7 @@ export const useCollabConditions = (
 
   const [tweetUrl, setTweetUrl] = useState('');
 
-  // Проверяем результат Discord авторизации при загрузке
+  // Check Discord authorization result on load
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const discordAuth = localStorage.getItem('discord_auth');
@@ -66,7 +66,7 @@ export const useCollabConditions = (
     }
   }, []);
 
-  // Сброс при отключении кошелька
+  // Reset when wallet disconnects
   useEffect(() => {
     if (!isConnected) {
       setConditions({
@@ -145,7 +145,7 @@ export const useCollabConditions = (
   
     sessionStorage.setItem('wildRating', wildRating);
     
-    // Добавлен таймаут в 3000 мс (3 секунды), точно такой же как в handleTwitterFollow
+    // Added timeout of 3000 ms (3 seconds), exactly the same as in handleTwitterFollow
     setTimeout(() => {
       setConditions(prev => ({
         ...prev,
@@ -157,8 +157,8 @@ export const useCollabConditions = (
 
   const handleTweetUrlInput = (url: string) => {
     setTweetUrl(url);
-    // Не меняем условие сразу при вводе URL
-    // Оно изменится после проверки
+    // Don't change condition immediately when URL is entered
+    // It will change after verification
   }
 
   const handleVerifyTweet = async () => {
@@ -167,12 +167,12 @@ export const useCollabConditions = (
       return;
     }
   
-    setIsVerifying(true); // Добавляем в начале
+    setIsVerifying(true); // Add at the beginning
     try {
       const expectedWildRating = sessionStorage.getItem('wildRating');
       if (!expectedWildRating) {
         setError({ type: 'twitter', message: 'Please share the post first' });
-        setIsVerifying(false); // Добавляем при ранней ошибке
+        setIsVerifying(false); // Add on early error
         return;
       }
   
@@ -198,7 +198,7 @@ export const useCollabConditions = (
       console.error('Failed to verify tweet:', error);
       setError({ type: 'twitter', message: 'Failed to verify tweet' });
     } finally {
-      setIsVerifying(false); // Добавляем в finally
+      setIsVerifying(false); // Add in finally
     }
   }  
 
@@ -255,7 +255,7 @@ export const useCollabConditions = (
     handleTwitterFollow,
     handleShareTweet,
     handleTweetUrlInput,
-    handleVerifyTweet,    // Добавили эту функцию
+    handleVerifyTweet,    // Added this function
     handleDiscordJoin,
     handleDiscordCheck,
     areAllConditionsMet

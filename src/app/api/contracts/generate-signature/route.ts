@@ -12,20 +12,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Wallet address is required' }, { status: 400 });
     }
     
-    // Проверка валидности кошелька
+    // Check wallet validity
     if (!wallet.match(/^0x[a-fA-F0-9]{40}$/)) {
       return NextResponse.json({ error: 'Invalid wallet address format' }, { status: 400 });
     }
     
-    // Создаем подпись
+    // Create signature
     const adminWallet = new ethers.Wallet(PRIVATE_KEY);
     
-    // Хэшируем адрес артиста согласно формату контракта
+    // Hash artist address according to contract format
     const messageHash = ethers.keccak256(
       ethers.solidityPacked(['address'], [wallet])
     );
     
-    // Подписываем хэш
+    // Sign hash
     const signature = await adminWallet.signMessage(ethers.getBytes(messageHash));
     
     return NextResponse.json({ 
